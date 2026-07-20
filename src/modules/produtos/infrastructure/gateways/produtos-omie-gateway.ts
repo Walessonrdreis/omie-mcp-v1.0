@@ -1,4 +1,7 @@
 import { OmieClient } from "../../../../omieClient.js";
+import { mapWithConcurrency } from "../../../../shared/concurrency.js";
+
+const CONCORRENCIA_MAXIMA = 5;
 
 export interface ProdutoOmie {
   codigo_produto: number;
@@ -54,17 +57,26 @@ export class ProdutosOmieGateway {
   }
 
   /**
-   * Busca vários produtos por código em paralelo, deduplicando. Usado por
-   * outros módulos (ex: `producao`) que recebem uma lista de códigos de
-   * produto (sem descrição) e precisam enriquecer com o cadastro.
+   * Busca vários produtos por código, deduplicando, com concorrência
+   * limitada (ver `mapWithConcurrency` — muitas chamadas simultâneas batem
+   * no rate limit da Omie). Usado por outros módulos (ex: `ordemProducao`)
+   * que recebem uma lista de códigos de produto (sem descrição) e precisam
+   * enriquecer com o cadastro.
    */
   async consultarProdutosPorCodigo(
     codigosProduto: number[]
   ): Promise<Map<number, ProdutoOmie>> {
     const codigosUnicos = [...new Set(codigosProduto)];
-    const produtos = await Promise.all(
-      codigosUnicos.map((codigo) => this.consultarProduto(codigo))
+    const resultados = await mapWithConcurrency(codigosUnicos, CONCORRENCIA_MAXIMA, (codigo) =>
+      this.consultarProduto(codigo)
     );
-    return new Map(produtos.map((p) => [p.codigo_produto, p]));
+    const mapa = new Map<number, ProdutoOmie>();
+    for (const resultado of resultados) {
+      if (resultado.status === "rejected") {
+        throw resultado.reason;
+      }
+      mapa.set(resultado.value.codigo_produto, resultado.value);
+    }
+    return mapa;
   }
 }
