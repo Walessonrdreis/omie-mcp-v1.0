@@ -48,6 +48,13 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 |---|---|
 | Consultar Cliente | Busca o cadastro completo de um cliente (razão social, nome fantasia, CNPJ/CPF, contato, endereço). |
 
+## Financeiro
+
+| Funcionalidade | O que faz |
+|---|---|
+| Listar Contas Correntes | Lista bancos, caixas, cartões e maquininhas cadastrados, com saldo inicial. |
+| Gerar Fluxo de Caixa | Monta o **fluxo de caixa** (entradas, saídas e saldo) por dia ou por mês e por conta corrente, já separando o que **já aconteceu** (realizado) do que **ainda vai vencer** (previsto) — em formato de tabela, pronto pra virar planilha no futuro. A Omie não tem esse relatório pronto, só lançamento por lançamento; esta ferramenta busca tudo e organiza. Por padrão mostra só as **contas favoritas** (Cartão NuBank, Stone, Banco do Brasil, Wix, iFood, Sicoob, Itaú, Cartão Elo LEANDRO, Amazon, CAIXA LOJA) — dá pra pedir todas as contas ou uma lista específica. Opcionalmente (`usar_saldo_real`), aproxima do **saldo bancário real** usando o saldo configurado no cadastro da conta na Omie — quando alguém atualizar esse saldo lá, o cálculo já reflete automaticamente. |
+
 ## Compras
 
 | Funcionalidade | O que faz |

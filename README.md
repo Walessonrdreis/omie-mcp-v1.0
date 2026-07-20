@@ -117,6 +117,23 @@ src/
         mcp/
       clientes-register.ts
       index.ts
+    contasCorrentes/                # módulo em camadas (gateway reutilizável, mesmo padrão de clientes)
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      contasCorrentes-register.ts
+      index.ts
+    fluxoCaixa/                     # módulo em camadas (cruza com contasCorrentes/)
+      application/
+        use-cases/                    # agrega lançamentos em fluxo de caixa por dia/mês/conta
+        dto/
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      fluxoCaixa-register.ts
+      index.ts
 ```
 
 > Módulos em camadas podem depender do gateway de outro módulo quando o relatório
@@ -193,6 +210,48 @@ src/
 - `omie_clientes_consultar` — passthrough, cadastro de um cliente específico (razão social, nome
   fantasia, CNPJ/CPF, contato, endereço)
 
+### Contas Correntes (`src/modules/contasCorrentes/`)
+- `omie_contas_correntes_listar` — passthrough, lista contas correntes (bancos, caixas, cartões,
+  maquininhas) com código, descrição, banco, tipo e saldo inicial registrado
+
+### Fluxo de Caixa (`src/modules/fluxoCaixa/`)
+- `omie_fluxo_caixa_gerar` — **use-case**: monta o fluxo de caixa (entradas, saídas, saldo do
+  período e acumulado) num formato tabular, agrupado por dia ou mês e por conta corrente. A Omie
+  não tem esse relatório pronto — só `financas/mf` `ListarMovimentos`, lançamento por lançamento de
+  contas a pagar/receber, paginado a 100/vez — então esta ferramenta busca todos os lançamentos do
+  período, separa **realizado** (já pago/recebido, pela data de pagamento) de **previsto** (em
+  aberto, ainda não liquidado, pela data de vencimento, excluindo cancelados) e agrega tudo,
+  resolvendo o nome da conta corrente (reaproveita `ContasCorrentesOmieGateway`, do módulo
+  `contasCorrentes`). Formato pensado pra já poder ser exportado como planilha no futuro. Por
+  padrão (`apenas_favoritas: true`) restringe às **contas favoritas** definidas pelo usuário
+  (`src/modules/fluxoCaixa/application/contas-favoritas.ts`: Cartão NuBank, Stone, Banco do
+  Brasil, Wix, iFood, Sicoob, Itaú, Cartão Elo LEANDRO, Amazon, CAIXA LOJA — as ~39 demais contas
+  cadastradas na Omie, ex: cartões antigos e adquirentes específicas, ficam de fora); use
+  `apenas_favoritas: false` pra ver todas as contas, ou `codigos_conta_corrente` pra uma lista
+  customizada.
+
+> **Saldo real (opcional, `usar_saldo_real: true`)**: por padrão o saldo acumulado é só a variação
+> líquida **dentro do período consultado**, não o saldo bancário real — a Omie não expõe histórico
+> de saldo diário por conta via API. Com `usar_saldo_real: true`, a ferramenta ancora o cálculo no
+> `saldo_inicial`/`saldo_data` que estiver cadastrado em cada conta corrente (via
+> `omie_contas_correntes_listar`): soma os lançamentos realizados entre a `saldo_data` e o início
+> do período pedido, chegando num `saldoRealAcumulado` próximo do saldo bancário real — não é um
+> valor hardcoded no MCP, é lido do cadastro Omie, então quando alguém configurar o saldo real de
+> cada conta lá (ex: em 01/01), o cálculo já passa a refletir isso automaticamente, sem mexer no
+> código. Contas sem `saldo_data`/`saldo_inicial` configurados (ou com `saldo_data` posterior ao
+> início do período) recebem `saldoRealAcumulado: null` em vez de um número inventado. Buscar esse
+> offset dispara uma chamada extra (movimentos entre a `saldo_data` mais antiga entre as contas e o
+> início do período) — pode ser lento se a `saldo_data` estiver muito no passado.
+>
+> **Achado importante testando**: a Omie rejeita **duas chamadas concorrentes do mesmo método**
+> (erro "Já existe uma requisição desse método sendo executada"), mesmo com parâmetros diferentes —
+> por isso os passes de realizado/previsto (ambos usam `ListarMovimentos`) rodam em sequência, não
+> em paralelo, dentro do use-case. É uma restrição adicional ao rate limit já documentado na seção
+> abaixo, específica pra chamadas concorrentes do mesmo `call`.
+>
+> Períodos longos geram muitas páginas (ex: só os recebimentos de ~3 semanas já passaram de 3.700
+> registros) — prefira períodos de até ~3 meses por chamada.
+
 ### Compras (`src/tools/compras.ts`)
 - `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir`
 
@@ -220,10 +279,15 @@ sem precisar reimplementar nada:
   `ClientesOmieGateway.consultarClientesPorCodigo`), limita a concorrência do
   próprio código a 5 chamadas simultâneas, complementando o throttle do cliente.
 
-**Regra pra módulos novos:** nunca chamar `Promise.all`/`Promise.allSettled` num
-array de códigos sem limite de concorrência — sempre usar `mapWithConcurrency`.
-Chamadas paralelas de 2-3 endpoints diferentes (ex: buscar produtos e estoque ao
-mesmo tempo) são seguras e não precisam disso, o throttle do cliente já cobre.
+**Regra pra módulos novos:**
+1. Nunca chamar `Promise.all`/`Promise.allSettled` num array de códigos sem limite
+   de concorrência — sempre usar `mapWithConcurrency`.
+2. **Nunca rodar duas chamadas do MESMO método (`call`) em paralelo**, mesmo com
+   parâmetros diferentes — a Omie rejeita com "Já existe uma requisição desse
+   método sendo executada" (achado ao construir `fluxoCaixa`, que precisa de dois
+   passes de `ListarMovimentos`). Rode em sequência (`await` um, depois o outro).
+3. Chamadas paralelas de métodos **diferentes** (ex: buscar produtos e estoque ao
+   mesmo tempo) são seguras e não precisam de nada disso, o throttle do cliente já cobre.
 
 ## Adicionando um novo módulo
 
