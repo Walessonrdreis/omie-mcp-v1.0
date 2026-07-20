@@ -26,6 +26,9 @@ export interface PedidoVenda {
     cancelado: "S" | "N";
     faturado: "S" | "N";
   };
+  total_pedido: {
+    valor_total_pedido: number;
+  };
 }
 
 interface ListarPedidosResponse {
@@ -99,9 +102,18 @@ export class PedidoVendaOmieGateway {
 
   /** Descrição da etapa (ex: "Separar Estoque") pro código, dentro de "Venda de Produto". */
   async descreverEtapaVendaProduto(etapaCodigo: string): Promise<string | undefined> {
+    const mapa = await this.mapaEtapasVendaProduto();
+    return mapa.get(etapaCodigo);
+  }
+
+  /** Mapa código -> descrição de todas as etapas de "Venda de Produto", pra resolver em lote. */
+  async mapaEtapasVendaProduto(): Promise<Map<string, string>> {
     const operacoes = await this.listarEtapasFaturamento();
     const vendaProduto = operacoes.find((op) => op.cCodOperacao === COD_OPERACAO_VENDA_PRODUTO);
-    const etapa = vendaProduto?.etapas.find((e) => e.cCodigo === etapaCodigo);
-    return etapa?.cDescricao || etapa?.cDescrPadrao;
+    const mapa = new Map<string, string>();
+    for (const etapa of vendaProduto?.etapas ?? []) {
+      mapa.set(etapa.cCodigo, etapa.cDescricao || etapa.cDescrPadrao);
+    }
+    return mapa;
   }
 }

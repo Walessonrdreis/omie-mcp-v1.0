@@ -1,0 +1,66 @@
+import { ClientesOmieGateway } from "../../../clientes/infrastructure/gateways/clientes-omie-gateway.js";
+import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
+import {
+  ListarPedidosComClienteParam,
+  ListarPedidosComClienteResult,
+  PedidoComCliente,
+} from "../dto/listar-pedidos-com-cliente.dto.js";
+
+/**
+ * A Omie não entrega a lista de pedidos pronta pra leitura: `ListarPedidos`
+ * só devolve `codigo_cliente` (sem nome) e `etapa` como código cru. Esse
+ * use-case busca a página de pedidos e resolve nome do cliente (cruzando com
+ * `ClientesOmieGateway`, do módulo `clientes`) e descrição da etapa
+ * (catálogo fixo, via `PedidoVendaOmieGateway`), devolvendo cada pedido já
+ * pronto pra leitura, num único resultado.
+ */
+export class ListarPedidosComClienteUseCase {
+  constructor(
+    private readonly pedidoGateway: PedidoVendaOmieGateway,
+    private readonly clientesGateway: ClientesOmieGateway
+  ) {}
+
+  async execute(param: ListarPedidosComClienteParam): Promise<ListarPedidosComClienteResult> {
+    const pagina = param.pagina ?? 1;
+    const registrosPorPagina = param.registros_por_pagina ?? 20;
+
+    const [pedidosResposta, mapaEtapas] = await Promise.all([
+      this.pedidoGateway.listarPedidosPagina(pagina, registrosPorPagina, param.etapa_codigo),
+      this.pedidoGateway.mapaEtapasVendaProduto(),
+    ]);
+
+    const codigosCliente = pedidosResposta.pedido_venda_produto.map(
+      (pedido) => pedido.cabecalho.codigo_cliente
+    );
+    const clientesPorCodigo = await this.clientesGateway.consultarClientesPorCodigo(
+      codigosCliente
+    );
+
+    const itens: PedidoComCliente[] = pedidosResposta.pedido_venda_produto.map((pedido) => {
+      const cliente = clientesPorCodigo.get(pedido.cabecalho.codigo_cliente);
+      return {
+        numeroPedido: pedido.cabecalho.numero_pedido,
+        codigoPedido: pedido.cabecalho.codigo_pedido,
+        cliente: {
+          codigo: pedido.cabecalho.codigo_cliente,
+          razaoSocial: cliente?.razao_social ?? "(cliente não encontrado)",
+          nomeFantasia: cliente?.nome_fantasia ?? "",
+        },
+        dataPrevisao: pedido.cabecalho.data_previsao,
+        etapaCodigo: pedido.cabecalho.etapa,
+        etapaDescricao: mapaEtapas.get(pedido.cabecalho.etapa),
+        cancelado: pedido.infoCadastro.cancelado === "S",
+        faturado: pedido.infoCadastro.faturado === "S",
+        quantidadeItens: pedido.cabecalho.quantidade_itens,
+        valorTotalPedido: pedido.total_pedido.valor_total_pedido,
+      };
+    });
+
+    return {
+      pagina: pedidosResposta.pagina,
+      totalPaginas: pedidosResposta.total_de_paginas,
+      totalRegistros: pedidosResposta.total_de_registros,
+      itens,
+    };
+  }
+}

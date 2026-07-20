@@ -110,6 +110,13 @@ src/
         mcp/
       pedidoVenda-register.ts
       index.ts
+    clientes/                      # módulo em camadas (gateway reutilizável por outros módulos)
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      clientes-register.ts
+      index.ts
 ```
 
 > Módulos em camadas podem depender do gateway de outro módulo quando o relatório
@@ -161,11 +168,21 @@ src/
   separados do estoque para despacho (pedidos na etapa "Separar Estoque", código `20` por padrão),
   já removendo os cancelados e devolvendo um resumo agregado por produto (quantidade total, em
   quantos pedidos)
+- `omie_pedido_venda_listar_com_cliente` — **use-case**: lista pedidos já com o nome do cliente
+  (reaproveita o `ClientesOmieGateway` do módulo `clientes`) e a etapa por extenso resolvidos,
+  `cancelado`/`faturado` como booleano e o valor total do pedido. Filtro `etapa_codigo` opcional
+  (sem ele, traz todas as etapas — **não** filtra cancelados por padrão, diferente da tool acima)
 
 > Achado importante testando: pedidos **cancelados não têm a `etapa` resetada pela Omie** — um
 > pedido cancelado continua aparecendo como se estivesse em "Separar Estoque" se foi cancelado
 > nessa fase. Por isso `omie_pedido_venda_produtos_para_separar` sempre cruza com
-> `infoCadastro.cancelado` antes de considerar um pedido como realmente pendente.
+> `infoCadastro.cancelado` antes de considerar um pedido como realmente pendente; já
+> `omie_pedido_venda_listar_com_cliente` é uma listagem genérica e expõe `cancelado` pra quem
+> chamar decidir o que fazer com isso.
+
+### Clientes (`src/modules/clientes/`)
+- `omie_clientes_consultar` — passthrough, cadastro de um cliente específico (razão social, nome
+  fantasia, CNPJ/CPF, contato, endereço)
 
 ### Compras (`src/tools/compras.ts`)
 - `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir`

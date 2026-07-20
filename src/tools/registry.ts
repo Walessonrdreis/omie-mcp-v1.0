@@ -5,6 +5,7 @@ import { estoqueModuleTools } from "../modules/estoque/index.js";
 import { produtosModuleTools } from "../modules/produtos/index.js";
 import { ordemProducaoModuleTools } from "../modules/ordemProducao/index.js";
 import { pedidoVendaModuleTools } from "../modules/pedidoVenda/index.js";
+import { clientesModuleTools } from "../modules/clientes/index.js";
 
 /**
  * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
@@ -26,6 +27,7 @@ export const allTools: ToolDef[] = [
   ...produtosModuleTools,
   ...estoqueModuleTools,
   ...pedidoVendaModuleTools,
+  ...clientesModuleTools,
   ...comprasTools,
 ];
 

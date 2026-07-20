@@ -1,5 +1,8 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
+import { ClientesOmieGateway } from "../../../clientes/infrastructure/gateways/clientes-omie-gateway.js";
+import { listarPedidosComClienteParamSchema } from "../../application/dto/listar-pedidos-com-cliente.dto.js";
 import { listarProdutosParaSepararParamSchema } from "../../application/dto/listar-produtos-para-separar.dto.js";
+import { ListarPedidosComClienteUseCase } from "../../application/use-cases/listar-pedidos-com-cliente.js";
 import { ListarProdutosParaSepararUseCase } from "../../application/use-cases/listar-produtos-para-separar.js";
 import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
 
@@ -53,6 +56,23 @@ export const pedidoVendaTools: ToolDef[] = [
       const parsed = listarProdutosParaSepararParamSchema.parse(param);
       const gateway = new PedidoVendaOmieGateway(client);
       const useCase = new ListarProdutosParaSepararUseCase(gateway);
+      return useCase.execute(parsed);
+    },
+  }),
+  defineTool({
+    name: "omie_pedido_venda_listar_com_cliente",
+    description:
+      "Lista Pedidos de Venda JÁ com o nome do cliente (razão social/nome fantasia) e a etapa por " +
+      "extenso resolvidos — a Omie só devolve o código do cliente e o código cru da etapa na " +
+      "listagem. Também expõe 'cancelado' e 'faturado' já como booleano, e o valor total do " +
+      "pedido. Suporta paginação e o filtro opcional etapa_codigo (ex: '20' Separar Estoque, '50' " +
+      "Faturar); sem esse filtro, traz pedidos de todas as etapas.",
+    inputSchema: { param: listarPedidosComClienteParamSchema },
+    execute: async (client, param) => {
+      const parsed = listarPedidosComClienteParamSchema.parse(param);
+      const pedidoGateway = new PedidoVendaOmieGateway(client);
+      const clientesGateway = new ClientesOmieGateway(client);
+      const useCase = new ListarPedidosComClienteUseCase(pedidoGateway, clientesGateway);
       return useCase.execute(parsed);
     },
   }),
