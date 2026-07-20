@@ -22,7 +22,12 @@ export class ListarContasPagarUseCase {
     const pagina = param.pagina ?? 1;
     const registrosPorPagina = param.registros_por_pagina ?? 20;
 
-    const resposta = await this.contasGateway.listarPagina(pagina, registrosPorPagina);
+    const resposta = await this.contasGateway.listarPagina(
+      pagina,
+      registrosPorPagina,
+      param.data_alteracao_de,
+      param.data_alteracao_ate
+    );
 
     const codigosFornecedor = resposta.conta_pagar_cadastro.map(
       (c) => c.codigo_cliente_fornecedor

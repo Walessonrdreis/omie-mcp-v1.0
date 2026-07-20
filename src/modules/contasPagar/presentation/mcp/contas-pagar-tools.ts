@@ -11,7 +11,9 @@ export const contasPagarTools: ToolDef[] = [
       "Lista as contas a pagar JÁ com o nome do fornecedor resolvido (a Omie só devolve " +
       "o código do fornecedor). Retorna: fornecedor (razão social), valor, data de " +
       "vencimento, status (PAGO/ABERTO/VENCIDO), documento fiscal, categoria e observação. " +
-      "Suporta paginação. Use em vez de omie_chamar_api para ter os dados legíveis.",
+      "Suporta paginação e filtro por data_alteracao_de/ate (data de última alteração do " +
+      "lançamento, não vencimento — útil pra achar lançamentos recentes). Use em vez de " +
+      "omie_chamar_api para ter os dados legíveis.",
     inputSchema: { param: listarContasPagarParamSchema },
     execute: async (client, param) => {
       const parsed = listarContasPagarParamSchema.parse(param);

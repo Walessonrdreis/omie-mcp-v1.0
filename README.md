@@ -184,6 +184,26 @@ src/
         mcp/
       fluxoCaixa-register.ts
       index.ts
+    contasPagar/                    # módulo em camadas (resolve nome do fornecedor via clientesFornecedores)
+      application/
+        use-cases/
+        dto/
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      contasPagar-register.ts
+      index.ts
+    contasReceber/                  # módulo em camadas (resolve nome do cliente via clientesFornecedores)
+      application/
+        use-cases/
+        dto/
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      contasReceber-register.ts
+      index.ts
 ```
 
 > Módulos em camadas podem depender do gateway de outro módulo quando o relatório
@@ -315,6 +335,34 @@ src/
 >
 > Períodos longos geram muitas páginas (ex: só os recebimentos de ~3 semanas já passaram de 3.700
 > registros) — prefira períodos de até ~3 meses por chamada.
+
+### Contas a Pagar (`src/modules/contasPagar/`)
+- `omie_contas_pagar_listar` — **use-case**: lista lançamentos de `financas/contapagar`
+  (`ListarContasPagar`) já com o **nome do fornecedor resolvido** (reaproveita o
+  `ClientesOmieGateway` do módulo `clientesFornecedores` — a Omie só devolve o código), valor,
+  data de vencimento, status (PAGO/ABERTO/VENCIDO), documento fiscal, categoria e observação.
+  Paginado, com filtro opcional `data_alteracao_de`/`data_alteracao_ate`.
+
+### Contas a Receber (`src/modules/contasReceber/`)
+- `omie_contas_receber_listar` — **use-case**: lista lançamentos de `financas/contareceber`
+  (`ListarContasReceber`) já com o **nome do cliente resolvido** (reaproveita o
+  `ClientesOmieGateway` do módulo `clientesFornecedores`), valor, data de vencimento, status
+  (PAGO/ABERTO/VENCIDO), documento fiscal, número do pedido e categoria. Paginado, com filtro
+  opcional `data_alteracao_de`/`data_alteracao_ate`.
+
+> **Achado importante testando**: o parâmetro de filtro de data da Omie nesses dois endpoints
+> (`filtrar_por_data_de`/`filtrar_por_data_ate`) filtra pela **data de última alteração do
+> lançamento** (`info.dAlt`), não pela data de vencimento — confirmado pedindo uma faixa de 1
+> dia e comparando com `data_vencimento` dos registros retornados (vencimentos diferentes,
+> `dAlt` sempre dentro da faixa pedida). Por isso as ferramentas do MCP expõem o parâmetro como
+> `data_alteracao_de`/`data_alteracao_ate` (não `data_vencimento_de/ate`), pra não sugerir um
+> comportamento que a API não tem. Não existe (testado) filtro nativo por data de vencimento
+> nesses dois endpoints — pra isso, use `omie_fluxo_caixa_gerar`, que usa `financas/mf` e filtra
+> corretamente por vencimento/pagamento.
+
+> Diferença pro `omie_fluxo_caixa_gerar`: essas duas ferramentas expõem o lançamento cru
+> (fornecedor/cliente por lançamento, sem agregação), úteis pra conferir título por título;
+> o fluxo de caixa agrega tudo por período/conta corrente.
 
 ### Compras (`src/tools/compras.ts`)
 - `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir`

@@ -59,6 +59,8 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Funcionalidade | O que faz |
 |---|---|
 | Listar Contas Correntes | Lista bancos, caixas, cartões e maquininhas cadastrados, com saldo inicial. |
+| Listar Contas a Pagar | Lista as contas a pagar já com o **nome do fornecedor** (a Omie só devolve o código), valor, vencimento, status (pago/aberto/vencido), documento fiscal, categoria e observação. Dá pra filtrar por lançamentos alterados/criados num período. |
+| Listar Contas a Receber | Lista as contas a receber já com o **nome do cliente** (a Omie só devolve o código), valor, vencimento, status, documento fiscal, número do pedido e categoria. Dá pra filtrar por lançamentos alterados/criados num período. |
 | Gerar Fluxo de Caixa | Monta o **fluxo de caixa** (entradas, saídas e saldo) por dia ou por mês e por conta corrente, já separando o que **já aconteceu** (realizado) do que **ainda vai vencer** (previsto) — em formato de tabela, pronto pra virar planilha no futuro. A Omie não tem esse relatório pronto, só lançamento por lançamento; esta ferramenta busca tudo e organiza. Por padrão mostra só as **contas favoritas** (Cartão NuBank, Stone, Banco do Brasil, Wix, iFood, Sicoob, Itaú, Cartão Elo LEANDRO, Amazon, CAIXA LOJA) — dá pra pedir todas as contas ou uma lista específica. Opcionalmente (`usar_saldo_real`), aproxima do **saldo bancário real** usando o saldo configurado no cadastro da conta na Omie — quando alguém atualizar esse saldo lá, o cálculo já reflete automaticamente. |
 
 ## Compras

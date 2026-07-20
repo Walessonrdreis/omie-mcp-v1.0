@@ -11,7 +11,9 @@ export const contasReceberTools: ToolDef[] = [
       "Lista as contas a receber JÁ com o nome do cliente resolvido (a Omie só devolve " +
       "o código do cliente). Retorna: cliente (razão social), valor, data de " +
       "vencimento, status (PAGO/ABERTO/VENCIDO), documento fiscal, número do pedido " +
-      "e categoria. Suporta paginação. Use em vez de omie_chamar_api para ter os dados legíveis.",
+      "e categoria. Suporta paginação e filtro por data_alteracao_de/ate (data de última " +
+      "alteração do lançamento, não vencimento — útil pra achar lançamentos recentes). " +
+      "Use em vez de omie_chamar_api para ter os dados legíveis.",
     inputSchema: { param: listarContasReceberParamSchema },
     execute: async (client, param) => {
       const parsed = listarContasReceberParamSchema.parse(param);
