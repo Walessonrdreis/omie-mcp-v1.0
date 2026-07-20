@@ -31,6 +31,15 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Registrar Ajuste de Estoque | Lança uma movimentação manual (ex: consumo de insumo, entrada de produto acabado). |
 | Listar Movimentos de Estoque | Lista as entradas/saídas de um produto em um período. |
 
+## Pedido de Venda
+
+| Funcionalidade | O que faz |
+|---|---|
+| Consultar Pedido de Venda | Busca os detalhes completos de um pedido específico. |
+| Listar Pedidos de Venda | Lista os pedidos cadastrados, com filtros. |
+| Listar Etapas do Funil de Vendas | Mostra as fases possíveis de um pedido (Pedido de Venda, Separar Estoque, Faturar, Faturado, Entrega). |
+| Produtos para Separar (Expedição) | Lista **os produtos que precisam ser separados do estoque agora** para despachar pedidos em aberto, já removendo os cancelados, com um resumo de quanto separar de cada produto e em quantos pedidos ele aparece. |
+
 ## Compras
 
 | Funcionalidade | O que faz |

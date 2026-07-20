@@ -100,6 +100,16 @@ src/
         mcp/
       produtos-register.ts
       index.ts
+    pedidoVenda/                   # módulo em camadas
+      application/
+        use-cases/                    # ex: produtos que precisam ser separados p/ despacho
+        dto/
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      pedidoVenda-register.ts
+      index.ts
 ```
 
 > Módulos em camadas podem depender do gateway de outro módulo quando o relatório
@@ -141,6 +151,21 @@ src/
 
 > `omie_estoque_consultar` (`ConsultarEstoque`) foi removida: testamos e o método não
 > existe na API Omie atual (retorna `Method "ConsultarEstoque" not exists`).
+
+### Pedido de Venda (`src/modules/pedidoVenda/`)
+- `omie_pedido_venda_consultar` — passthrough, um pedido específico com todos os itens/impostos
+- `omie_pedido_venda_listar` — passthrough, lista pedidos (aceita filtro `etapa` nativo da Omie)
+- `omie_pedido_venda_etapas_listar` — passthrough, catálogo de etapas de faturamento (kanban de
+  vendas/OS/compras) com código e descrição — ao contrário da etapa de OP, aqui é fixo e documentado
+- `omie_pedido_venda_produtos_para_separar` — **use-case**: lista os produtos que precisam ser
+  separados do estoque para despacho (pedidos na etapa "Separar Estoque", código `20` por padrão),
+  já removendo os cancelados e devolvendo um resumo agregado por produto (quantidade total, em
+  quantos pedidos)
+
+> Achado importante testando: pedidos **cancelados não têm a `etapa` resetada pela Omie** — um
+> pedido cancelado continua aparecendo como se estivesse em "Separar Estoque" se foi cancelado
+> nessa fase. Por isso `omie_pedido_venda_produtos_para_separar` sempre cruza com
+> `infoCadastro.cancelado` antes de considerar um pedido como realmente pendente.
 
 ### Compras (`src/tools/compras.ts`)
 - `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir`
