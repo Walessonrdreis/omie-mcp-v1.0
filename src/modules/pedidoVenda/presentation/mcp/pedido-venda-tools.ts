@@ -1,5 +1,5 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { ClientesOmieGateway } from "../../../clientes/infrastructure/gateways/clientes-omie-gateway.js";
+import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
 import { listarPedidosComClienteParamSchema } from "../../application/dto/listar-pedidos-com-cliente.dto.js";
 import { listarPedidosSepararEstoqueParamSchema } from "../../application/dto/listar-pedidos-separar-estoque.dto.js";
 import { listarProdutosParaSepararParamSchema } from "../../application/dto/listar-produtos-para-separar.dto.js";

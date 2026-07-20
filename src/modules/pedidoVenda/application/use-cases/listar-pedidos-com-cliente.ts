@@ -1,4 +1,4 @@
-import { ClientesOmieGateway } from "../../../clientes/infrastructure/gateways/clientes-omie-gateway.js";
+import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
 import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
 import {
   ListarPedidosComClienteParam,

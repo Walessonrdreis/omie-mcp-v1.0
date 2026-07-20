@@ -160,14 +160,14 @@ src/
         mcp/
       pedidoVenda-register.ts
       index.ts
-    clientes/                      # módulo em camadas (gateway reutilizável por outros módulos)
+    clientesFornecedores/           # módulo em camadas (gateway reutilizável por outros módulos)
       infrastructure/
         gateways/
       presentation/
         mcp/
-      clientes-register.ts
+      clientesFornecedores-register.ts
       index.ts
-    contasCorrentes/                # módulo em camadas (gateway reutilizável, mesmo padrão de clientes)
+    contasCorrentes/                # módulo em camadas (gateway reutilizável, mesmo padrão de clientesFornecedores)
       infrastructure/
         gateways/
       presentation/
@@ -240,7 +240,7 @@ src/
   já removendo os cancelados e devolvendo um resumo agregado por produto (quantidade total, em
   quantos pedidos)
 - `omie_pedido_venda_listar_com_cliente` — **use-case**: lista pedidos já com o nome do cliente
-  (reaproveita o `ClientesOmieGateway` do módulo `clientes`), a etapa por extenso e os **itens do
+  (reaproveita o `ClientesOmieGateway` do módulo `clientesFornecedores`), a etapa por extenso e os **itens do
   pedido** (produto/SKU/descrição/quantidade/unidade) resolvidos, `cancelado`/`faturado` como
   booleano e o valor total do pedido. Filtro `etapa_codigo` opcional (sem ele, traz todas as
   etapas — **não** filtra cancelados por padrão, diferente da tool acima)
@@ -256,9 +256,23 @@ src/
 > `omie_pedido_venda_listar_com_cliente` é uma listagem genérica e expõe `cancelado` pra quem
 > chamar decidir o que fazer com isso.
 
-### Clientes (`src/modules/clientes/`)
-- `omie_clientes_consultar` — passthrough, cadastro de um cliente específico (razão social, nome
-  fantasia, CNPJ/CPF, contato, endereço)
+### Clientes e Fornecedores (`src/modules/clientesFornecedores/`)
+> Na Omie, cliente e fornecedor são o MESMO cadastro (`geral/clientes`), diferenciados só pela
+> `tag` (`Cliente`, `Fornecedor`, `Colaborador`, `Sócios`, podendo ter mais de uma) — não existe
+> endpoint `geral/fornecedores` separado.
+
+- `omie_clientes_consultar` — passthrough, um cliente/fornecedor específico (razão social, nome
+  fantasia, CNPJ/CPF, contato, endereço, tags)
+- `omie_clientes_listar` — passthrough, lista clientes/fornecedores; aceita filtro avançado via
+  `clientesFiltro` (ex: `{"tags": [{"tag": "Fornecedor"}]}`)
+- `omie_fornecedores_listar` — **use-case leve**: atalho pra `omie_clientes_listar` já filtrado
+  pela tag `Fornecedor`, com busca por razão social/nome fantasia/CNPJ-CPF e `apenas_ativos`
+  (remove inativos client-side, já que o filtro `clientesFiltro.tags` não combina com filtro de
+  status na mesma chamada de forma direta)
+
+> **Escopo atual: só leitura (consulta/listagem).** A pedido do usuário, o CRUD completo (incluir,
+> alterar, excluir) de clientes/fornecedores fica pra depois — só depois que o MCP tiver segurança
+> mínima implantada (ver seção de rate limit/segurança e `src/httpServer.ts`).
 
 ### Contas Correntes (`src/modules/contasCorrentes/`)
 - `omie_contas_correntes_listar` — passthrough, lista contas correntes (bancos, caixas, cartões,

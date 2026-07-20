@@ -42,11 +42,17 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Pedidos com Nome do Cliente | Lista os pedidos já com **nome do cliente**, etapa por extenso, valor total, se está cancelado/faturado e **os itens de cada pedido (produto e quantidade)** — sem precisar consultar cliente por cliente ou abrir pedido por pedido na mão. |
 | Pedidos em Separar Estoque | Atalho direto pro acompanhamento do dia a dia: já filtra pelos pedidos em "Separar Estoque" e remove os cancelados, trazendo cliente, itens (produto e quantidade) e valor de cada pedido — sem precisar informar a etapa toda vez. |
 
-## Clientes
+## Clientes e Fornecedores
+
+> Na Omie, cliente e fornecedor ficam no mesmo cadastro — só muda a "etiqueta" (tag).
 
 | Funcionalidade | O que faz |
 |---|---|
-| Consultar Cliente | Busca o cadastro completo de um cliente (razão social, nome fantasia, CNPJ/CPF, contato, endereço). |
+| Consultar Cliente/Fornecedor | Busca o cadastro completo de um cliente ou fornecedor específico (razão social, nome fantasia, CNPJ/CPF, contato, endereço). |
+| Listar Clientes/Fornecedores | Lista os cadastros, com filtros (por nome, CNPJ, etc.). |
+| Listar Fornecedores | Atalho já filtrado só pelos fornecedores, com busca por nome/CNPJ e opção de esconder os inativos. |
+
+*(Por enquanto só consulta/listagem — incluir, alterar ou excluir cliente/fornecedor fica pra depois de reforçar a segurança do MCP.)*
 
 ## Financeiro
 

@@ -5,7 +5,7 @@ import { estoqueModuleTools } from "../modules/estoque/index.js";
 import { produtosModuleTools } from "../modules/produtos/index.js";
 import { ordemProducaoModuleTools } from "../modules/ordemProducao/index.js";
 import { pedidoVendaModuleTools } from "../modules/pedidoVenda/index.js";
-import { clientesModuleTools } from "../modules/clientes/index.js";
+import { clientesFornecedoresModuleTools } from "../modules/clientesFornecedores/index.js";
 import { contasCorrentesModuleTools } from "../modules/contasCorrentes/index.js";
 import { fluxoCaixaModuleTools } from "../modules/fluxoCaixa/index.js";
 
@@ -29,7 +29,7 @@ export const allTools: ToolDef[] = [
   ...produtosModuleTools,
   ...estoqueModuleTools,
   ...pedidoVendaModuleTools,
-  ...clientesModuleTools,
+  ...clientesFornecedoresModuleTools,
   ...contasCorrentesModuleTools,
   ...fluxoCaixaModuleTools,
   ...comprasTools,
