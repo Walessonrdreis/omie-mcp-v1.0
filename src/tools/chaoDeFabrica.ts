@@ -127,6 +127,15 @@ export const chaoDeFabricaTools = [
     resource: "produtos/pedidocompra",
     call: "IncluirPedidoCompra",
   },
+  {
+    name: "omie_familias_listar",
+    description:
+      "Lista as famílias de produtos cadastradas, com paginação. Método Omie: PesquisarFamilias " +
+      "(recurso 'geral/familias'). Campos típicos: pagina, registros_por_pagina.",
+    inputSchema: { param: paramSchema },
+    resource: "geral/familias",
+    call: "PesquisarFamilias",
+  },
 ] as const;
 
 export async function handleChaoDeFabricaTool(

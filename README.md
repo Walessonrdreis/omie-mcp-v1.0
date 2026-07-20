@@ -47,6 +47,7 @@ Permite que o Claude consulte e execute operações no ERP Omie via ferramentas 
 - `omie_produtos_consultar` / `omie_produtos_listar` — Cadastro de produtos
 - `omie_estoque_consultar` / `omie_estoque_ajuste_incluir` / `omie_estoque_movimentos_listar` — Estoque
 - `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir` — Compras de insumos
+- `omie_familias_listar` — Famílias de produtos
 
 ### Genérica (cobre todos os outros módulos)
 - `omie_chamar_api` — recebe `resource` (caminho do módulo), `call` (método) e `param` (parâmetros), permitindo acessar qualquer endpoint listado em https://developer.omie.com.br/service-list/ (clientes, financeiro, CRM, vendas, NF-e, serviços, etc.)
