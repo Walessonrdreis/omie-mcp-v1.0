@@ -1,23 +1,10 @@
 import { OmieClient } from "../../../../omieClient.js";
+import {
+  IContasReceberGateway,
+  ListarContasReceberResponse,
+} from "../../domain/interfaces/contas-receber-gateway.js";
 
-export interface ContaReceberOmie {
-  codigo_lancamento_omie: number;
-  codigo_cliente_fornecedor: number;
-  data_vencimento: string;
-  valor_documento: number;
-  status_titulo: string;
-  numero_documento_fiscal: string;
-  numero_pedido: string;
-  codigo_categoria: string;
-}
-
-export interface ListarContasReceberResponse {
-  pagina: number;
-  total_de_paginas: number;
-  registros: number;
-  total_de_registros: number;
-  conta_receber_cadastro: ContaReceberOmie[];
-}
+export { ContaReceberOmie } from "../../domain/interfaces/contas-receber-gateway.js";
 
 /**
  * Encapsula o acesso ao módulo de Contas a Receber da Omie.
@@ -27,7 +14,7 @@ export interface ListarContasReceberResponse {
  * confirmado testando com uma faixa de 1 dia e comparando com `data_vencimento` dos
  * registros retornados (datas diferentes, `dAlt` sempre dentro da faixa pedida).
  */
-export class ContasReceberOmieGateway {
+export class ContasReceberOmieGateway implements IContasReceberGateway {
   constructor(private readonly client: OmieClient) {}
 
   async listarPagina(

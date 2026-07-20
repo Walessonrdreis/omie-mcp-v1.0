@@ -1,8 +1,25 @@
 import { ToolDef, defineTool } from "../../../../tools/types.js";
+import { OmieClient } from "../../../../omieClient.js";
+import { IClientesGateway } from "../../../clientesFornecedores/domain/interfaces/clientes-gateway.js";
+import { ClientesFakeGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-fake-gateway.js";
+import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
 import { listarContasPagarParamSchema } from "../../application/dto/listar-contas-pagar.dto.js";
 import { ListarContasPagarUseCase } from "../../application/use-cases/listar-contas-pagar.js";
+import { IContasPagarGateway } from "../../domain/interfaces/contas-pagar-gateway.js";
+import { ContasPagarFakeGateway } from "../../infrastructure/gateways/contas-pagar-fake-gateway.js";
 import { ContasPagarOmieGateway } from "../../infrastructure/gateways/contas-pagar-omie-gateway.js";
-import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
+
+function criarContasPagarGateway(client: OmieClient): IContasPagarGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new ContasPagarFakeGateway()
+    : new ContasPagarOmieGateway(client);
+}
+
+function criarClientesGateway(client: OmieClient): IClientesGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new ClientesFakeGateway()
+    : new ClientesOmieGateway(client);
+}
 
 export const contasPagarTools: ToolDef[] = [
   defineTool({
@@ -17,8 +34,8 @@ export const contasPagarTools: ToolDef[] = [
     inputSchema: { param: listarContasPagarParamSchema },
     execute: async (client, param) => {
       const parsed = listarContasPagarParamSchema.parse(param);
-      const contasGateway = new ContasPagarOmieGateway(client);
-      const clientesGateway = new ClientesOmieGateway(client);
+      const contasGateway = criarContasPagarGateway(client);
+      const clientesGateway = criarClientesGateway(client);
       const useCase = new ListarContasPagarUseCase(contasGateway, clientesGateway);
       return useCase.execute(parsed);
     },

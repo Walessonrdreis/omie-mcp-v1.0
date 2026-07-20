@@ -1,23 +1,10 @@
 import { OmieClient } from "../../../../omieClient.js";
+import {
+  IContasPagarGateway,
+  ListarContasPagarResponse,
+} from "../../domain/interfaces/contas-pagar-gateway.js";
 
-export interface ContaPagarOmie {
-  codigo_lancamento_omie: number;
-  codigo_cliente_fornecedor: number;
-  data_vencimento: string;
-  valor_documento: number;
-  status_titulo: string;
-  numero_documento_fiscal: string;
-  codigo_categoria: string;
-  observacao: string;
-}
-
-export interface ListarContasPagarResponse {
-  pagina: number;
-  total_de_paginas: number;
-  registros: number;
-  total_de_registros: number;
-  conta_pagar_cadastro: ContaPagarOmie[];
-}
+export { ContaPagarOmie } from "../../domain/interfaces/contas-pagar-gateway.js";
 
 /**
  * Encapsula o acesso ao módulo de Contas a Pagar da Omie.
@@ -26,7 +13,7 @@ export interface ListarContasPagarResponse {
  * filtram pela **data de última alteração do lançamento** (`info.dAlt`), não pela data de
  * vencimento.
  */
-export class ContasPagarOmieGateway {
+export class ContasPagarOmieGateway implements IContasPagarGateway {
   constructor(private readonly client: OmieClient) {}
 
   async listarPagina(

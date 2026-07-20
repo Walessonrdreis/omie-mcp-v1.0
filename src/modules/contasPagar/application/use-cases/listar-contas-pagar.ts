@@ -1,5 +1,5 @@
-import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
-import { ContasPagarOmieGateway } from "../../infrastructure/gateways/contas-pagar-omie-gateway.js";
+import { IClientesGateway } from "../../../clientesFornecedores/domain/interfaces/clientes-gateway.js";
+import { IContasPagarGateway } from "../../domain/interfaces/contas-pagar-gateway.js";
 import {
   ListarContasPagarParam,
   ListarContasPagarResult,
@@ -14,8 +14,8 @@ import {
  */
 export class ListarContasPagarUseCase {
   constructor(
-    private readonly contasGateway: ContasPagarOmieGateway,
-    private readonly clientesGateway: ClientesOmieGateway
+    private readonly contasGateway: IContasPagarGateway,
+    private readonly clientesGateway: IClientesGateway
   ) {}
 
   async execute(param: ListarContasPagarParam): Promise<ListarContasPagarResult> {
