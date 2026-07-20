@@ -16,9 +16,10 @@ export const produtosTools: ToolDef[] = [
     name: "omie_produtos_listar",
     description:
       "Lista produtos cadastrados, com filtros e paginação. Método Omie: ListarProdutos. " +
-      "Atenção: o campo quantidade_estoque retornado aqui NÃO é confiável (vem sempre 0) — " +
-      "para saber a quantidade/valor real em estoque use omie_produtos_listar_com_estoque ou " +
-      "omie_estoque_total_produto.",
+      "Aceita filtrar_apenas_familia (código da família, via omie_familias_listar) pra listar só " +
+      "produtos de uma família. Atenção: o campo quantidade_estoque retornado aqui NÃO é confiável " +
+      "(vem sempre 0) — para saber a quantidade/valor real em estoque use " +
+      "omie_produtos_listar_com_estoque ou omie_estoque_total_produto.",
     inputSchema: { param: paramSchema },
     resource: "geral/produtos",
     call: "ListarProdutos",
@@ -41,8 +42,9 @@ export const produtosTools: ToolDef[] = [
       "produto — então esta ferramenta busca os dois e junta. Use para relatórios do tipo " +
       "'lista de produtos com valor em estoque', 'quais produtos tenho parado', etc. Devolve, por " +
       "produto: quantidadeEmEstoque, valorEmEstoqueVenda (preço de venda) e valorEmEstoqueCusto " +
-      "(custo médio). Suporta paginação (pagina/registros_por_pagina) e o filtro " +
-      "apenas_com_estoque (remove produtos com estoque zerado).",
+      "(custo médio). Suporta paginação (pagina/registros_por_pagina), o filtro " +
+      "apenas_com_estoque (remove produtos com estoque zerado) e filtrar_apenas_familia (código " +
+      "da família, via omie_familias_listar) pra restringir a uma família de produtos.",
     inputSchema: { param: listarProdutosComEstoqueParamSchema },
     execute: async (client, param) => {
       const parsed = listarProdutosComEstoqueParamSchema.parse(param);

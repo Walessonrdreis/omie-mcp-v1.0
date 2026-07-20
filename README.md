@@ -144,11 +144,15 @@ src/
 
 ### Produtos (`src/modules/produtos/`)
 - `omie_produtos_consultar` — passthrough, cadastro de um produto específico
-- `omie_produtos_listar` — passthrough, lista produtos (campo `quantidade_estoque` NÃO confiável, vem sempre 0)
+- `omie_produtos_listar` — passthrough, lista produtos (campo `quantidade_estoque` NÃO confiável,
+  vem sempre 0). Aceita `filtrar_apenas_familia` (código da família, achado testando o WSDL — não
+  documentado na página de ajuda) pra restringir a uma família de produtos
 - `omie_familias_listar` — passthrough, famílias de produtos
 - `omie_produtos_listar_com_estoque` — **use-case**: lista produtos já com quantidade e valor em
   estoque calculados (venda e custo médio), cruzando o cadastro de produtos com a posição de
-  estoque em todos os locais (reaproveita o `EstoqueOmieGateway` do módulo `estoque`)
+  estoque em todos os locais (reaproveita o `EstoqueOmieGateway` do módulo `estoque`). Também
+  aceita `filtrar_apenas_familia` — filtra por família e já vem com o estoque calculado numa
+  chamada só
 
 ### Estoque (`src/modules/estoque/`)
 - `omie_estoque_ajuste_incluir` — passthrough, registra ajuste de estoque

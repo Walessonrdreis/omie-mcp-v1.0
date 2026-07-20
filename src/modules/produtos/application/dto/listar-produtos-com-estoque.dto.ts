@@ -10,6 +10,13 @@ export const listarProdutosComEstoqueParamSchema = z.object({
     .boolean()
     .optional()
     .describe("Se true, remove da lista os produtos com quantidade em estoque igual a zero."),
+  filtrar_apenas_familia: z
+    .number()
+    .optional()
+    .describe(
+      "Código da família de produtos pra filtrar (obtido via omie_familias_listar, campo " +
+        "'codigo'). Se omitido, lista produtos de todas as famílias."
+    ),
 });
 
 export type ListarProdutosComEstoqueParam = z.infer<typeof listarProdutosComEstoqueParamSchema>;

@@ -25,7 +25,11 @@ export class ListarProdutosComEstoqueUseCase {
     const registrosPorPagina = param.registros_por_pagina ?? 50;
 
     const [produtosResposta, posicoesEstoque] = await Promise.all([
-      this.produtosGateway.listarProdutosPagina(pagina, registrosPorPagina),
+      this.produtosGateway.listarProdutosPagina(
+        pagina,
+        registrosPorPagina,
+        param.filtrar_apenas_familia
+      ),
       this.estoqueGateway.listarTodasPosicoes(),
     ]);
 

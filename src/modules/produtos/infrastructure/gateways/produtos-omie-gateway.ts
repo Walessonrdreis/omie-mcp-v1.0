@@ -35,7 +35,8 @@ export class ProdutosOmieGateway {
 
   async listarProdutosPagina(
     pagina: number,
-    registrosPorPagina: number
+    registrosPorPagina: number,
+    codigoFamilia?: number
   ): Promise<ListarProdutosResponse> {
     return this.client.call<ListarProdutosResponse>({
       resource: "geral/produtos",
@@ -44,6 +45,7 @@ export class ProdutosOmieGateway {
         pagina,
         registros_por_pagina: registrosPorPagina,
         apenas_importado_api: "N",
+        ...(codigoFamilia ? { filtrar_apenas_familia: codigoFamilia } : {}),
       },
     });
   }

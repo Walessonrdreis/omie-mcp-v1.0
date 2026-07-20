@@ -19,9 +19,9 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Funcionalidade | O que faz |
 |---|---|
 | Consultar Produto | Busca o cadastro completo de um produto (preço, NCM, família, etc.). |
-| Listar Produtos | Lista os produtos cadastrados, com filtros e paginação. |
+| Listar Produtos | Lista os produtos cadastrados, com filtros e paginação — inclusive **filtrar por família**. |
 | Listar Famílias de Produtos | Lista as famílias/categorias de produtos cadastradas. |
-| Listar Produtos com Valor em Estoque | Lista todos os produtos já com a **quantidade e o valor em estoque calculados** (preço de venda e custo médio), somando todos os locais — sem precisar cruzar cadastro + estoque na mão. |
+| Listar Produtos com Valor em Estoque | Lista todos os produtos já com a **quantidade e o valor em estoque calculados** (preço de venda e custo médio), somando todos os locais — sem precisar cruzar cadastro + estoque na mão. Também pode ser **filtrado por família**. |
 
 ## Estoque
 
