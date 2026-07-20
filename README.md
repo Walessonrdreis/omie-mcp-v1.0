@@ -47,7 +47,14 @@ Além do servidor MCP (stdio, pro Claude), existe um segundo transporte —
 quem quiser montar um frontend ou outro backend consumindo essa lógica sem
 falar o protocolo MCP.
 
+Exige uma API key: gere uma com `npm run gerar-api-key`, coloque em
+`HTTP_API_KEY` no `.env` — o servidor recusa subir sem ela. Toda rota exige o
+header `Authorization: Bearer <HTTP_API_KEY>` (retorna 401 sem isso). Ainda só
+escuta em `127.0.0.1`; API key é o mínimo pra este estágio (local,
+single-user) — não é suficiente sozinha se isso for exposto pra fora um dia.
+
 ```bash
+npm run gerar-api-key  # gera a chave e mostra a linha pra colar no .env
 npm run dev:http    # desenvolvimento (tsx)
 npm run start:http  # produção (build + node dist/httpServer.js)
 ```
@@ -69,13 +76,13 @@ npm run start:http  # produção (build + node dist/httpServer.js)
 Exemplos:
 ```bash
 # ver o payload esperado por uma ferramenta
-curl http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar/schema
+curl -H "Authorization: Bearer $HTTP_API_KEY" http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar/schema
 
 # chamar direto pela URL (também funciona colado na barra do navegador)
-curl "http://127.0.0.1:3939/tools/omie_familias_listar?pagina=1&registros_por_pagina=5"
+curl -H "Authorization: Bearer $HTTP_API_KEY" "http://127.0.0.1:3939/tools/omie_familias_listar?pagina=1&registros_por_pagina=5"
 
 # chamar via POST (corpo JSON)
-curl -X POST http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar \
   -H "Content-Type: application/json" \
   -d '{"data_inicio":"01/07/2026","data_fim":"31/07/2026","agrupamento":"dia"}'
 ```

@@ -28,3 +28,11 @@ Para o que foi implementado tecnicamente (não o que aconteceu em cada sessão),
   - Confirmar se as duas contas "iFood" cadastradas em `CONTAS_FAVORITAS` do fluxo de caixa são duplicidade real ou contas distintas legítimas.
   - Avaliar se remove as cópias locais das skills em `omie-mcp/.claude/skills/` agora que existem globais.
 - **Docs relacionadas:** README.md (arquitetura, todos os módulos, rate limit), FUNCIONALIDADES.md, `COMO_USAR.md` (novo).
+
+## 2026-07-20 — Segurança mínima na API HTTP local (autenticação por API key)
+
+- **Autor/Interlocutor:** Walesson
+- **O que foi feito:** implementada autenticação por API key estática no `httpServer.ts` — toda rota agora exige header `Authorization: Bearer <HTTP_API_KEY>`, validado com comparação timing-safe; o servidor recusa subir (`process.exit(1)`) se `HTTP_API_KEY` não estiver definida no `.env`. Criado `scripts/gerar-api-key.mjs` (`npm run gerar-api-key`) pra gerar a chave. Atualizados `.env.example`, `README.md` e `COMO_USAR.md` (todos os exemplos de `curl` agora incluem o header). Testado manualmente: 401 sem header/com chave errada, 200 com chave certa; servidor recusa iniciar sem `HTTP_API_KEY`.
+- **Decisões tomadas:** API key estática (não Basic Auth, não mTLS) é o mínimo suficiente pro estágio atual — uso local, single-user. Decisão tomada com o usuário via pergunta direta antes de implementar. Fica como base pra evoluir (ex: OAuth) se o servidor for exposto como Connector remoto no futuro — isso continua bloqueado por ora.
+- **Pendências / próximos passos:** com a autenticação mínima implantada, destravar os itens que dependiam dela: CRUD completo de clientes/fornecedores (hoje só leitura) e inclusão/consulta de contas a pagar/receber. MCP (stdio) em si não foi alterado — a lacuna de segurança era só na API HTTP.
+- **Docs relacionadas:** [API](./API.md#autenticação-por-api-key-na-api-http-local-httpserverts), [Índice Geral](./GERAL.md)

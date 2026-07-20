@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import "dotenv/config";
-import express, { Request, Response } from "express";
+import crypto from "node:crypto";
+import express, { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { OmieApiError, OmieClient } from "./omieClient.js";
@@ -13,21 +14,50 @@ import { allTools, handleToolCall } from "./tools/registry.js";
  * ser consumida por um frontend/backend próprio sem precisar falar o
  * protocolo MCP.
  *
- * ATENÇÃO — só pra uso LOCAL por enquanto:
- * - Sem autenticação nenhuma.
- * - Sem validação de origem (CORS aberto pra localhost).
+ * Uso LOCAL por enquanto:
+ * - Autenticação por API key estática (header `Authorization: Bearer <key>`),
+ *   ver `HTTP_API_KEY` no .env — gere uma com `npm run gerar-api-key`.
  * - Escuta só em 127.0.0.1 (não aceita conexão de fora da própria máquina).
- * Antes de expor isso pra fora (produção, outro servidor, internet), é
- * preciso adicionar autenticação e revisar segurança — mesma ressalva já
- * feita sobre transformar o omie-mcp num Connector remoto.
+ * Antes de expor isso pra fora (produção, outro servidor, internet), revisar
+ * de novo — API key estática serve pro estágio atual (single-user, local),
+ * não é suficiente sozinha pra multi-usuário/produção.
  */
 
 const PORT = Number(process.env.HTTP_PORT ?? 3939);
 const HOST = "127.0.0.1";
 
+const HTTP_API_KEY = process.env.HTTP_API_KEY;
+if (!HTTP_API_KEY) {
+  console.error(
+    "ERRO: HTTP_API_KEY não definida no .env — o servidor HTTP recusa iniciar sem uma chave."
+  );
+  console.error("Gere uma com: npm run gerar-api-key");
+  process.exit(1);
+}
+
 const client = new OmieClient();
 const app = express();
 app.use(express.json());
+
+function autenticar(req: Request, res: Response, next: NextFunction) {
+  const cabecalho = req.header("authorization") ?? "";
+  const [esquema, token] = cabecalho.split(" ");
+  const chaveRecebida = esquema === "Bearer" ? token : undefined;
+
+  const chaveEsperada = Buffer.from(HTTP_API_KEY as string);
+  const chaveComparada = Buffer.from(chaveRecebida ?? "");
+  const valida =
+    chaveComparada.length === chaveEsperada.length &&
+    crypto.timingSafeEqual(chaveComparada, chaveEsperada);
+
+  if (!valida) {
+    res.status(401).json({ erro: "Não autenticado. Use o header Authorization: Bearer <HTTP_API_KEY>." });
+    return;
+  }
+  next();
+}
+
+app.use(autenticar);
 
 function schemaDaFerramenta(nome: string): Record<string, unknown> {
   if (nome === genericToolDefinition.name) {
@@ -135,7 +165,7 @@ app.post("/tools/:name", async (req: Request, res: Response) => {
 
 app.listen(PORT, HOST, () => {
   console.error(`Servidor HTTP local do omie-mcp rodando em http://${HOST}:${PORT}`);
-  console.error("AVISO: sem autenticação, uso local apenas — não expor além desta máquina.");
+  console.error("Autenticação: header Authorization: Bearer <HTTP_API_KEY> obrigatório em toda rota.");
   console.error(`GET  http://${HOST}:${PORT}/tools               — lista as ferramentas (+ ?schema pra ver o payload de cada uma)`);
   console.error(`GET  http://${HOST}:${PORT}/tools/<nome>/schema — schema do payload de uma ferramenta específica`);
   console.error(`GET  http://${HOST}:${PORT}/tools/<nome>?campo=valor — chama a ferramenta direto pela URL`);

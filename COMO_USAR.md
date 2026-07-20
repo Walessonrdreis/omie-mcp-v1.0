@@ -46,20 +46,24 @@ npm run dev:http
 ```
 
 Sobe em `http://127.0.0.1:3939` (porta configurável via `HTTP_PORT` no
-`.env`). **Só aceita conexão da própria máquina, sem autenticação** — não
-exponha essa porta pra fora (ver aviso no `README.md`).
+`.env`). Só aceita conexão da própria máquina, e agora **exige API key**:
+gere uma com `npm run gerar-api-key`, cole em `HTTP_API_KEY` no `.env` — o
+servidor recusa subir sem ela. Toda rota exige o header
+`Authorization: Bearer <HTTP_API_KEY>` (401 sem isso). Pra não repetir em
+todo curl, exporte antes: `export HTTP_API_KEY=<sua chave>` (os exemplos
+abaixo já usam `$HTTP_API_KEY`).
 
 ### Rotas genéricas do servidor HTTP
 
 ```bash
 # Lista todas as ferramentas disponíveis (nome + descrição)
-curl http://127.0.0.1:3939/tools
+curl -H "Authorization: Bearer $HTTP_API_KEY" http://127.0.0.1:3939/tools
 
 # Lista todas as ferramentas JÁ com o schema de cada payload
-curl "http://127.0.0.1:3939/tools?schema"
+curl -H "Authorization: Bearer $HTTP_API_KEY" "http://127.0.0.1:3939/tools?schema"
 
 # Schema (payload de entrada) de uma ferramenta específica
-curl http://127.0.0.1:3939/tools/omie_produtos_listar/schema
+curl -H "Authorization: Bearer $HTTP_API_KEY" http://127.0.0.1:3939/tools/omie_produtos_listar/schema
 ```
 
 ### Como chamar uma ferramenta
@@ -69,10 +73,10 @@ POST (payload no corpo JSON, melhor pra payloads grandes/aninhados):
 
 ```bash
 # GET — cada campo do payload vira ?campo=valor (valores JSON: números, bool, arrays)
-curl "http://127.0.0.1:3939/tools/omie_produtos_listar?pagina=1&registros_por_pagina=5"
+curl -H "Authorization: Bearer $HTTP_API_KEY" "http://127.0.0.1:3939/tools/omie_produtos_listar?pagina=1&registros_por_pagina=5"
 
 # POST — payload inteiro no corpo, dentro de "param" pra tools normais
-curl -X POST http://127.0.0.1:3939/tools/omie_produtos_listar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_produtos_listar \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 5}'
 ```
@@ -90,7 +94,7 @@ Consulte https://developer.omie.com.br/service-list/ pra descobrir o
 `resource` (caminho do módulo) e `call` (nome do método).
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_chamar_api \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_chamar_api \
   -H "Content-Type: application/json" \
   -d '{
     "resource": "geral/clientes",
@@ -122,7 +126,7 @@ abaixo mostram o `param` — para GET, vire cada campo em `?campo=valor`.
 | `omie_estrutura_consultar` | `nCodProduto` ou `cCodigo` |
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_op_listar_com_produto \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_op_listar_com_produto \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 10, "apenas_nao_concluidas": true}'
 ```
@@ -137,7 +141,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_op_listar_com_produto \
 | `omie_produtos_listar_com_estoque` | `pagina`, `registros_por_pagina`, `apenas_com_estoque` (bool), `filtrar_apenas_familia` |
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_produtos_listar_com_estoque \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_produtos_listar_com_estoque \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 20, "apenas_com_estoque": true}'
 ```
@@ -151,7 +155,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_produtos_listar_com_estoque \
 | `omie_estoque_total_produto` | `codigo_produto` (obrigatório) |
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_estoque_total_produto \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_estoque_total_produto \
   -H "Content-Type: application/json" \
   -d '{"codigo_produto": 123456789}'
 ```
@@ -168,7 +172,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_estoque_total_produto \
 | `omie_pedido_venda_separar_estoque_listar` | `pagina`, `registros_por_pagina`, `incluir_cancelados` (bool) |
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_pedido_venda_separar_estoque_listar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_pedido_venda_separar_estoque_listar \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 20}'
 ```
@@ -185,7 +189,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_pedido_venda_separar_estoque_lista
 | `omie_fornecedores_listar` | `pagina`, `registros_por_pagina`, `razao_social`, `nome_fantasia`, `cnpj_cpf`, `apenas_ativos` (bool) |
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_fornecedores_listar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_fornecedores_listar \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 20, "apenas_ativos": true}'
 ```
@@ -200,7 +204,7 @@ fornecedor fica pra depois de reforçar a segurança do MCP.)*
 | `omie_contas_correntes_listar` | `pagina`, `registros_por_pagina` |
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_contas_correntes_listar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_contas_correntes_listar \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 50}'
 ```
@@ -218,7 +222,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_contas_correntes_listar \
 | `usar_saldo_real` | não | bool, padrão `false` — aproxima do saldo bancário real |
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar \
   -H "Content-Type: application/json" \
   -d '{
     "data_inicio": "01/07/2026",
@@ -239,7 +243,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar \
 > lançamento** (não é a data de vencimento — achado testando a API).
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_contas_pagar_listar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_contas_pagar_listar \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 20, "data_alteracao_de": "01/07/2026", "data_alteracao_ate": "20/07/2026"}'
 ```
@@ -253,7 +257,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_contas_pagar_listar \
 Mesma observação: filtro de data é por última alteração, não vencimento.
 
 ```bash
-curl -X POST http://127.0.0.1:3939/tools/omie_contas_receber_listar \
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST http://127.0.0.1:3939/tools/omie_contas_receber_listar \
   -H "Content-Type: application/json" \
   -d '{"pagina": 1, "registros_por_pagina": 20}'
 ```
@@ -270,7 +274,7 @@ curl -X POST http://127.0.0.1:3939/tools/omie_contas_receber_listar \
 ## 6. Dicas rápidas
 
 - **Descobrir o payload exato de qualquer ferramenta sem abrir o código**:
-  `curl http://127.0.0.1:3939/tools/<nome>/schema` — devolve o JSON Schema
+  `curl -H "Authorization: Bearer $HTTP_API_KEY" http://127.0.0.1:3939/tools/<nome>/schema` — devolve o JSON Schema
   completo (campos, tipos, obrigatórios, descrição).
 - **Paginação**: quase toda listagem aceita `pagina` (padrão 1) e
   `registros_por_pagina` (padrão 20, teto real da Omie é ~100/página
