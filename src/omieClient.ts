@@ -10,12 +10,17 @@
  *     "param": [ { ... } ]
  *   }
  *
- * Este cliente centraliza autenticação, tratamento de erros e retries simples,
- * permitindo que qualquer endpoint da Omie (Chão de Fábrica ou outros módulos)
- * seja chamado de forma genérica.
+ * Este cliente centraliza autenticação, tratamento de erros, retries e
+ * throttling, permitindo que qualquer endpoint da Omie (Chão de Fábrica ou
+ * outros módulos) seja chamado de forma genérica e consistente — todo
+ * módulo do MCP passa por aqui, então uma proteção adicionada aqui vale pra
+ * todos, sem precisar duplicar em cada gateway.
  */
 
 const OMIE_BASE_URL = "https://app.omie.com.br/api/v1";
+
+/** Espaçamento mínimo entre o INÍCIO de duas requisições consecutivas desta instância. */
+const INTERVALO_MINIMO_MS = 300;
 
 export interface OmieCallOptions {
   /** Caminho do recurso, ex: "produtos/op", "geral/clientes", "estoque/consulta" */
@@ -37,9 +42,41 @@ export class OmieApiError extends Error {
   }
 }
 
+/**
+ * Se/quanto esperar antes de tentar de novo, baseado no erro que a Omie
+ * devolveu. Cobre os dois tipos de bloqueio momentâneo já observados em
+ * produção: rate limit ("consumo indevido") e chamadas próximas demais
+ * ("consumo redundante" — a Omie geralmente informa quantos segundos
+ * esperar na própria mensagem, ex: "Aguarde 57 segundos").
+ */
+function calcularEsperaRetry(faultCode: unknown, faultstring: unknown, httpStatus: number): number | null {
+  const mensagem = String(faultstring ?? "").toLowerCase();
+
+  const segundosSugeridos = mensagem.match(/aguarde (\d+) segundos?/i);
+  if (segundosSugeridos) {
+    return (Number(segundosSugeridos[1]) + 1) * 1000;
+  }
+
+  const isRateLimit =
+    faultCode === "SOAP-ENV:Client-500" ||
+    mensagem.includes("consumo indevido") ||
+    httpStatus === 425 ||
+    httpStatus === 429;
+  const isRedundante = faultCode === "SOAP-ENV:Client-6" || mensagem.includes("consumo redundante");
+
+  if (isRateLimit || isRedundante) {
+    return 2000;
+  }
+
+  return null;
+}
+
 export class OmieClient {
   private readonly appKey: string;
   private readonly appSecret: string;
+
+  /** Serializa o espaçamento mínimo entre requisições desta instância (ver INTERVALO_MINIMO_MS). */
+  private filaDeSaida: Promise<void> = Promise.resolve();
 
   constructor(appKey?: string, appSecret?: string) {
     const key = appKey ?? process.env.OMIE_APP_KEY;
@@ -57,6 +94,8 @@ export class OmieClient {
   }
 
   async call<T = unknown>(options: OmieCallOptions): Promise<T> {
+    await this.aguardarVez();
+
     const url = `${OMIE_BASE_URL}/${options.resource.replace(/^\/|\/$/g, "")}/`;
 
     const body = {
@@ -66,7 +105,7 @@ export class OmieClient {
       param: [options.param ?? {}],
     };
 
-    const maxAttempts = 3;
+    const maxAttempts = 4;
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -90,19 +129,16 @@ export class OmieClient {
         // A Omie retorna erros com faultstring/faultcode mesmo em HTTP 200,
         // e também usa códigos HTTP não-2xx em alguns casos (ex: rate limit).
         if (json && (json.faultstring || json.faultcode)) {
-          const code = json.faultcode;
-          // Rate limit / bloqueio momentâneo: tenta novamente com backoff
-          if (
-            (code === "SOAP-ENV:Client-500" ||
-              String(json.faultstring || "").toLowerCase().includes("consumo indevido") ||
-              response.status === 425 ||
-              response.status === 429) &&
-            attempt < maxAttempts
-          ) {
-            await sleep(attempt * 1000);
+          const espera = calcularEsperaRetry(json.faultcode, json.faultstring, response.status);
+          if (espera !== null && attempt < maxAttempts) {
+            await sleep(espera);
             continue;
           }
-          throw new OmieApiError(json.faultstring ?? "Erro desconhecido na API Omie", code, json);
+          throw new OmieApiError(
+            json.faultstring ?? "Erro desconhecido na API Omie",
+            json.faultcode,
+            json
+          );
         }
 
         if (!response.ok) {
@@ -125,8 +161,21 @@ export class OmieClient {
       ? lastError
       : new Error("Falha desconhecida ao chamar a API da Omie");
   }
+
+  /**
+   * Garante um espaçamento mínimo (INTERVALO_MINIMO_MS) entre o início de
+   * cada requisição desta instância, mesmo que várias chamadas cheguem ao
+   * mesmo tempo (ex: `Promise.all` de dois use-cases, ou `mapWithConcurrency`
+   * de um gateway) — reduz a chance de cair em "consumo redundante" antes
+   * mesmo de precisar dos retries acima.
+   */
+  private aguardarVez(): Promise<void> {
+    const minhaVez = this.filaDeSaida.then(() => sleep(INTERVALO_MINIMO_MS));
+    this.filaDeSaida = minhaVez;
+    return minhaVez;
+  }
 }
 
-function sleep(ms: number) {
+function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

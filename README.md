@@ -62,7 +62,7 @@ ferramenta no servidor MCP — **adicionar um módulo novo não exige alterar
 
 ```
 src/
-  omieClient.ts             # cliente HTTP genérico (auth, retries, erros) — nunca tem regra de negócio
+  omieClient.ts             # cliente HTTP genérico (auth, retries, throttle) — nunca tem regra de negócio
   index.ts                   # bootstrap do servidor MCP, registra allTools + genérica
   tools/
     types.ts                 # ToolDef (Passthrough | UseCase), helper defineTool()
@@ -198,6 +198,32 @@ src/
 
 ### Genérica (cobre todos os outros módulos)
 - `omie_chamar_api` — recebe `resource` (caminho do módulo), `call` (método) e `param` (parâmetros), permitindo acessar qualquer endpoint listado em https://developer.omie.com.br/service-list/ (clientes, financeiro, CRM, vendas, NF-e, serviços, etc.)
+
+## Rate limit da Omie — como o MCP se protege
+
+A Omie bloqueia rajadas de chamadas de duas formas: **"consumo indevido"** (rate
+limit propriamente dito) e **"consumo redundante"** (chamadas muito parecidas em
+sequência rápida — já aconteceu na prática ao consultar ~20 clientes em paralelo
+pra montar um relatório de pedidos). A proteção é **centralizada no
+`OmieClient`** (`src/omieClient.ts`), então todo módulo se beneficia automaticamente,
+sem precisar reimplementar nada:
+
+- **Throttle** — toda chamada respeita um espaçamento mínimo (300ms) desde a
+  chamada anterior feita pela mesma instância de `OmieClient`, mesmo que várias
+  cheguem ao mesmo tempo (`Promise.all`, `mapWithConcurrency`, etc.). Isso reduz
+  a chance de cair em "consumo redundante" antes mesmo de precisar de retry.
+- **Retry com espera correta** — se a Omie ainda assim bloquear, o `OmieClient`
+  tenta de novo (até 4 vezes), respeitando o tempo que a própria Omie sugere na
+  mensagem de erro (ex: "Aguarde 57 segundos") em vez de um backoff fixo curto.
+- **`mapWithConcurrency`** (`src/shared/concurrency.ts`) — usado por gateways que
+  buscam vários registros por código em lote (`ProdutosOmieGateway.consultarProdutosPorCodigo`,
+  `ClientesOmieGateway.consultarClientesPorCodigo`), limita a concorrência do
+  próprio código a 5 chamadas simultâneas, complementando o throttle do cliente.
+
+**Regra pra módulos novos:** nunca chamar `Promise.all`/`Promise.allSettled` num
+array de códigos sem limite de concorrência — sempre usar `mapWithConcurrency`.
+Chamadas paralelas de 2-3 endpoints diferentes (ex: buscar produtos e estoque ao
+mesmo tempo) são seguras e não precisam disso, o throttle do cliente já cobre.
 
 ## Adicionando um novo módulo
 
