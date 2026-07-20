@@ -87,13 +87,4 @@ export const ordemProducaoTools: ToolDef[] = [
       return useCase.execute(parsed);
     },
   }),
-  defineTool({
-    name: "omie_estrutura_consultar",
-    description:
-      "Consulta a estrutura (árvore de componentes / BOM / ficha técnica) de um produto. " +
-      "Método Omie: ConsultarEstrutura (recurso 'malha').",
-    inputSchema: { param: paramSchema },
-    resource: "produtos/malha",
-    call: "ConsultarEstrutura",
-  }),
 ];

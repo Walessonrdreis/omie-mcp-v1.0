@@ -239,8 +239,6 @@ src/
 - `omie_op_listar_com_produto` — **use-case**: lista OPs já com a descrição/SKU do produto
   resolvidos (reaproveita o `ProdutosOmieGateway` do módulo `produtos`) e o campo `concluida`
   (true/false, confiável) além do `etapaCodigo` cru
-- `omie_estrutura_consultar` — passthrough, estrutura de produtos (BOM / ficha técnica)
-
 > A etapa (`cEtapa`) de uma OP é um código de kanban **configurável por conta** (3 a 6 fases,
 > nomes definidos pelo próprio usuário na Omie) e a API não tem endpoint pra traduzir o código
 > pro nome da fase — por isso as ferramentas não tentam interpretá-lo, só expõem o campo
@@ -258,6 +256,15 @@ src/
   estoque em todos os locais (reaproveita o `EstoqueOmieGateway` do módulo `estoque`). Também
   aceita `filtrar_apenas_familia` — filtra por família e já vem com o estoque calculado numa
   chamada só
+
+### Estrutura de Produtos (`src/modules/estrutura/`)
+- `omie_estrutura_listar` — **use-case**: lista os produtos que têm estrutura (BOM/ficha técnica)
+  cadastrada, já com nome do produto e de cada insumo (a Omie devolve isso pronto em
+  `ListarEstruturas`, recurso `geral/malha` — não precisa cruzar com o cadastro de produtos)
+- `omie_estrutura_buscar_por_produto` — **use-case**: acha a estrutura de um produto pelo nome/
+  descrição (ou trecho dela) ou código, sem precisar saber o código interno da Omie de antemão —
+  ex: "qual a estrutura do produto 100kg". Pagina `ListarEstruturas` inteiro e filtra client-side
+  (a Omie não tem busca por texto nesse endpoint)
 
 ### Estoque (`src/modules/estoque/`)
 - `omie_estoque_ajuste_incluir` — passthrough, registra ajuste de estoque

@@ -10,6 +10,7 @@ import { pedidoVendaModuleTools } from "../modules/pedidoVenda/index.js";
 import { clientesFornecedoresModuleTools } from "../modules/clientesFornecedores/index.js";
 import { contasCorrentesModuleTools } from "../modules/contasCorrentes/index.js";
 import { fluxoCaixaModuleTools } from "../modules/fluxoCaixa/index.js";
+import { estruturaModuleTools } from "../modules/estrutura/index.js";
 
 /**
  * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
@@ -34,6 +35,7 @@ export const allTools: ToolDef[] = [
   ...clientesFornecedoresModuleTools,
   ...contasCorrentesModuleTools,
   ...fluxoCaixaModuleTools,
+  ...estruturaModuleTools,
   ...comprasTools,
   ...contasPagarModuleTools,
   ...contasReceberModuleTools,
