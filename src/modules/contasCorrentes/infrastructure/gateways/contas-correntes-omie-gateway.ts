@@ -1,14 +1,10 @@
 import { OmieClient } from "../../../../omieClient.js";
+import {
+  ContaCorrenteOmie,
+  IContasCorrentesGateway,
+} from "../../domain/interfaces/contas-correntes-gateway.js";
 
-export interface ContaCorrenteOmie {
-  nCodCC: number;
-  descricao: string;
-  codigo_banco: string;
-  tipo_conta_corrente: string;
-  inativo: "S" | "N";
-  saldo_inicial: number;
-  saldo_data: string;
-}
+export { ContaCorrenteOmie } from "../../domain/interfaces/contas-correntes-gateway.js";
 
 interface ListarContasCorrentesResponse {
   pagina: number;
@@ -23,7 +19,7 @@ interface ListarContasCorrentesResponse {
  * por outros módulos que recebem só o código da conta (nCodCC) e precisam do
  * nome/descrição (ex: `fluxoCaixa`).
  */
-export class ContasCorrentesOmieGateway {
+export class ContasCorrentesOmieGateway implements IContasCorrentesGateway {
   constructor(private readonly client: OmieClient) {}
 
   private async listarPagina(pagina: number): Promise<ListarContasCorrentesResponse> {
@@ -34,7 +30,6 @@ export class ContasCorrentesOmieGateway {
     });
   }
 
-  /** Poucas dezenas de contas em geral — busca todas as páginas e devolve um mapa código -> conta. */
   async mapaContasPorCodigo(): Promise<Map<number, ContaCorrenteOmie>> {
     const mapa = new Map<number, ContaCorrenteOmie>();
     let pagina = 1;

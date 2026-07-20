@@ -1,8 +1,25 @@
 import { ToolDef, defineTool } from "../../../../tools/types.js";
+import { OmieClient } from "../../../../omieClient.js";
+import { IContasCorrentesGateway } from "../../../contasCorrentes/domain/interfaces/contas-correntes-gateway.js";
+import { ContasCorrentesFakeGateway } from "../../../contasCorrentes/infrastructure/gateways/contas-correntes-fake-gateway.js";
 import { ContasCorrentesOmieGateway } from "../../../contasCorrentes/infrastructure/gateways/contas-correntes-omie-gateway.js";
 import { gerarFluxoCaixaParamSchema } from "../../application/dto/gerar-fluxo-caixa.dto.js";
 import { GerarFluxoCaixaUseCase } from "../../application/use-cases/gerar-fluxo-caixa.js";
+import { IFinancasGateway } from "../../domain/interfaces/financas-gateway.js";
+import { FinancasFakeGateway } from "../../infrastructure/gateways/financas-fake-gateway.js";
 import { FinancasOmieGateway } from "../../infrastructure/gateways/financas-omie-gateway.js";
+
+function criarFinancasGateway(client: OmieClient): IFinancasGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new FinancasFakeGateway()
+    : new FinancasOmieGateway(client);
+}
+
+function criarContasCorrentesGateway(client: OmieClient): IContasCorrentesGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new ContasCorrentesFakeGateway()
+    : new ContasCorrentesOmieGateway(client);
+}
 
 export const fluxoCaixaTools: ToolDef[] = [
   defineTool({
@@ -22,8 +39,8 @@ export const fluxoCaixaTools: ToolDef[] = [
     inputSchema: { param: gerarFluxoCaixaParamSchema },
     execute: async (client, param) => {
       const parsed = gerarFluxoCaixaParamSchema.parse(param);
-      const financasGateway = new FinancasOmieGateway(client);
-      const contasCorrentesGateway = new ContasCorrentesOmieGateway(client);
+      const financasGateway = criarFinancasGateway(client);
+      const contasCorrentesGateway = criarContasCorrentesGateway(client);
       const useCase = new GerarFluxoCaixaUseCase(financasGateway, contasCorrentesGateway);
       return useCase.execute(parsed);
     },

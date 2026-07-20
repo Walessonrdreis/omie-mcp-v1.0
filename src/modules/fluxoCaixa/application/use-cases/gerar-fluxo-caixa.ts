@@ -1,11 +1,8 @@
 import {
   ContaCorrenteOmie,
-  ContasCorrentesOmieGateway,
-} from "../../../contasCorrentes/infrastructure/gateways/contas-correntes-omie-gateway.js";
-import {
-  FinancasOmieGateway,
-  MovimentoFinanceiro,
-} from "../../infrastructure/gateways/financas-omie-gateway.js";
+  IContasCorrentesGateway,
+} from "../../../contasCorrentes/domain/interfaces/contas-correntes-gateway.js";
+import { IFinancasGateway, MovimentoFinanceiro } from "../../domain/interfaces/financas-gateway.js";
 import { CODIGOS_CONTAS_FAVORITAS } from "../contas-favoritas.js";
 import {
   GerarFluxoCaixaParam,
@@ -40,8 +37,8 @@ interface Acumulador {
  */
 export class GerarFluxoCaixaUseCase {
   constructor(
-    private readonly financasGateway: FinancasOmieGateway,
-    private readonly contasCorrentesGateway: ContasCorrentesOmieGateway
+    private readonly financasGateway: IFinancasGateway,
+    private readonly contasCorrentesGateway: IContasCorrentesGateway
   ) {}
 
   async execute(param: GerarFluxoCaixaParam): Promise<GerarFluxoCaixaResult> {
