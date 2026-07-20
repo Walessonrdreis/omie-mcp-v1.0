@@ -1,4 +1,4 @@
-import { EstoqueOmieGateway } from "../../infrastructure/gateways/estoque-omie-gateway.js";
+import { IEstoqueGateway } from "../../domain/interfaces/estoque-gateway.js";
 import { EstoqueTotalProdutoResult } from "../dto/estoque-total-produto.dto.js";
 
 /**
@@ -9,7 +9,7 @@ import { EstoqueTotalProdutoResult } from "../dto/estoque-total-produto.dto.js";
  * desse produto no total?").
  */
 export class ConsultarEstoqueTotalProdutoUseCase {
-  constructor(private readonly gateway: EstoqueOmieGateway) {}
+  constructor(private readonly gateway: IEstoqueGateway) {}
 
   async execute(codigoProduto: number): Promise<EstoqueTotalProdutoResult> {
     const posicoes = await this.gateway.listarPosicoesPorProduto(codigoProduto);

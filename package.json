@@ -13,7 +13,8 @@
     "start:http": "node dist/httpServer.js",
     "dev": "tsx src/index.ts",
     "dev:http": "tsx src/httpServer.ts",
-    "gerar-api-key": "node scripts/gerar-api-key.mjs"
+    "gerar-api-key": "node scripts/gerar-api-key.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
@@ -26,6 +27,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^20.14.2",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vitest": "^4.1.10"
   }
 }
