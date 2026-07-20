@@ -68,10 +68,18 @@ src/
     types.ts                 # ToolDef (Passthrough | UseCase), helper defineTool()
     registry.ts               # agrega os módulos e expõe handleToolCall()
     generic.ts                 # ferramenta omie_chamar_api (fallback p/ qualquer endpoint)
-    producao.ts                 # passthrough: Ordens de Produção, Estrutura (BOM)
-    produtos.ts                  # passthrough: Cadastro de produtos, famílias
-    compras.ts                    # passthrough: Requisição e pedido de compra
+    compras.ts                  # passthrough: Requisição e pedido de compra
   modules/
+    ordemProducao/                 # módulo em camadas (cruza com produtos/)
+      application/
+        use-cases/                    # ex: listar OPs já com descrição do produto
+        dto/
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      ordemProducao-register.ts
+      index.ts
     estoque/                       # módulo em camadas (tem lógica própria)
       application/
         use-cases/                    # regra de negócio (ex: somar estoque entre locais)
@@ -82,17 +90,48 @@ src/
         mcp/                              # definição das ToolDefs expostas via MCP
       estoque-register.ts                  # agrega as tools do módulo
       index.ts                              # barrel export
+    produtos/                      # módulo em camadas (mesma estrutura, cruza com estoque/)
+      application/
+        use-cases/                    # ex: listar produtos com quantidade/valor em estoque
+        dto/
+      infrastructure/
+        gateways/
+      presentation/
+        mcp/
+      produtos-register.ts
+      index.ts
 ```
+
+> Módulos em camadas podem depender do gateway de outro módulo quando o relatório
+> cruza dois domínios (ex: `produtos` usa o `EstoqueOmieGateway` de `estoque` para
+> calcular valor em estoque por produto; `ordemProducao` usa o `ProdutosOmieGateway` de
+> `produtos` para resolver a descrição das OPs) — é uma dependência explícita entre
+> módulos, não duplicação de código de acesso à Omie.
 
 ## Ferramentas disponíveis
 
-### Produção (`src/tools/producao.ts`)
-- `omie_op_incluir` / `omie_op_alterar` / `omie_op_excluir` / `omie_op_consultar` / `omie_op_listar` — Ordens de Produção
-- `omie_estrutura_consultar` — Estrutura de produtos (BOM / ficha técnica)
+### Ordem de Produção (`src/modules/ordemProducao/`)
+- `omie_op_incluir` / `omie_op_alterar` / `omie_op_excluir` — passthrough
+- `omie_op_consultar` — passthrough, uma OP com os insumos utilizados (produto só como código)
+- `omie_op_listar` — passthrough, lista OPs cruas (produto só como código, etapa como código cru)
+- `omie_op_listar_com_produto` — **use-case**: lista OPs já com a descrição/SKU do produto
+  resolvidos (reaproveita o `ProdutosOmieGateway` do módulo `produtos`) e o campo `concluida`
+  (true/false, confiável) além do `etapaCodigo` cru
+- `omie_estrutura_consultar` — passthrough, estrutura de produtos (BOM / ficha técnica)
 
-### Produtos (`src/tools/produtos.ts`)
-- `omie_produtos_consultar` / `omie_produtos_listar` — Cadastro de produtos
-- `omie_familias_listar` — Famílias de produtos
+> A etapa (`cEtapa`) de uma OP é um código de kanban **configurável por conta** (3 a 6 fases,
+> nomes definidos pelo próprio usuário na Omie) e a API não tem endpoint pra traduzir o código
+> pro nome da fase — por isso as ferramentas não tentam interpretá-lo, só expõem o campo
+> `concluida` (derivado de `cConcluida`, esse sim confiável) e o código cru pra quem já souber o
+> significado das etapas da própria conta.
+
+### Produtos (`src/modules/produtos/`)
+- `omie_produtos_consultar` — passthrough, cadastro de um produto específico
+- `omie_produtos_listar` — passthrough, lista produtos (campo `quantidade_estoque` NÃO confiável, vem sempre 0)
+- `omie_familias_listar` — passthrough, famílias de produtos
+- `omie_produtos_listar_com_estoque` — **use-case**: lista produtos já com quantidade e valor em
+  estoque calculados (venda e custo médio), cruzando o cadastro de produtos com a posição de
+  estoque em todos os locais (reaproveita o `EstoqueOmieGateway` do módulo `estoque`)
 
 ### Estoque (`src/modules/estoque/`)
 - `omie_estoque_ajuste_incluir` — passthrough, registra ajuste de estoque

@@ -1,9 +1,9 @@
 import { OmieClient } from "../omieClient.js";
 import { ToolDef } from "./types.js";
-import { producaoTools } from "./producao.js";
-import { produtosTools } from "./produtos.js";
 import { comprasTools } from "./compras.js";
 import { estoqueModuleTools } from "../modules/estoque/index.js";
+import { produtosModuleTools } from "../modules/produtos/index.js";
+import { ordemProducaoModuleTools } from "../modules/ordemProducao/index.js";
 
 /**
  * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
@@ -21,8 +21,8 @@ import { estoqueModuleTools } from "../modules/estoque/index.js";
  * mudar — o registro é genérico via `handleToolCall`.
  */
 export const allTools: ToolDef[] = [
-  ...producaoTools,
-  ...produtosTools,
+  ...ordemProducaoModuleTools,
+  ...produtosModuleTools,
   ...estoqueModuleTools,
   ...comprasTools,
 ];

@@ -13,6 +13,8 @@ export interface PosicaoEstoque {
   nSaldo: number;
   reservado: number;
   nPendente: number;
+  /** Custo médio (nCMC) do produto nesse local, usado pra calcular valor em estoque. */
+  nCMC: number;
 }
 
 interface ListarPosEstoqueResponse {
@@ -46,10 +48,11 @@ export class EstoqueOmieGateway {
   }
 
   /**
-   * Varre todas as páginas de posição de estoque e devolve apenas as
-   * posições do produto informado (em todos os locais de estoque).
+   * Varre TODAS as páginas de posição de estoque (todos os produtos, todos os
+   * locais). Base pra qualquer relatório que precise cruzar estoque com outro
+   * dado (ex: valor em estoque por produto, no módulo `produtos`).
    */
-  async listarPosicoesPorProduto(codigoProduto: number): Promise<PosicaoEstoque[]> {
+  async listarTodasPosicoes(): Promise<PosicaoEstoque[]> {
     const posicoes: PosicaoEstoque[] = [];
     let pagina = 1;
     let totalPaginas = 1;
@@ -57,10 +60,19 @@ export class EstoqueOmieGateway {
     do {
       const resposta = await this.listarPosEstoquePagina(pagina);
       totalPaginas = resposta.nTotPaginas;
-      posicoes.push(...resposta.produtos.filter((p) => p.nCodProd === codigoProduto));
+      posicoes.push(...resposta.produtos);
       pagina++;
     } while (pagina <= totalPaginas);
 
     return posicoes;
+  }
+
+  /**
+   * Varre todas as páginas de posição de estoque e devolve apenas as
+   * posições do produto informado (em todos os locais de estoque).
+   */
+  async listarPosicoesPorProduto(codigoProduto: number): Promise<PosicaoEstoque[]> {
+    const todas = await this.listarTodasPosicoes();
+    return todas.filter((p) => p.nCodProd === codigoProduto);
   }
 }

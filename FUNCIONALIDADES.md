@@ -11,6 +11,7 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Excluir Ordem de Produção | Remove uma OP. |
 | Consultar Ordem de Produção | Busca os detalhes de uma OP específica. |
 | Listar Ordens de Produção | Lista as OPs cadastradas, com filtros. |
+| Listar Ordens de Produção com Produto | Lista as OPs já com o **nome/código do produto** de cada uma (a Omie só mostra o código bruto na listagem) e se está concluída ou não. |
 | Consultar Estrutura de Produto | Mostra a ficha técnica (BOM) de um produto: quais insumos e quantidades compõem ele. |
 
 ## Produtos
@@ -20,6 +21,7 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Consultar Produto | Busca o cadastro completo de um produto (preço, NCM, família, etc.). |
 | Listar Produtos | Lista os produtos cadastrados, com filtros e paginação. |
 | Listar Famílias de Produtos | Lista as famílias/categorias de produtos cadastradas. |
+| Listar Produtos com Valor em Estoque | Lista todos os produtos já com a **quantidade e o valor em estoque calculados** (preço de venda e custo médio), somando todos os locais — sem precisar cruzar cadastro + estoque na mão. |
 
 ## Estoque
 
