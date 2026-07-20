@@ -1,8 +1,25 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
+import { OmieClient } from "../../../../omieClient.js";
+import { IEstoqueGateway } from "../../../estoque/domain/interfaces/estoque-gateway.js";
+import { EstoqueFakeGateway } from "../../../estoque/infrastructure/gateways/estoque-fake-gateway.js";
 import { EstoqueOmieGateway } from "../../../estoque/infrastructure/gateways/estoque-omie-gateway.js";
 import { listarProdutosComEstoqueParamSchema } from "../../application/dto/listar-produtos-com-estoque.dto.js";
 import { ListarProdutosComEstoqueUseCase } from "../../application/use-cases/listar-produtos-com-estoque.js";
+import { IProdutosGateway } from "../../domain/interfaces/produtos-gateway.js";
+import { ProdutosFakeGateway } from "../../infrastructure/gateways/produtos-fake-gateway.js";
 import { ProdutosOmieGateway } from "../../infrastructure/gateways/produtos-omie-gateway.js";
+
+function criarProdutosGateway(client: OmieClient): IProdutosGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new ProdutosFakeGateway()
+    : new ProdutosOmieGateway(client);
+}
+
+function criarEstoqueGateway(client: OmieClient): IEstoqueGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new EstoqueFakeGateway()
+    : new EstoqueOmieGateway(client);
+}
 
 export const produtosTools: ToolDef[] = [
   defineTool({
@@ -48,8 +65,8 @@ export const produtosTools: ToolDef[] = [
     inputSchema: { param: listarProdutosComEstoqueParamSchema },
     execute: async (client, param) => {
       const parsed = listarProdutosComEstoqueParamSchema.parse(param);
-      const produtosGateway = new ProdutosOmieGateway(client);
-      const estoqueGateway = new EstoqueOmieGateway(client);
+      const produtosGateway = criarProdutosGateway(client);
+      const estoqueGateway = criarEstoqueGateway(client);
       const useCase = new ListarProdutosComEstoqueUseCase(produtosGateway, estoqueGateway);
       return useCase.execute(parsed);
     },

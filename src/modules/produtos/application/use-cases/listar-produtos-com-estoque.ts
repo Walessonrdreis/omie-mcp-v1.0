@@ -1,5 +1,5 @@
-import { EstoqueOmieGateway } from "../../../estoque/infrastructure/gateways/estoque-omie-gateway.js";
-import { ProdutosOmieGateway } from "../../infrastructure/gateways/produtos-omie-gateway.js";
+import { IEstoqueGateway } from "../../../estoque/domain/interfaces/estoque-gateway.js";
+import { IProdutosGateway } from "../../domain/interfaces/produtos-gateway.js";
 import {
   ListarProdutosComEstoqueParam,
   ListarProdutosComEstoqueResult,
@@ -16,8 +16,8 @@ import {
  */
 export class ListarProdutosComEstoqueUseCase {
   constructor(
-    private readonly produtosGateway: ProdutosOmieGateway,
-    private readonly estoqueGateway: EstoqueOmieGateway
+    private readonly produtosGateway: IProdutosGateway,
+    private readonly estoqueGateway: IEstoqueGateway
   ) {}
 
   async execute(param: ListarProdutosComEstoqueParam): Promise<ListarProdutosComEstoqueResult> {

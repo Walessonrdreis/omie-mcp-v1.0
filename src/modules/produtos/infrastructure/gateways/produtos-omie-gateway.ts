@@ -1,27 +1,14 @@
 import { OmieClient } from "../../../../omieClient.js";
 import { mapWithConcurrency } from "../../../../shared/concurrency.js";
+import {
+  IProdutosGateway,
+  ListarProdutosResponse,
+  ProdutoOmie,
+} from "../../domain/interfaces/produtos-gateway.js";
+
+export { ProdutoOmie } from "../../domain/interfaces/produtos-gateway.js";
 
 const CONCORRENCIA_MAXIMA = 5;
-
-export interface ProdutoOmie {
-  codigo_produto: number;
-  codigo: string;
-  codigo_produto_integracao: string;
-  descricao: string;
-  unidade: string;
-  valor_unitario: number;
-  inativo: string;
-  codigo_familia: number;
-  descricao_familia?: string;
-}
-
-interface ListarProdutosResponse {
-  pagina: number;
-  total_de_paginas: number;
-  registros: number;
-  total_de_registros: number;
-  produto_servico_cadastro: ProdutoOmie[];
-}
 
 /**
  * Encapsula o acesso ao cadastro de produtos da Omie. Importante: o campo
@@ -30,7 +17,7 @@ interface ListarProdutosResponse {
  * módulo `produtos` cruza com o `EstoqueOmieGateway` (módulo `estoque`) pra
  * calcular a quantidade/valor real.
  */
-export class ProdutosOmieGateway {
+export class ProdutosOmieGateway implements IProdutosGateway {
   constructor(private readonly client: OmieClient) {}
 
   async listarProdutosPagina(
@@ -58,13 +45,6 @@ export class ProdutosOmieGateway {
     });
   }
 
-  /**
-   * Busca vários produtos por código, deduplicando, com concorrência
-   * limitada (ver `mapWithConcurrency` — muitas chamadas simultâneas batem
-   * no rate limit da Omie). Usado por outros módulos (ex: `ordemProducao`)
-   * que recebem uma lista de códigos de produto (sem descrição) e precisam
-   * enriquecer com o cadastro.
-   */
   async consultarProdutosPorCodigo(
     codigosProduto: number[]
   ): Promise<Map<number, ProdutoOmie>> {
