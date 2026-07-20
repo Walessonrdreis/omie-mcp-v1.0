@@ -1,7 +1,10 @@
 import {
+  ChaveProduto,
+  DadosProdutoParaGravar,
   IProdutosGateway,
   ListarProdutosResponse,
   ProdutoOmie,
+  StatusProdutoOmie,
 } from "../../domain/interfaces/produtos-gateway.js";
 
 const PRODUTOS_FAKE: ProdutoOmie[] = [
@@ -34,7 +37,14 @@ const PRODUTOS_FAKE: ProdutoOmie[] = [
  * usada quando `OMIE_MOCK=true`, pra desenvolvimento/testes offline.
  */
 export class ProdutosFakeGateway implements IProdutosGateway {
-  constructor(private readonly produtos: ProdutoOmie[] = PRODUTOS_FAKE) {}
+  private proximoCodigo = 1000;
+
+  /**
+   * Cópia própria por instância (não a constante `PRODUTOS_FAKE` direto) —
+   * agora que o fake também cria/altera/exclui, compartilhar o array por
+   * referência entre instâncias vazaria estado de um teste pro outro.
+   */
+  constructor(private readonly produtos: ProdutoOmie[] = PRODUTOS_FAKE.map((p) => ({ ...p }))) {}
 
   async listarProdutosPagina(
     pagina: number,
@@ -75,5 +85,77 @@ export class ProdutosFakeGateway implements IProdutosGateway {
       mapa.set(codigo, await this.consultarProduto(codigo));
     }
     return mapa;
+  }
+
+  async incluirProduto(dados: DadosProdutoParaGravar): Promise<StatusProdutoOmie> {
+    const jaExiste = this.produtos.some((p) => p.codigo === dados.codigo);
+    if (jaExiste) {
+      throw new Error(`Já existe produto com código ${dados.codigo} (fake).`);
+    }
+
+    const codigoProduto = this.proximoCodigo++;
+    this.produtos.push({
+      codigo_produto: codigoProduto,
+      codigo: dados.codigo,
+      codigo_produto_integracao: dados.codigo_produto_integracao ?? "",
+      descricao: dados.descricao,
+      unidade: dados.unidade,
+      valor_unitario: dados.valor_unitario ?? 0,
+      inativo: "N",
+      codigo_familia: dados.codigo_familia ?? 0,
+    });
+
+    return {
+      codigo_produto: codigoProduto,
+      codigo_produto_integracao: dados.codigo_produto_integracao ?? "",
+      codigo_status: "0",
+      descricao_status: "Produto cadastrado com sucesso! (fake)",
+    };
+  }
+
+  private encontrarIndice(chave: ChaveProduto): number {
+    return this.produtos.findIndex(
+      (p) =>
+        (chave.codigo_produto !== undefined && p.codigo_produto === chave.codigo_produto) ||
+        (chave.codigo !== undefined && p.codigo === chave.codigo) ||
+        (chave.codigo_produto_integracao !== undefined &&
+          p.codigo_produto_integracao === chave.codigo_produto_integracao)
+    );
+  }
+
+  async alterarProduto(
+    chave: ChaveProduto,
+    dados: Partial<DadosProdutoParaGravar>
+  ): Promise<StatusProdutoOmie> {
+    const indice = this.encontrarIndice(chave);
+    if (indice === -1) {
+      throw new Error(`Produto não encontrado pra alterar (fake): ${JSON.stringify(chave)}`);
+    }
+
+    this.produtos[indice] = { ...this.produtos[indice], ...dados };
+    const produto = this.produtos[indice];
+
+    return {
+      codigo_produto: produto.codigo_produto,
+      codigo_produto_integracao: produto.codigo_produto_integracao,
+      codigo_status: "0",
+      descricao_status: "Produto alterado com sucesso! (fake)",
+    };
+  }
+
+  async excluirProduto(chave: ChaveProduto): Promise<StatusProdutoOmie> {
+    const indice = this.encontrarIndice(chave);
+    if (indice === -1) {
+      throw new Error(`Produto não encontrado pra excluir (fake): ${JSON.stringify(chave)}`);
+    }
+
+    const [produto] = this.produtos.splice(indice, 1);
+
+    return {
+      codigo_produto: produto.codigo_produto,
+      codigo_produto_integracao: produto.codigo_produto_integracao,
+      codigo_status: "0",
+      descricao_status: "Produto excluído com sucesso! (fake)",
+    };
   }
 }

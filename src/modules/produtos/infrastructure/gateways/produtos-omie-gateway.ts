@@ -1,9 +1,12 @@
 import { OmieClient } from "../../../../omieClient.js";
 import { mapWithConcurrency } from "../../../../shared/concurrency.js";
 import {
+  ChaveProduto,
+  DadosProdutoParaGravar,
   IProdutosGateway,
   ListarProdutosResponse,
   ProdutoOmie,
+  StatusProdutoOmie,
 } from "../../domain/interfaces/produtos-gateway.js";
 
 export { ProdutoOmie } from "../../domain/interfaces/produtos-gateway.js";
@@ -60,5 +63,32 @@ export class ProdutosOmieGateway implements IProdutosGateway {
       mapa.set(resultado.value.codigo_produto, resultado.value);
     }
     return mapa;
+  }
+
+  async incluirProduto(dados: DadosProdutoParaGravar): Promise<StatusProdutoOmie> {
+    return this.client.call<StatusProdutoOmie>({
+      resource: "geral/produtos",
+      call: "IncluirProduto",
+      param: { ...dados },
+    });
+  }
+
+  async alterarProduto(
+    chave: ChaveProduto,
+    dados: Partial<DadosProdutoParaGravar>
+  ): Promise<StatusProdutoOmie> {
+    return this.client.call<StatusProdutoOmie>({
+      resource: "geral/produtos",
+      call: "AlterarProduto",
+      param: { ...chave, ...dados },
+    });
+  }
+
+  async excluirProduto(chave: ChaveProduto): Promise<StatusProdutoOmie> {
+    return this.client.call<StatusProdutoOmie>({
+      resource: "geral/produtos",
+      call: "ExcluirProduto",
+      param: { ...chave },
+    });
   }
 }

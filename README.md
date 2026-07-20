@@ -249,7 +249,15 @@ src/
 - `omie_produtos_consultar` — passthrough, cadastro de um produto específico
 - `omie_produtos_listar` — passthrough, lista produtos (campo `quantidade_estoque` NÃO confiável,
   vem sempre 0). Aceita `filtrar_apenas_familia` (código da família, achado testando o WSDL — não
-  documentado na página de ajuda) pra restringir a uma família de produtos
+  documentado na página de ajuda) pra restringir a uma família de produtos. Também aceita
+  `filtrar_apenas_descricao` (`"%texto%"` = contém, `"texto%"` = começa com, etc.) pra buscar por
+  nome sem paginar tudo
+- `omie_produtos_incluir` / `omie_produtos_alterar` / `omie_produtos_excluir` — **use-case**
+  (destrutivas), seguindo o mesmo padrão gateway+interface+fake+teste dos demais métodos do
+  módulo (`IProdutosGateway.incluirProduto/alterarProduto/excluirProduto`) — testável via
+  `ProdutosFakeGateway` sem tocar na Omie real. **Atenção:** validado ao vivo (round-trip
+  criar→alterar→excluir) que `codigo` (SKU) é obrigatório em `IncluirProduto`, mesmo a doc
+  pública da Omie marcando como opcional
 - `omie_familias_listar` — passthrough, famílias de produtos
 - `omie_produtos_listar_com_estoque` — **use-case**: lista produtos já com quantidade e valor em
   estoque calculados (venda e custo médio), cruzando o cadastro de produtos com a posição de

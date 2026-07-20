@@ -20,7 +20,10 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Funcionalidade | O que faz |
 |---|---|
 | Consultar Produto | Busca o cadastro completo de um produto (preço, NCM, família, etc.). |
-| Listar Produtos | Lista os produtos cadastrados, com filtros e paginação — inclusive **filtrar por família**. |
+| Listar Produtos | Lista os produtos cadastrados, com filtros e paginação — inclusive **filtrar por família** e **buscar por nome/descrição**. |
+| Incluir Produto | Cria um novo produto/serviço no cadastro. |
+| Alterar Produto | Atualiza um produto/serviço já cadastrado. |
+| Excluir Produto | Remove um produto/serviço do cadastro (a Omie recusa se já tiver movimentação). |
 | Listar Famílias de Produtos | Lista as famílias/categorias de produtos cadastradas. |
 | Listar Produtos com Valor em Estoque | Lista todos os produtos já com a **quantidade e o valor em estoque calculados** (preço de venda e custo médio), somando todos os locais — sem precisar cruzar cadastro + estoque na mão. Também pode ser **filtrado por família**. |
 

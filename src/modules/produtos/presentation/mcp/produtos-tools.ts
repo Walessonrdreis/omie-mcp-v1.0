@@ -4,7 +4,15 @@ import { IEstoqueGateway } from "../../../estoque/domain/interfaces/estoque-gate
 import { EstoqueFakeGateway } from "../../../estoque/infrastructure/gateways/estoque-fake-gateway.js";
 import { EstoqueOmieGateway } from "../../../estoque/infrastructure/gateways/estoque-omie-gateway.js";
 import { listarProdutosComEstoqueParamSchema } from "../../application/dto/listar-produtos-com-estoque.dto.js";
+import {
+  alterarProdutoParamSchema,
+  excluirProdutoParamSchema,
+  incluirProdutoParamSchema,
+} from "../../application/dto/produto-crud.dto.js";
 import { ListarProdutosComEstoqueUseCase } from "../../application/use-cases/listar-produtos-com-estoque.js";
+import { IncluirProdutoUseCase } from "../../application/use-cases/incluir-produto.js";
+import { AlterarProdutoUseCase } from "../../application/use-cases/alterar-produto.js";
+import { ExcluirProdutoUseCase } from "../../application/use-cases/excluir-produto.js";
 import { IProdutosGateway } from "../../domain/interfaces/produtos-gateway.js";
 import { ProdutosFakeGateway } from "../../infrastructure/gateways/produtos-fake-gateway.js";
 import { ProdutosOmieGateway } from "../../infrastructure/gateways/produtos-omie-gateway.js";
@@ -28,6 +36,50 @@ export const produtosTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "geral/produtos",
     call: "ConsultarProduto",
+  }),
+  defineTool({
+    name: "omie_produtos_incluir",
+    description:
+      "Cria um novo produto/serviço no cadastro. Método Omie: IncluirProduto. Campos " +
+      "obrigatórios (testado ao vivo — a doc pública da Omie erra ao marcar 'codigo' como " +
+      "opcional): codigo (SKU), descricao, unidade. Opcionais comuns: codigo_produto_integracao, " +
+      "ncm, valor_unitario, ean, codigo_familia (via omie_familias_listar), tipoItem, peso_liq, " +
+      "peso_bruto, marca, modelo. Retorna codigo_produto (código Omie gerado).",
+    inputSchema: { param: incluirProdutoParamSchema },
+    execute: async (client, param) => {
+      const parsed = incluirProdutoParamSchema.parse(param);
+      const useCase = new IncluirProdutoUseCase(criarProdutosGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
+  }),
+  defineTool({
+    name: "omie_produtos_alterar",
+    description:
+      "Altera um produto/serviço já cadastrado. Método Omie: AlterarProduto. Precisa identificar " +
+      "o produto por codigo_produto, codigo (SKU) ou codigo_produto_integracao, e enviar os campos " +
+      "que devem mudar (mesmos campos aceitos em omie_produtos_incluir).",
+    inputSchema: { param: alterarProdutoParamSchema },
+    execute: async (client, param) => {
+      const parsed = alterarProdutoParamSchema.parse(param);
+      const useCase = new AlterarProdutoUseCase(criarProdutosGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
+  }),
+  defineTool({
+    name: "omie_produtos_excluir",
+    description:
+      "Exclui um produto/serviço do cadastro. Método Omie: ExcluirProduto. Identifique o produto " +
+      "por codigo_produto, codigo (SKU) ou codigo_produto_integracao (só um deles é suficiente). " +
+      "A Omie recusa a exclusão se o produto já tiver movimentação (pedido, estoque, OP, etc.).",
+    inputSchema: { param: excluirProdutoParamSchema },
+    execute: async (client, param) => {
+      const parsed = excluirProdutoParamSchema.parse(param);
+      const useCase = new ExcluirProdutoUseCase(criarProdutosGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
   }),
   defineTool({
     name: "omie_produtos_listar",
