@@ -53,6 +53,17 @@ header `Authorization: Bearer <HTTP_API_KEY>` (retorna 401 sem isso). Ainda só
 escuta em `127.0.0.1`; API key é o mínimo pra este estágio (local,
 single-user) — não é suficiente sozinha se isso for exposto pra fora um dia.
 
+Duas camadas extra de proteção:
+- **Rate limit** — no máximo 120 requisições por minuto (janela fixa); acima
+  disso responde `429`.
+- **Confirmação em operações destrutivas** — ferramentas que incluem, alteram
+  ou excluem dado na Omie (`omie_op_incluir/alterar/excluir`,
+  `omie_estoque_ajuste_incluir`, `omie_requisicao_compra_incluir`,
+  `omie_pedido_compra_incluir`, e qualquer chamada via `omie_chamar_api` cujo
+  `call` comece com `Incluir`/`Alterar`/`Excluir`/`Cancelar`/`Deletar`) exigem
+  `"confirmar": true` no payload, senão respondem `400` — evita chamada
+  destrutiva acidental (script com bug, loop, etc.).
+
 ```bash
 npm run gerar-api-key  # gera a chave e mostra a linha pra colar no .env
 npm run dev:http    # desenvolvimento (tsx)

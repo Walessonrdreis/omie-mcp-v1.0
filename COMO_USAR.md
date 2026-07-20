@@ -53,6 +53,25 @@ servidor recusa subir sem ela. Toda rota exige o header
 todo curl, exporte antes: `export HTTP_API_KEY=<sua chave>` (os exemplos
 abaixo já usam `$HTTP_API_KEY`).
 
+Duas proteções extras: rate limit de 120 requisições/minuto (`429` acima
+disso); e ferramentas que **alteram dado na Omie** (incluir/alterar/excluir —
+ex: `omie_op_incluir`, `omie_estoque_ajuste_incluir`) exigem
+`"confirmar": true` no payload, senão respondem `400`:
+
+```bash
+# sem confirmar → 400
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST \
+  http://127.0.0.1:3939/tools/omie_op_incluir \
+  -H "Content-Type: application/json" \
+  -d '{"cCodIntOP":"OP-001","nCodProduto":123,"nQtde":10}'
+
+# com confirmar → executa
+curl -H "Authorization: Bearer $HTTP_API_KEY" -X POST \
+  http://127.0.0.1:3939/tools/omie_op_incluir \
+  -H "Content-Type: application/json" \
+  -d '{"confirmar":true,"cCodIntOP":"OP-001","nCodProduto":123,"nQtde":10}'
+```
+
 ### Rotas genéricas do servidor HTTP
 
 ```bash

@@ -12,6 +12,7 @@ export const estoqueTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "estoque/ajuste",
     call: "IncluirAjusteEstoque",
+    destructive: true,
   }),
   defineTool({
     name: "omie_estoque_movimentos_listar",

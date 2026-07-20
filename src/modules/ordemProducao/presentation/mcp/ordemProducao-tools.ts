@@ -13,6 +13,7 @@ export const ordemProducaoTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "produtos/op",
     call: "IncluirOrdemProducao",
+    destructive: true,
   }),
   defineTool({
     name: "omie_op_alterar",
@@ -20,6 +21,7 @@ export const ordemProducaoTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "produtos/op",
     call: "AlterarOrdemProducao",
+    destructive: true,
   }),
   defineTool({
     name: "omie_op_excluir",
@@ -27,6 +29,7 @@ export const ordemProducaoTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "produtos/op",
     call: "ExcluirOrdemProducao",
+    destructive: true,
   }),
   defineTool({
     name: "omie_op_consultar",

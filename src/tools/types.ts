@@ -14,6 +14,8 @@ export interface PassthroughToolDef {
   resource: string;
   call: string;
   execute?: undefined;
+  /** Inclui, altera ou exclui dado na Omie — exige confirmação explícita via HTTP (ver httpServer.ts). */
+  destructive?: boolean;
 }
 
 /**
@@ -29,6 +31,8 @@ export interface UseCaseToolDef {
   resource?: undefined;
   call?: undefined;
   execute: (client: OmieClient, param: Record<string, unknown>) => Promise<unknown>;
+  /** Inclui, altera ou exclui dado na Omie — exige confirmação explícita via HTTP (ver httpServer.ts). */
+  destructive?: boolean;
 }
 
 export type ToolDef = PassthroughToolDef | UseCaseToolDef;

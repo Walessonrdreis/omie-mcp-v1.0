@@ -12,6 +12,7 @@ export const comprasTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "produtos/requisicaocompra",
     call: "IncluirRequisicaoCompra",
+    destructive: true,
   }),
   defineTool({
     name: "omie_pedido_compra_incluir",
@@ -19,5 +20,6 @@ export const comprasTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "produtos/pedidocompra",
     call: "IncluirPedidoCompra",
+    destructive: true,
   }),
 ];

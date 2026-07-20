@@ -59,6 +59,59 @@ function autenticar(req: Request, res: Response, next: NextFunction) {
 
 app.use(autenticar);
 
+/**
+ * Rate limit simples (janela fixa): protege contra brute-force da API key e
+ * contra um script/loop travado martelando o servidor (e, por tabela, a
+ * Omie) sem limite. Como o servidor só aceita conexão de 127.0.0.1, a janela
+ * é efetivamente global (todo tráfego vem do mesmo IP).
+ */
+const JANELA_RATE_LIMIT_MS = 60_000;
+const LIMITE_REQUISICOES_POR_JANELA = 120;
+let inicioJanela = Date.now();
+let requisicoesNaJanela = 0;
+
+function rateLimit(req: Request, res: Response, next: NextFunction) {
+  const agora = Date.now();
+  if (agora - inicioJanela >= JANELA_RATE_LIMIT_MS) {
+    inicioJanela = agora;
+    requisicoesNaJanela = 0;
+  }
+  requisicoesNaJanela += 1;
+  if (requisicoesNaJanela > LIMITE_REQUISICOES_POR_JANELA) {
+    res.status(429).json({ erro: "Muitas requisições — tente novamente em instantes." });
+    return;
+  }
+  next();
+}
+
+app.use(rateLimit);
+
+/**
+ * Nomes de método Omie que alteram dado (convenção Omie: Incluir/Alterar/
+ * Excluir/...). Usado só pra decidir se `omie_chamar_api` (que pode chamar
+ * QUALQUER método) exige confirmação — ferramentas específicas já declaram
+ * isso via `destructive` em `ToolDef`.
+ */
+const PREFIXOS_CALL_DESTRUTIVA = /^(incluir|alterar|excluir|cancelar|deletar)/i;
+
+function ehChamadaDestrutiva(nome: string, payload: Record<string, unknown>): boolean {
+  if (nome === genericToolDefinition.name) {
+    const call = typeof payload.call === "string" ? payload.call : "";
+    return PREFIXOS_CALL_DESTRUTIVA.test(call);
+  }
+  const tool = allTools.find((t) => t.name === nome);
+  return tool?.destructive === true;
+}
+
+class ConfirmacaoNecessaria extends Error {
+  constructor() {
+    super(
+      "Esta operação altera dado na Omie (incluir/alterar/excluir). Envie o campo " +
+        "\"confirmar\": true no payload pra confirmar que a chamada é intencional."
+    );
+  }
+}
+
 function schemaDaFerramenta(nome: string): Record<string, unknown> {
   if (nome === genericToolDefinition.name) {
     return zodToJsonSchema(z.object(genericToolDefinition.inputSchema), nome);
@@ -90,7 +143,15 @@ function payloadDaQuery(query: Request["query"]): Record<string, unknown> {
   return payload;
 }
 
-async function executarFerramenta(nome: string, payload: Record<string, unknown>) {
+async function executarFerramenta(nome: string, payloadOriginal: Record<string, unknown>) {
+  const { confirmar, ...payload } = payloadOriginal;
+
+  if (ehChamadaDestrutiva(nome, nome === genericToolDefinition.name ? payloadOriginal : payload)) {
+    if (confirmar !== true) {
+      throw new ConfirmacaoNecessaria();
+    }
+  }
+
   if (nome === genericToolDefinition.name) {
     return handleGenericCall(client, payload as any);
   }
@@ -110,6 +171,10 @@ class NaoEncontrada extends Error {
 function tratarErro(err: unknown, res: Response) {
   if (err instanceof NaoEncontrada) {
     res.status(404).json({ erro: err.message });
+    return;
+  }
+  if (err instanceof ConfirmacaoNecessaria) {
+    res.status(400).json({ erro: err.message });
     return;
   }
   const mensagem =
