@@ -1,0 +1,85 @@
+# Regras do Projeto omie-mcp
+
+## Arquitetura
+
+O projeto tem **2 padrões** de módulo:
+
+### 1️⃣ PASSTHROUGH — Quando a Omie já devolve o dado pronto
+Arquivo único em `src/tools/<modulo>.ts`:
+
+```typescript
+import { defineTool, paramSchema, ToolDef } from "./types.js";
+
+export const comprasTools: ToolDef[] = [
+  defineTool({
+    name: "omie_<modulo>_<acao>",
+    description: "Descrição clara. Método Omie: NomeDoMetodoOmie.",
+    inputSchema: { param: paramSchema },
+    resource: "caminho/do/recurso",
+    call: "NomeDoMetodo",
+  }),
+];
+```
+
+**Usar quando**: Só repassar resource + call pra Omie, sem lógica própria.
+
+### 2️⃣ MÓDULO EM CAMADAS — Quando precisa de lógica própria
+Estrutura em `src/modules/<modulo>/`:
+
+```
+<modulo>/
+├── index.ts                                    # barrel: export { moduloModuleTools }
+├── <modulo>-register.ts                        # barrel: import + export das tools
+├── presentation/mcp/<modulo>-tools.ts          # Definição das ToolDef[] (com execute se precisar)
+├── application/
+│   ├── dto/<arquivo>.dto.ts                    # Schemas Zod específicos
+│   └── use-cases/<arquivo>.ts                  # Classe UseCase com lógica de negócio
+└── infrastructure/gateways/<arquivo>.ts        # Gateway com chamadas Omie (resource + call)
+```
+
+**Usar quando**:
+- Input customizado (Zod schema próprio)
+- Filtrar/transformar dados client-side
+- Agregar dados de várias chamadas Omie
+- Cruzar dados de 2 domínios (ex: pedidos + clientes)
+
+## Regras de Nomenclatura
+
+| Item | Padrão | Exemplo |
+|------|--------|---------|
+| Diretório do módulo | `<modulo>/` | `clientesFornecedores/` |
+| Arquivo register | `<modulo>-register.ts` | `clientesFornecedores-register.ts` |
+| Arquivo tools | `<modulo>-tools.ts` | `clientes-fornecedores-tools.ts` |
+| Arquivo gateway | `*-gateway.ts` | `clientes-omie-gateway.ts` |
+| Arquivo use-case | `*-use-case.ts` (ou `consultar-*.ts`) | `consultar-estoque-total-produto.ts` |
+| Arquivo dto | `*.dto.ts` | `estoque-total-produto.dto.ts` |
+| Export da tools | camelCase do módulo | `clientesFornecedoresTools` |
+| Export do register | camelCase + sufixo `ModuleTools` | `clientesFornecedoresModuleTools` |
+| Nome da tool | prefixo `omie_` + módulo + ação | `omie_clientes_listar` |
+| Pastas fixas | `presentation/mcp/`, `application/use-cases/`, `application/dto/`, `infrastructure/gateways/` | — |
+
+## Registro de Ferramentas
+
+Todas as tools devem ser registradas em `src/tools/registry.ts`:
+
+```typescript
+export const allTools: ToolDef[] = [
+  ...moduloModuleTools,       // módulos em camadas (src/modules/<modulo>/)
+  ...ferramentasTools,        // passthrough (src/tools/<modulo>.ts)
+];
+```
+
+O `src/index.ts` registra automaticamente iterando `allTools` — não precisa alterar.
+
+## Rate Limit / Boas Práticas
+
+1. **NUNCA** usar `Promise.all` em lote sem `mapWithConcurrency` (limite 5)
+2. **NUNCA** rodar 2 chamadas do MESMO método Omie em paralelo — rodar em sequência
+3. Chamadas paralelas de métodos DIFERENTES são seguras
+4. Sempre importar de `./omieClient.js` com `.js` (NodeNext)
+
+## Stack
+- TypeScript (ES2022, NodeNext)
+- @modelcontextprotocol/sdk
+- Zod (schemas de validação)
+- dotenv (OMIE_APP_KEY, OMIE_APP_SECRET)

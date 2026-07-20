@@ -1,0 +1,1 @@
+export { contasPagarModuleTools } from "./contasPagar-register.js";
