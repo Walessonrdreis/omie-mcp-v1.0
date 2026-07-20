@@ -1,8 +1,23 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
+import { OmieClient } from "../../../../omieClient.js";
+import { IProdutosGateway } from "../../../produtos/domain/interfaces/produtos-gateway.js";
+import { ProdutosFakeGateway } from "../../../produtos/infrastructure/gateways/produtos-fake-gateway.js";
 import { ProdutosOmieGateway } from "../../../produtos/infrastructure/gateways/produtos-omie-gateway.js";
 import { listarOpsComProdutoParamSchema } from "../../application/dto/listar-ops-com-produto.dto.js";
 import { ListarOpsComProdutoUseCase } from "../../application/use-cases/listar-ops-com-produto.js";
+import { IOrdemProducaoGateway } from "../../domain/interfaces/op-gateway.js";
+import { OpFakeGateway } from "../../infrastructure/gateways/op-fake-gateway.js";
 import { OpOmieGateway } from "../../infrastructure/gateways/op-omie-gateway.js";
+
+function criarOpGateway(client: OmieClient): IOrdemProducaoGateway {
+  return process.env.OMIE_MOCK === "true" ? new OpFakeGateway() : new OpOmieGateway(client);
+}
+
+function criarProdutosGateway(client: OmieClient): IProdutosGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new ProdutosFakeGateway()
+    : new ProdutosOmieGateway(client);
+}
 
 export const ordemProducaoTools: ToolDef[] = [
   defineTool({
@@ -66,8 +81,8 @@ export const ordemProducaoTools: ToolDef[] = [
     inputSchema: { param: listarOpsComProdutoParamSchema },
     execute: async (client, param) => {
       const parsed = listarOpsComProdutoParamSchema.parse(param);
-      const opGateway = new OpOmieGateway(client);
-      const produtosGateway = new ProdutosOmieGateway(client);
+      const opGateway = criarOpGateway(client);
+      const produtosGateway = criarProdutosGateway(client);
       const useCase = new ListarOpsComProdutoUseCase(opGateway, produtosGateway);
       return useCase.execute(parsed);
     },

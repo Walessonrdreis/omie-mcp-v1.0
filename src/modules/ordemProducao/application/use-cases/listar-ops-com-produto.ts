@@ -1,5 +1,5 @@
-import { ProdutosOmieGateway } from "../../../produtos/infrastructure/gateways/produtos-omie-gateway.js";
-import { OpOmieGateway } from "../../infrastructure/gateways/op-omie-gateway.js";
+import { IProdutosGateway } from "../../../produtos/domain/interfaces/produtos-gateway.js";
+import { IOrdemProducaoGateway } from "../../domain/interfaces/op-gateway.js";
 import {
   ListarOpsComProdutoParam,
   ListarOpsComProdutoResult,
@@ -16,8 +16,8 @@ import {
  */
 export class ListarOpsComProdutoUseCase {
   constructor(
-    private readonly opGateway: OpOmieGateway,
-    private readonly produtosGateway: ProdutosOmieGateway
+    private readonly opGateway: IOrdemProducaoGateway,
+    private readonly produtosGateway: IProdutosGateway
   ) {}
 
   async execute(param: ListarOpsComProdutoParam): Promise<ListarOpsComProdutoResult> {

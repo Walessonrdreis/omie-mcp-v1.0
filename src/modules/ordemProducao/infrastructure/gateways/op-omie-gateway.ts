@@ -1,43 +1,12 @@
 import { OmieClient } from "../../../../omieClient.js";
+import {
+  IOrdemProducaoGateway,
+  ListarOrdemProducaoResponse,
+} from "../../domain/interfaces/op-gateway.js";
 
-export interface OrdemProducao {
-  identificacao: {
-    cCodIntOP: string;
-    cNumOP: string;
-    codigo_local_estoque: number;
-    dDtPrevisao: string;
-    nCodOP: number;
-    nCodProduto: number;
-    nQtde: number;
-  };
-  infAdicionais: {
-    /**
-     * Código cru da etapa no kanban de produção. NÃO tem significado fixo:
-     * cada conta Omie configura de 3 a 6 etapas com nomes próprios, e a API
-     * não expõe endpoint pra traduzir o código pro nome — por isso este
-     * gateway não tenta interpretar esse valor, só repassa.
-     */
-    cEtapa: string;
-    dDtConclusao: string;
-    dDtInicio: string;
-    nCodProjeto: number;
-  };
-  outrasInf: {
-    cConcluida: "S" | "N";
-    dConclusao: string;
-    dInclusao: string;
-  };
-}
+export { OrdemProducao } from "../../domain/interfaces/op-gateway.js";
 
-interface ListarOrdemProducaoResponse {
-  pagina: number;
-  total_de_paginas: number;
-  registros: number;
-  total_de_registros: number;
-  cadastros: OrdemProducao[];
-}
-
-export class OpOmieGateway {
+export class OpOmieGateway implements IOrdemProducaoGateway {
   constructor(private readonly client: OmieClient) {}
 
   async listarOrdensPagina(
