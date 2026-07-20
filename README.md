@@ -39,6 +39,55 @@ Permite que o Claude consulte e execute operações no ERP Omie via ferramentas 
    }
    ```
 
+## API HTTP local (opcional, pra consumir de um frontend/backend próprio)
+
+Além do servidor MCP (stdio, pro Claude), existe um segundo transporte —
+`src/httpServer.ts` — que expõe **as mesmas ferramentas** (`allTools` +
+`handleToolCall`, o mesmo registry do MCP) como uma API REST simples, pra
+quem quiser montar um frontend ou outro backend consumindo essa lógica sem
+falar o protocolo MCP.
+
+```bash
+npm run dev:http    # desenvolvimento (tsx)
+npm run start:http  # produção (build + node dist/httpServer.js)
+```
+
+- `GET /tools` — lista todas as ferramentas disponíveis (nome + descrição). Passe
+  `?schema` (ex: `/tools?schema`) pra já vir com o JSON Schema do payload de cada
+  uma junto.
+- `GET /tools/<nome>/schema` — JSON Schema do payload de UMA ferramenta específica
+  (campos, tipos, quais são obrigatórios, descrição de cada um) — útil pra um
+  frontend montar o formulário/payload certo sem adivinhar.
+- `GET /tools/<nome>?campo=valor&outroCampo=valor` — chama a ferramenta direto
+  pela URL (dá pra testar no navegador, sem Postman/curl). Cada valor da query
+  string é interpretado como JSON quando possível (`true`, `123`, `"texto"`),
+  senão fica como string.
+- `POST /tools/<nome>` — chama a ferramenta; o corpo da requisição (JSON) é o
+  payload da ferramenta. Preferível pra payloads grandes/aninhados (ex: arrays
+  em `codigos_conta_corrente`).
+
+Exemplos:
+```bash
+# ver o payload esperado por uma ferramenta
+curl http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar/schema
+
+# chamar direto pela URL (também funciona colado na barra do navegador)
+curl "http://127.0.0.1:3939/tools/omie_familias_listar?pagina=1&registros_por_pagina=5"
+
+# chamar via POST (corpo JSON)
+curl -X POST http://127.0.0.1:3939/tools/omie_fluxo_caixa_gerar \
+  -H "Content-Type: application/json" \
+  -d '{"data_inicio":"01/07/2026","data_fim":"31/07/2026","agrupamento":"dia"}'
+```
+
+> ⚠️ **Só para uso local.** Escuta em `127.0.0.1` (não aceita conexão de fora
+> da máquina), sem autenticação, sem validação de origem. **Não expor essa
+> porta pra fora da máquina/rede local** antes de adicionar autenticação —
+> mesma ressalva de segurança já feita sobre transformar o omie-mcp num
+> Connector remoto (ver seção de segurança). A intenção é: usar local agora
+> pra desenvolver contra ele, migrar pra um serviço exposto de verdade só
+> depois de implementar segurança mínima (auth, validação de entrada).
+
 ## Arquitetura
 
 Existem **dois formatos de módulo**, escolhidos conforme a necessidade:
@@ -63,7 +112,8 @@ ferramenta no servidor MCP — **adicionar um módulo novo não exige alterar
 ```
 src/
   omieClient.ts             # cliente HTTP genérico (auth, retries, throttle) — nunca tem regra de negócio
-  index.ts                   # bootstrap do servidor MCP, registra allTools + genérica
+  index.ts                   # bootstrap do servidor MCP (stdio), registra allTools + genérica
+  httpServer.ts               # bootstrap do servidor HTTP (local, opcional) — mesmo allTools + genérica
   tools/
     types.ts                 # ToolDef (Passthrough | UseCase), helper defineTool()
     registry.ts               # agrega os módulos e expõe handleToolCall()
