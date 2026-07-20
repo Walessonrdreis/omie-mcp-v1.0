@@ -20,6 +20,14 @@ export const listarPedidosComClienteParamSchema = z.object({
 
 export type ListarPedidosComClienteParam = z.infer<typeof listarPedidosComClienteParamSchema>;
 
+export interface ItemPedidoComCliente {
+  codigoProduto: number;
+  codigoSku: string;
+  descricaoProduto: string;
+  quantidade: number;
+  unidade: string;
+}
+
 export interface PedidoComCliente {
   numeroPedido: string;
   codigoPedido: number;
@@ -35,11 +43,12 @@ export interface PedidoComCliente {
   faturado: boolean;
   quantidadeItens: number;
   valorTotalPedido: number;
+  itens: ItemPedidoComCliente[];
 }
 
 export interface ListarPedidosComClienteResult {
   pagina: number;
   totalPaginas: number;
   totalRegistros: number;
-  itens: PedidoComCliente[];
+  pedidos: PedidoComCliente[];
 }

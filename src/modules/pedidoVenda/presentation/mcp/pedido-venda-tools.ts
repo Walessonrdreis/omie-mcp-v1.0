@@ -1,8 +1,10 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
 import { ClientesOmieGateway } from "../../../clientes/infrastructure/gateways/clientes-omie-gateway.js";
 import { listarPedidosComClienteParamSchema } from "../../application/dto/listar-pedidos-com-cliente.dto.js";
+import { listarPedidosSepararEstoqueParamSchema } from "../../application/dto/listar-pedidos-separar-estoque.dto.js";
 import { listarProdutosParaSepararParamSchema } from "../../application/dto/listar-produtos-para-separar.dto.js";
 import { ListarPedidosComClienteUseCase } from "../../application/use-cases/listar-pedidos-com-cliente.js";
+import { ListarPedidosSepararEstoqueUseCase } from "../../application/use-cases/listar-pedidos-separar-estoque.js";
 import { ListarProdutosParaSepararUseCase } from "../../application/use-cases/listar-produtos-para-separar.js";
 import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
 
@@ -62,17 +64,40 @@ export const pedidoVendaTools: ToolDef[] = [
   defineTool({
     name: "omie_pedido_venda_listar_com_cliente",
     description:
-      "Lista Pedidos de Venda JÁ com o nome do cliente (razão social/nome fantasia) e a etapa por " +
-      "extenso resolvidos — a Omie só devolve o código do cliente e o código cru da etapa na " +
-      "listagem. Também expõe 'cancelado' e 'faturado' já como booleano, e o valor total do " +
-      "pedido. Suporta paginação e o filtro opcional etapa_codigo (ex: '20' Separar Estoque, '50' " +
-      "Faturar); sem esse filtro, traz pedidos de todas as etapas.",
+      "Lista Pedidos de Venda JÁ com o nome do cliente (razão social/nome fantasia), a etapa por " +
+      "extenso e os ITENS de cada pedido (produto/SKU/descrição/quantidade/unidade) resolvidos — " +
+      "a Omie só devolve o código do cliente e o código cru da etapa na listagem crua. Também " +
+      "expõe 'cancelado' e 'faturado' já como booleano, e o valor total do pedido. Suporta " +
+      "paginação e o filtro opcional etapa_codigo (ex: '20' Separar Estoque, '50' Faturar); sem " +
+      "esse filtro, traz pedidos de todas as etapas.",
     inputSchema: { param: listarPedidosComClienteParamSchema },
     execute: async (client, param) => {
       const parsed = listarPedidosComClienteParamSchema.parse(param);
       const pedidoGateway = new PedidoVendaOmieGateway(client);
       const clientesGateway = new ClientesOmieGateway(client);
       const useCase = new ListarPedidosComClienteUseCase(pedidoGateway, clientesGateway);
+      return useCase.execute(parsed);
+    },
+  }),
+  defineTool({
+    name: "omie_pedido_venda_separar_estoque_listar",
+    description:
+      "Atalho pro relatório que precisa ser acompanhado com mais frequência: pedidos na etapa " +
+      "'Separar Estoque' (código '20', fixo), já com cliente, os ITENS de cada pedido " +
+      "(produto/SKU/descrição/quantidade/unidade) e valor total resolvidos — mesmo formato de " +
+      "omie_pedido_venda_listar_com_cliente, mas sem precisar passar etapa_codigo toda vez. Os " +
+      "pedidos cancelados são removidos por padrão (a Omie não reseta a etapa de um pedido " +
+      "cancelado); use incluir_cancelados=true pra vê-los também. Suporta paginação.",
+    inputSchema: { param: listarPedidosSepararEstoqueParamSchema },
+    execute: async (client, param) => {
+      const parsed = listarPedidosSepararEstoqueParamSchema.parse(param);
+      const pedidoGateway = new PedidoVendaOmieGateway(client);
+      const clientesGateway = new ClientesOmieGateway(client);
+      const listarComClienteUseCase = new ListarPedidosComClienteUseCase(
+        pedidoGateway,
+        clientesGateway
+      );
+      const useCase = new ListarPedidosSepararEstoqueUseCase(listarComClienteUseCase);
       return useCase.execute(parsed);
     },
   }),

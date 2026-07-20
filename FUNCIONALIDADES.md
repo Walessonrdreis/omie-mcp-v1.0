@@ -39,7 +39,8 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Pedidos de Venda | Lista os pedidos cadastrados, com filtros. |
 | Listar Etapas do Funil de Vendas | Mostra as fases possíveis de um pedido (Pedido de Venda, Separar Estoque, Faturar, Faturado, Entrega). |
 | Produtos para Separar (Expedição) | Lista **os produtos que precisam ser separados do estoque agora** para despachar pedidos em aberto, já removendo os cancelados, com um resumo de quanto separar de cada produto e em quantos pedidos ele aparece. |
-| Listar Pedidos com Nome do Cliente | Lista os pedidos já com **nome do cliente**, etapa por extenso, valor total e se está cancelado/faturado — sem precisar consultar cliente por cliente na mão. |
+| Listar Pedidos com Nome do Cliente | Lista os pedidos já com **nome do cliente**, etapa por extenso, valor total, se está cancelado/faturado e **os itens de cada pedido (produto e quantidade)** — sem precisar consultar cliente por cliente ou abrir pedido por pedido na mão. |
+| Pedidos em Separar Estoque | Atalho direto pro acompanhamento do dia a dia: já filtra pelos pedidos em "Separar Estoque" e remove os cancelados, trazendo cliente, itens (produto e quantidade) e valor de cada pedido — sem precisar informar a etapa toda vez. |
 
 ## Clientes
 

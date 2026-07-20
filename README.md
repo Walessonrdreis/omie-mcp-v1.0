@@ -169,9 +169,14 @@ src/
   já removendo os cancelados e devolvendo um resumo agregado por produto (quantidade total, em
   quantos pedidos)
 - `omie_pedido_venda_listar_com_cliente` — **use-case**: lista pedidos já com o nome do cliente
-  (reaproveita o `ClientesOmieGateway` do módulo `clientes`) e a etapa por extenso resolvidos,
-  `cancelado`/`faturado` como booleano e o valor total do pedido. Filtro `etapa_codigo` opcional
-  (sem ele, traz todas as etapas — **não** filtra cancelados por padrão, diferente da tool acima)
+  (reaproveita o `ClientesOmieGateway` do módulo `clientes`), a etapa por extenso e os **itens do
+  pedido** (produto/SKU/descrição/quantidade/unidade) resolvidos, `cancelado`/`faturado` como
+  booleano e o valor total do pedido. Filtro `etapa_codigo` opcional (sem ele, traz todas as
+  etapas — **não** filtra cancelados por padrão, diferente da tool acima)
+- `omie_pedido_venda_separar_estoque_listar` — **use-case**: atalho pro relatório mais acompanhado
+  no dia a dia — mesmo formato de `omie_pedido_venda_listar_com_cliente`, mas com `etapa_codigo`
+  fixo em "Separar Estoque" e cancelados **removidos por padrão** (parâmetro `incluir_cancelados`
+  pra ver também os cancelados). Internamente reaproveita `ListarPedidosComClienteUseCase`.
 
 > Achado importante testando: pedidos **cancelados não têm a `etapa` resetada pela Omie** — um
 > pedido cancelado continua aparecendo como se estivesse em "Separar Estoque" se foi cancelado

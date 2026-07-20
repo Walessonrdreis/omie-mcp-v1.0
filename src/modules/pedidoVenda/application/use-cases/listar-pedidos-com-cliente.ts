@@ -36,7 +36,7 @@ export class ListarPedidosComClienteUseCase {
       codigosCliente
     );
 
-    const itens: PedidoComCliente[] = pedidosResposta.pedido_venda_produto.map((pedido) => {
+    const pedidos: PedidoComCliente[] = pedidosResposta.pedido_venda_produto.map((pedido) => {
       const cliente = clientesPorCodigo.get(pedido.cabecalho.codigo_cliente);
       return {
         numeroPedido: pedido.cabecalho.numero_pedido,
@@ -53,6 +53,13 @@ export class ListarPedidosComClienteUseCase {
         faturado: pedido.infoCadastro.faturado === "S",
         quantidadeItens: pedido.cabecalho.quantidade_itens,
         valorTotalPedido: pedido.total_pedido.valor_total_pedido,
+        itens: pedido.det.map((item) => ({
+          codigoProduto: item.produto.codigo_produto,
+          codigoSku: item.produto.codigo,
+          descricaoProduto: item.produto.descricao,
+          quantidade: item.produto.quantidade,
+          unidade: item.produto.unidade,
+        })),
       };
     });
 
@@ -60,7 +67,7 @@ export class ListarPedidosComClienteUseCase {
       pagina: pedidosResposta.pagina,
       totalPaginas: pedidosResposta.total_de_paginas,
       totalRegistros: pedidosResposta.total_de_registros,
-      itens,
+      pedidos,
     };
   }
 }
