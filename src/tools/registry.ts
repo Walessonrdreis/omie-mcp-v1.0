@@ -2,20 +2,28 @@ import { OmieClient } from "../omieClient.js";
 import { ToolDef } from "./types.js";
 import { producaoTools } from "./producao.js";
 import { produtosTools } from "./produtos.js";
-import { estoqueTools } from "./estoque.js";
 import { comprasTools } from "./compras.js";
+import { estoqueModuleTools } from "../modules/estoque/index.js";
 
 /**
- * Ponto único de agregação de todas as ferramentas "diretas" (resource + call
- * fixos, param repassado à Omie). Para adicionar um novo módulo (financeiro,
- * CRM, vendas, NF-e, etc.), basta criar um arquivo `src/tools/<modulo>.ts`
- * exportando um array de `ToolDef` e importá-lo/concatená-lo aqui — nenhuma
- * outra parte do servidor (src/index.ts) precisa mudar.
+ * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
+ * adicionar um novo módulo (financeiro, CRM, vendas, NF-e, etc.):
+ *
+ * - Se for passthrough simples (resource + call fixos): crie
+ *   `src/tools/<modulo>.ts` exportando um array de `ToolDef` e
+ *   importe/concatene aqui.
+ * - Se precisar de lógica própria (agregar/combinar chamadas Omie, ex:
+ *   estoque total por produto): crie `src/modules/<modulo>/` com as camadas
+ *   application/infrastructure/presentation (ver src/modules/estoque como
+ *   referência) e importe o array de tools exportado pelo módulo.
+ *
+ * Em ambos os casos, nenhuma outra parte do servidor (src/index.ts) precisa
+ * mudar — o registro é genérico via `handleToolCall`.
  */
 export const allTools: ToolDef[] = [
   ...producaoTools,
   ...produtosTools,
-  ...estoqueTools,
+  ...estoqueModuleTools,
   ...comprasTools,
 ];
 
@@ -28,6 +36,11 @@ export async function handleToolCall(
   if (!tool) {
     throw new Error(`Ferramenta desconhecida: ${toolName}`);
   }
+
+  if (tool.execute) {
+    return tool.execute(client, args.param ?? {});
+  }
+
   return client.call({
     resource: tool.resource,
     call: tool.call,
