@@ -39,22 +39,58 @@ Permite que o Claude consulte e execute operações no ERP Omie via ferramentas 
    }
    ```
 
+## Arquitetura
+
+Cada módulo Omie (produção, produtos, estoque, compras, e futuramente financeiro,
+CRM, vendas...) fica em seu próprio arquivo dentro de `src/tools/`, exportando um
+array de `ToolDef` (`src/tools/types.ts`). `src/tools/registry.ts` agrega todos
+os módulos num único array (`allTools`) e implementa o handler genérico de
+chamada; `src/index.ts` apenas itera esse array e registra cada ferramenta no
+servidor MCP — **adicionar um módulo novo não exige alterar `index.ts` nem o
+registry**, só criar o arquivo do módulo e importá-lo no registry.
+
+```
+src/
+  omieClient.ts        # cliente HTTP genérico (auth, retries, erros)
+  index.ts              # bootstrap do servidor MCP, registra allTools + genérica
+  tools/
+    types.ts            # ToolDef, helper defineTool()
+    registry.ts          # agrega os módulos e expõe handleToolCall()
+    generic.ts            # ferramenta omie_chamar_api (fallback p/ qualquer endpoint)
+    producao.ts            # Ordens de Produção, Estrutura (BOM)
+    produtos.ts             # Cadastro de produtos, famílias
+    estoque.ts               # Consulta, ajuste e movimentos de estoque
+    compras.ts                # Requisição e pedido de compra
+```
+
 ## Ferramentas disponíveis
 
-### Chão de Fábrica (módulo dedicado)
+### Produção (`src/tools/producao.ts`)
 - `omie_op_incluir` / `omie_op_alterar` / `omie_op_excluir` / `omie_op_consultar` / `omie_op_listar` — Ordens de Produção
 - `omie_estrutura_consultar` — Estrutura de produtos (BOM / ficha técnica)
+
+### Produtos (`src/tools/produtos.ts`)
 - `omie_produtos_consultar` / `omie_produtos_listar` — Cadastro de produtos
-- `omie_estoque_consultar` / `omie_estoque_ajuste_incluir` / `omie_estoque_movimentos_listar` — Estoque
-- `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir` — Compras de insumos
 - `omie_familias_listar` — Famílias de produtos
+
+### Estoque (`src/tools/estoque.ts`)
+- `omie_estoque_consultar` / `omie_estoque_ajuste_incluir` / `omie_estoque_movimentos_listar`
+
+### Compras (`src/tools/compras.ts`)
+- `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir`
 
 ### Genérica (cobre todos os outros módulos)
 - `omie_chamar_api` — recebe `resource` (caminho do módulo), `call` (método) e `param` (parâmetros), permitindo acessar qualquer endpoint listado em https://developer.omie.com.br/service-list/ (clientes, financeiro, CRM, vendas, NF-e, serviços, etc.)
 
+## Adicionando um novo módulo
+
+1. Crie `src/tools/<modulo>.ts` exportando um array de `ToolDef` (use `defineTool()` de `src/tools/types.ts`).
+2. Importe e concatene esse array em `allTools`, em `src/tools/registry.ts`.
+3. Pronto — `src/index.ts` registra a ferramenta automaticamente.
+
 ## Próximos passos (roadmap)
 
-- Adicionar ferramentas dedicadas para módulos de alto uso (Financeiro, Vendas/NF-e, CRM) conforme a necessidade.
+- Adicionar módulos dedicados para Financeiro, Vendas/NF-e e CRM conforme a necessidade (mesmo padrão de arquivo).
 - Adicionar cache/paginação automática para listagens grandes.
 - Adicionar testes automatizados com mocks da API Omie.
 

@@ -8,7 +8,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { OmieClient, OmieApiError } from "./omieClient.js";
 import { genericToolDefinition, handleGenericCall } from "./tools/generic.js";
-import { chaoDeFabricaTools, handleChaoDeFabricaTool } from "./tools/chaoDeFabrica.js";
+import { allTools, handleToolCall } from "./tools/registry.js";
 
 const server = new McpServer({
   name: "omie-mcp",
@@ -73,9 +73,9 @@ server.registerTool(
   }
 );
 
-// Ferramentas dedicadas ao Chão de Fábrica (Ordens de Produção, Estrutura,
-// Produtos, Estoque, Compras de insumos)
-for (const tool of chaoDeFabricaTools) {
+// Ferramentas dedicadas por módulo (produção, produtos, estoque, compras,
+// e futuramente financeiro, CRM, vendas, etc. — ver src/tools/registry.ts)
+for (const tool of allTools) {
   server.registerTool(
     tool.name,
     {
@@ -84,7 +84,7 @@ for (const tool of chaoDeFabricaTools) {
     },
     async (args: any) => {
       try {
-        const result = await handleChaoDeFabricaTool(getClient(), tool.name, args as any);
+        const result = await handleToolCall(getClient(), tool.name, args as any);
         return toContent(result);
       } catch (err) {
         return toErrorContent(err);
