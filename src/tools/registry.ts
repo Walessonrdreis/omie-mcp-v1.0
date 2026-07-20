@@ -2,6 +2,7 @@ import { OmieClient } from "../omieClient.js";
 import { ToolDef } from "./types.js";
 import { comprasTools } from "./compras.js";
 import { contasPagarModuleTools } from "../modules/contasPagar/index.js";
+import { contasReceberModuleTools } from "../modules/contasReceber/index.js";
 import { estoqueModuleTools } from "../modules/estoque/index.js";
 import { produtosModuleTools } from "../modules/produtos/index.js";
 import { ordemProducaoModuleTools } from "../modules/ordemProducao/index.js";
@@ -35,6 +36,7 @@ export const allTools: ToolDef[] = [
   ...fluxoCaixaModuleTools,
   ...comprasTools,
   ...contasPagarModuleTools,
+  ...contasReceberModuleTools,
 ];
 
 export async function handleToolCall(

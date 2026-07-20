@@ -1,0 +1,1 @@
+export { contasReceberModuleTools } from "./contasReceber-register.js";
