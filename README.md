@@ -273,6 +273,13 @@ src/
   descrição (ou trecho dela) ou código, sem precisar saber o código interno da Omie de antemão —
   ex: "qual a estrutura do produto 100kg". Pagina `ListarEstruturas` inteiro e filtra client-side
   (a Omie não tem busca por texto nesse endpoint)
+- `omie_estrutura_incluir` / `omie_estrutura_alterar` / `omie_estrutura_excluir` — **use-case**
+  (destrutivas), CRUD de itens da estrutura (`IEstruturaGateway.incluirItensEstrutura/
+  alterarItensEstrutura/excluirItemEstrutura`), testável via `EstruturaFakeGateway` sem tocar na
+  Omie real. **Atenção:** validado ao vivo (round-trip incluir→alterar→excluir num produto de
+  teste descartável) que o produto pai precisa ser tipo '03 - Produto em Processo' ou '04 -
+  Produto Acabado`, que `intMalha` é obrigatório em `IncluirEstrutura` (a doc pública marca como
+  opcional) e que `AlterarEstrutura`/`ExcluirEstrutura` exigem `idProdMalha` junto do `idMalha`
 
 ### Estoque (`src/modules/estoque/`)
 - `omie_estoque_ajuste_incluir` — passthrough, registra ajuste de estoque

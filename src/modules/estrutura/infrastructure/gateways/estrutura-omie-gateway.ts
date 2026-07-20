@@ -1,6 +1,10 @@
 import { OmieClient } from "../../../../omieClient.js";
 import {
+  AlterarIncluirEstruturaResponse,
+  ExcluirEstruturaStatus,
   IEstruturaGateway,
+  ItemEstruturaParaAlterar,
+  ItemEstruturaParaIncluir,
   ListarEstruturasResponse,
 } from "../../domain/interfaces/estrutura-gateway.js";
 
@@ -24,6 +28,36 @@ export class EstruturaOmieGateway implements IEstruturaGateway {
         nPagina: pagina,
         nRegPorPagina: registrosPorPagina,
       },
+    });
+  }
+
+  async incluirItensEstrutura(
+    idProduto: number,
+    itens: ItemEstruturaParaIncluir[]
+  ): Promise<AlterarIncluirEstruturaResponse> {
+    return this.client.call<AlterarIncluirEstruturaResponse>({
+      resource: "geral/malha",
+      call: "IncluirEstrutura",
+      param: { idProduto, itemMalhaIncluir: itens.map((item) => ({ ...item })) },
+    });
+  }
+
+  async alterarItensEstrutura(
+    idProduto: number,
+    itens: ItemEstruturaParaAlterar[]
+  ): Promise<AlterarIncluirEstruturaResponse> {
+    return this.client.call<AlterarIncluirEstruturaResponse>({
+      resource: "geral/malha",
+      call: "AlterarEstrutura",
+      param: { idProduto, itemMalhaAlterar: itens.map((item) => ({ ...item })) },
+    });
+  }
+
+  async excluirItemEstrutura(idProduto: number, idMalha: number): Promise<ExcluirEstruturaStatus> {
+    return this.client.call<ExcluirEstruturaStatus>({
+      resource: "geral/malha",
+      call: "ExcluirEstrutura",
+      param: { idProduto, idMalha },
     });
   }
 }

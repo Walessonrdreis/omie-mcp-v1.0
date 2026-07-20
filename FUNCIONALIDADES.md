@@ -14,6 +14,9 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Ordens de Produção com Produto | Lista as OPs já com o **nome/código do produto** de cada uma (a Omie só mostra o código bruto na listagem) e se está concluída ou não. |
 | Listar Estruturas de Produto | Lista todos os produtos que têm ficha técnica (BOM) cadastrada, já com o nome do produto e de cada insumo/componente. |
 | Buscar Estrutura por Produto | Acha a ficha técnica (BOM) de um produto **pelo nome** (ou parte dele) ou código, sem precisar saber o código interno da Omie — ex: "qual a estrutura do produto 100kg". |
+| Incluir Item na Estrutura | Adiciona um insumo/componente à ficha técnica de um produto. |
+| Alterar Item da Estrutura | Muda a quantidade (ou outros dados) de um insumo já cadastrado na estrutura. |
+| Excluir Item da Estrutura | Remove um insumo/componente da ficha técnica de um produto. |
 
 ## Produtos
 

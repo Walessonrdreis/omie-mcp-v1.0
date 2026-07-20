@@ -1,6 +1,10 @@
 import {
+  AlterarIncluirEstruturaResponse,
   EstruturaProdutoOmie,
+  ExcluirEstruturaStatus,
   IEstruturaGateway,
+  ItemEstruturaParaAlterar,
+  ItemEstruturaParaIncluir,
   ListarEstruturasResponse,
 } from "../../domain/interfaces/estrutura-gateway.js";
 
@@ -39,7 +43,7 @@ const ESTRUTURAS_FAKE: EstruturaProdutoOmie[] = [
         obsProdMalha: "",
       },
       {
-        idMalha: 1,
+        idMalha: 2,
         intMalha: "",
         idProdMalha: 502,
         intProdMalha: "",
@@ -81,7 +85,20 @@ const ESTRUTURAS_FAKE: EstruturaProdutoOmie[] = [
  * usada quando `OMIE_MOCK=true`, pra desenvolvimento/testes offline.
  */
 export class EstruturaFakeGateway implements IEstruturaGateway {
-  constructor(private readonly estruturas: EstruturaProdutoOmie[] = ESTRUTURAS_FAKE) {}
+  private proximoIdMalha = 5000;
+
+  /**
+   * Cópia própria por instância (não a constante `ESTRUTURAS_FAKE` direto) —
+   * agora que o fake também inclui/altera/exclui item de estrutura,
+   * compartilhar o array por referência entre instâncias vazaria estado de
+   * um teste pro outro (mesmo bug corrigido em `ProdutosFakeGateway`).
+   */
+  constructor(
+    private readonly estruturas: EstruturaProdutoOmie[] = ESTRUTURAS_FAKE.map((e) => ({
+      ...e,
+      itens: e.itens.map((item) => ({ ...item })),
+    }))
+  ) {}
 
   async listarEstruturasPagina(
     pagina: number,
@@ -97,6 +114,100 @@ export class EstruturaFakeGateway implements IEstruturaGateway {
       nRegistros: paginaDeEstruturas.length,
       nTotRegistros: this.estruturas.length,
       produtosEncontrados: paginaDeEstruturas,
+    };
+  }
+
+  private encontrarProduto(idProduto: number): EstruturaProdutoOmie {
+    const produto = this.estruturas.find((e) => e.ident.idProduto === idProduto);
+    if (!produto) {
+      throw new Error(`Produto ${idProduto} não encontrado na estrutura (fake).`);
+    }
+    return produto;
+  }
+
+  async incluirItensEstrutura(
+    idProduto: number,
+    itens: ItemEstruturaParaIncluir[]
+  ): Promise<AlterarIncluirEstruturaResponse> {
+    const produto = this.encontrarProduto(idProduto);
+
+    const itemMalhaStatus = itens.map((item) => {
+      const idMalha = this.proximoIdMalha++;
+      produto.itens.push({
+        idMalha,
+        intMalha: item.intMalha,
+        idProdMalha: item.idProdMalha,
+        intProdMalha: "",
+        codProdMalha: "",
+        descrProdMalha: "",
+        quantProdMalha: item.quantProdMalha,
+        unidProdMalha: "",
+        tipoProdMalha: "",
+        idFamMalha: 0,
+        codFamMalha: "",
+        descrFamMalha: "",
+        pesoLiqProdMalha: 0,
+        pesoBrutoProdMalha: 0,
+        percPerdaProdMalha: item.percPerdaProdMalha ?? 0,
+        obsProdMalha: item.obsProdMalha ?? "",
+      });
+      return {
+        codStatus: "ADD",
+        descrStatus: "Item adicionado com sucesso! (fake)",
+        idMalha,
+        idProdMalha: item.idProdMalha,
+        intMalha: item.intMalha,
+        intProdMalha: "",
+      };
+    });
+
+    return { itemMalhaStatus };
+  }
+
+  async alterarItensEstrutura(
+    idProduto: number,
+    itens: ItemEstruturaParaAlterar[]
+  ): Promise<AlterarIncluirEstruturaResponse> {
+    const produto = this.encontrarProduto(idProduto);
+
+    const itemMalhaStatus = itens.map((item) => {
+      const existente = produto.itens.find((i) => i.idMalha === item.idMalha);
+      if (!existente) {
+        throw new Error(`Item de estrutura ${item.idMalha} não encontrado (fake).`);
+      }
+      if (item.quantProdMalha !== undefined) existente.quantProdMalha = item.quantProdMalha;
+      if (item.percPerdaProdMalha !== undefined) existente.percPerdaProdMalha = item.percPerdaProdMalha;
+      if (item.obsProdMalha !== undefined) existente.obsProdMalha = item.obsProdMalha;
+
+      return {
+        codStatus: "UPD",
+        descrStatus: "Item alterado com sucesso! (fake)",
+        idMalha: existente.idMalha,
+        idProdMalha: existente.idProdMalha,
+        intMalha: existente.intMalha,
+        intProdMalha: existente.intProdMalha,
+      };
+    });
+
+    return { itemMalhaStatus };
+  }
+
+  async excluirItemEstrutura(idProduto: number, idMalha: number): Promise<ExcluirEstruturaStatus> {
+    const produto = this.encontrarProduto(idProduto);
+    const indice = produto.itens.findIndex((i) => i.idMalha === idMalha);
+    if (indice === -1) {
+      throw new Error(`Item de estrutura ${idMalha} não encontrado (fake).`);
+    }
+
+    const [item] = produto.itens.splice(indice, 1);
+
+    return {
+      idProduto,
+      intProduto: produto.ident.intProduto,
+      idMalha: item.idMalha,
+      intMalha: item.intMalha,
+      codStatus: "0",
+      descrStatus: "Item da estrutura do produto excluído com sucesso! (fake)",
     };
   }
 }
