@@ -1,4 +1,4 @@
-import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
+import { IPedidoVendaGateway } from "../../domain/interfaces/pedido-venda-gateway.js";
 import {
   ItemParaSeparar,
   ListarProdutosParaSepararParam,
@@ -20,7 +20,7 @@ const ETAPA_SEPARAR_ESTOQUE = "20";
  * resumo agregado por produto (quanto separar no total, de quantos pedidos).
  */
 export class ListarProdutosParaSepararUseCase {
-  constructor(private readonly gateway: PedidoVendaOmieGateway) {}
+  constructor(private readonly gateway: IPedidoVendaGateway) {}
 
   async execute(param: ListarProdutosParaSepararParam): Promise<ListarProdutosParaSepararResult> {
     const pagina = param.pagina ?? 1;

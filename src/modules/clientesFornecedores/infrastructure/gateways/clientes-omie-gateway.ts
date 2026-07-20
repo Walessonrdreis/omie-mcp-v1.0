@@ -1,23 +1,17 @@
 import { OmieClient } from "../../../../omieClient.js";
 import { mapWithConcurrency } from "../../../../shared/concurrency.js";
+import { ClienteOmie, IClientesGateway } from "../../domain/interfaces/clientes-gateway.js";
+
+export { ClienteOmie } from "../../domain/interfaces/clientes-gateway.js";
 
 const CONCORRENCIA_MAXIMA = 5;
-
-export interface ClienteOmie {
-  codigo_cliente_omie: number;
-  razao_social: string;
-  nome_fantasia: string;
-  cnpj_cpf: string;
-  email: string;
-  inativo: "S" | "N";
-}
 
 /**
  * Encapsula o acesso ao cadastro de Clientes da Omie. Reaproveitado por
  * outros módulos que recebem só o código do cliente e precisam do nome (ex:
  * `pedidoVenda`), evitando duplicar a lógica de consulta/dedup.
  */
-export class ClientesOmieGateway {
+export class ClientesOmieGateway implements IClientesGateway {
   constructor(private readonly client: OmieClient) {}
 
   async consultarCliente(codigoClienteOmie: number): Promise<ClienteOmie> {
@@ -28,13 +22,6 @@ export class ClientesOmieGateway {
     });
   }
 
-  /**
-   * Busca vários clientes por código, deduplicando, com concorrência
-   * limitada (ver `mapWithConcurrency` — muitas chamadas simultâneas batem
-   * no rate limit da Omie). Clientes não encontrados (erro de negócio real)
-   * são omitidos do mapa; outros erros (rate limit, rede) são relançados —
-   * não é seguro tratar "a chamada falhou" como "cliente não existe".
-   */
   async consultarClientesPorCodigo(
     codigosCliente: number[]
   ): Promise<Map<number, ClienteOmie>> {

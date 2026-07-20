@@ -1,0 +1,80 @@
+export interface ItemPedidoVenda {
+  produto: {
+    codigo_produto: number;
+    codigo: string;
+    descricao: string;
+    unidade: string;
+    quantidade: number;
+    valor_unitario: number;
+    valor_mercadoria: number;
+  };
+}
+
+export interface PedidoVenda {
+  cabecalho: {
+    codigo_pedido: number;
+    numero_pedido: string;
+    codigo_cliente: number;
+    data_previsao: string;
+    etapa: string;
+    quantidade_itens: number;
+  };
+  det: ItemPedidoVenda[];
+  infoCadastro: {
+    cancelado: "S" | "N";
+    faturado: "S" | "N";
+  };
+  total_pedido: {
+    valor_total_pedido: number;
+  };
+}
+
+export interface ListarPedidosResponse {
+  pagina: number;
+  total_de_paginas: number;
+  registros: number;
+  total_de_registros: number;
+  pedido_venda_produto: PedidoVenda[];
+}
+
+export interface EtapaFaturamento {
+  cCodigo: string;
+  cDescrPadrao: string;
+  cDescricao: string;
+  cInativo: "S" | "N";
+}
+
+export interface OperacaoEtapas {
+  cCodOperacao: string;
+  cDescOperacao: string;
+  etapas: EtapaFaturamento[];
+}
+
+/** Código fixo da Omie para a operação "Venda de Produto" (não confundir com serviço/OS). */
+export const COD_OPERACAO_VENDA_PRODUTO = "11";
+
+/**
+ * Contrato de acesso a Pedidos de Venda, independente de vir da Omie real ou
+ * de um fake em memória (`OMIE_MOCK=true`). Diferente da Ordem de Produção, a
+ * `etapa` do pedido É um catálogo fixo e documentado (`ListarEtapasFaturamento`),
+ * não configurável por conta — dá pra traduzir o código com confiança.
+ *
+ * Importante: pedidos CANCELADOS continuam com a `etapa` antiga (o
+ * cancelamento não reseta o campo) — por isso quem usa este gateway sempre
+ * precisa cruzar com `infoCadastro.cancelado`.
+ */
+export interface IPedidoVendaGateway {
+  listarPedidosPagina(
+    pagina: number,
+    registrosPorPagina: number,
+    etapa?: string
+  ): Promise<ListarPedidosResponse>;
+
+  listarEtapasFaturamento(): Promise<OperacaoEtapas[]>;
+
+  /** Descrição da etapa (ex: "Separar Estoque") pro código, dentro de "Venda de Produto". */
+  descreverEtapaVendaProduto(etapaCodigo: string): Promise<string | undefined>;
+
+  /** Mapa código -> descrição de todas as etapas de "Venda de Produto", pra resolver em lote. */
+  mapaEtapasVendaProduto(): Promise<Map<string, string>>;
+}

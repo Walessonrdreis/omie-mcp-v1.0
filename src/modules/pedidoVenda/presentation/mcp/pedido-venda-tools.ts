@@ -1,4 +1,7 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
+import { OmieClient } from "../../../../omieClient.js";
+import { IClientesGateway } from "../../../clientesFornecedores/domain/interfaces/clientes-gateway.js";
+import { ClientesFakeGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-fake-gateway.js";
 import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
 import { listarPedidosComClienteParamSchema } from "../../application/dto/listar-pedidos-com-cliente.dto.js";
 import { listarPedidosSepararEstoqueParamSchema } from "../../application/dto/listar-pedidos-separar-estoque.dto.js";
@@ -6,7 +9,21 @@ import { listarProdutosParaSepararParamSchema } from "../../application/dto/list
 import { ListarPedidosComClienteUseCase } from "../../application/use-cases/listar-pedidos-com-cliente.js";
 import { ListarPedidosSepararEstoqueUseCase } from "../../application/use-cases/listar-pedidos-separar-estoque.js";
 import { ListarProdutosParaSepararUseCase } from "../../application/use-cases/listar-produtos-para-separar.js";
+import { IPedidoVendaGateway } from "../../domain/interfaces/pedido-venda-gateway.js";
+import { PedidoVendaFakeGateway } from "../../infrastructure/gateways/pedido-venda-fake-gateway.js";
 import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
+
+function criarPedidoVendaGateway(client: OmieClient): IPedidoVendaGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new PedidoVendaFakeGateway()
+    : new PedidoVendaOmieGateway(client);
+}
+
+function criarClientesGateway(client: OmieClient): IClientesGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new ClientesFakeGateway()
+    : new ClientesOmieGateway(client);
+}
 
 export const pedidoVendaTools: ToolDef[] = [
   defineTool({
@@ -56,7 +73,7 @@ export const pedidoVendaTools: ToolDef[] = [
     inputSchema: { param: listarProdutosParaSepararParamSchema },
     execute: async (client, param) => {
       const parsed = listarProdutosParaSepararParamSchema.parse(param);
-      const gateway = new PedidoVendaOmieGateway(client);
+      const gateway = criarPedidoVendaGateway(client);
       const useCase = new ListarProdutosParaSepararUseCase(gateway);
       return useCase.execute(parsed);
     },
@@ -73,8 +90,8 @@ export const pedidoVendaTools: ToolDef[] = [
     inputSchema: { param: listarPedidosComClienteParamSchema },
     execute: async (client, param) => {
       const parsed = listarPedidosComClienteParamSchema.parse(param);
-      const pedidoGateway = new PedidoVendaOmieGateway(client);
-      const clientesGateway = new ClientesOmieGateway(client);
+      const pedidoGateway = criarPedidoVendaGateway(client);
+      const clientesGateway = criarClientesGateway(client);
       const useCase = new ListarPedidosComClienteUseCase(pedidoGateway, clientesGateway);
       return useCase.execute(parsed);
     },
@@ -91,8 +108,8 @@ export const pedidoVendaTools: ToolDef[] = [
     inputSchema: { param: listarPedidosSepararEstoqueParamSchema },
     execute: async (client, param) => {
       const parsed = listarPedidosSepararEstoqueParamSchema.parse(param);
-      const pedidoGateway = new PedidoVendaOmieGateway(client);
-      const clientesGateway = new ClientesOmieGateway(client);
+      const pedidoGateway = criarPedidoVendaGateway(client);
+      const clientesGateway = criarClientesGateway(client);
       const listarComClienteUseCase = new ListarPedidosComClienteUseCase(
         pedidoGateway,
         clientesGateway
