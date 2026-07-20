@@ -36,6 +36,43 @@ export interface ListarOrdemProducaoResponse {
 }
 
 /**
+ * Dados pra gravar uma OP (Incluir/Alterar). Testado ao vivo: `codigo_local_estoque`
+ * é obrigatório mesmo na inclusão simples (0 = local padrão), e o produto
+ * precisa já ter estrutura (BOM) preenchida, senão a Omie recusa.
+ */
+export interface DadosOPParaGravar {
+  nCodOP?: number;
+  cCodIntOP?: string;
+  nCodProduto: number;
+  dDtPrevisao: string;
+  nQtde: number;
+  codigo_local_estoque: number;
+}
+
+export interface StatusOPOmie {
+  nCodOP: number;
+  cCodIntOP: string;
+  cCodStatus: string;
+  cDesStatus: string;
+}
+
+/** Identifica uma OP — nCodOP ou cCodIntOP já bastam. */
+export interface ChaveOP {
+  nCodOP?: number;
+  cCodIntOP?: string;
+}
+
+export interface OrdemProducaoDetalhada extends OrdemProducao {
+  observacoes?: { cObs: string };
+  itensDetalhes?: Array<{
+    nIdProdutoMalha: number;
+    nQtde: number;
+    codigo_local_estoque: number;
+    cObs: string;
+  }>;
+}
+
+/**
  * Contrato de acesso a Ordens de Produção, independente de vir da Omie real
  * ou de um fake em memória (`OMIE_MOCK=true`).
  */
@@ -44,4 +81,12 @@ export interface IOrdemProducaoGateway {
     pagina: number,
     registrosPorPagina: number
   ): Promise<ListarOrdemProducaoResponse>;
+
+  consultarOP(chave: ChaveOP): Promise<OrdemProducaoDetalhada>;
+
+  incluirOP(dados: DadosOPParaGravar): Promise<StatusOPOmie>;
+
+  alterarOP(dados: DadosOPParaGravar): Promise<StatusOPOmie>;
+
+  excluirOP(chave: ChaveOP): Promise<StatusOPOmie>;
 }

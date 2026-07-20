@@ -4,7 +4,16 @@ import { IProdutosGateway } from "../../../produtos/domain/interfaces/produtos-g
 import { ProdutosFakeGateway } from "../../../produtos/infrastructure/gateways/produtos-fake-gateway.js";
 import { ProdutosOmieGateway } from "../../../produtos/infrastructure/gateways/produtos-omie-gateway.js";
 import { listarOpsComProdutoParamSchema } from "../../application/dto/listar-ops-com-produto.dto.js";
+import {
+  alterarOPParamSchema,
+  chaveOPParamSchema,
+  incluirOPParamSchema,
+} from "../../application/dto/op-crud.dto.js";
 import { ListarOpsComProdutoUseCase } from "../../application/use-cases/listar-ops-com-produto.js";
+import { IncluirOPUseCase } from "../../application/use-cases/incluir-op.js";
+import { AlterarOPUseCase } from "../../application/use-cases/alterar-op.js";
+import { ExcluirOPUseCase } from "../../application/use-cases/excluir-op.js";
+import { ConsultarOPUseCase } from "../../application/use-cases/consultar-op.js";
 import { IOrdemProducaoGateway } from "../../domain/interfaces/op-gateway.js";
 import { OpFakeGateway } from "../../infrastructure/gateways/op-fake-gateway.js";
 import { OpOmieGateway } from "../../infrastructure/gateways/op-omie-gateway.js";
@@ -24,26 +33,42 @@ export const ordemProducaoTools: ToolDef[] = [
     name: "omie_op_incluir",
     description:
       "Inclui uma nova Ordem de Produção (OP) na Omie. Método Omie: IncluirOrdemProducao. " +
-      "Campos típicos: cCodIntOP, dDtPrevisao, nCodProduto, nQtde, identificacao, itens (insumos).",
-    inputSchema: { param: paramSchema },
-    resource: "produtos/op",
-    call: "IncluirOrdemProducao",
+      "Precisa de nCodProduto (o produto já precisa ter estrutura/BOM preenchida, senão a Omie " +
+      "recusa — veja omie_estrutura_incluir), dDtPrevisao (dd/mm/aaaa) e nQtde. " +
+      "codigo_local_estoque é opcional (padrão 0, testado ao vivo: a Omie exige o campo mesmo " +
+      "assim, mesmo a doc pública marcando como opcional).",
+    inputSchema: { param: incluirOPParamSchema },
+    execute: async (client, param) => {
+      const parsed = incluirOPParamSchema.parse(param);
+      const useCase = new IncluirOPUseCase(criarOpGateway(client));
+      return useCase.execute(parsed);
+    },
     destructive: true,
   }),
   defineTool({
     name: "omie_op_alterar",
-    description: "Altera uma Ordem de Produção existente. Método Omie: AlterarOrdemProducao.",
-    inputSchema: { param: paramSchema },
-    resource: "produtos/op",
-    call: "AlterarOrdemProducao",
+    description:
+      "Altera uma Ordem de Produção existente. Método Omie: AlterarOrdemProducao. Identifique " +
+      "por nCodOP ou cCodIntOP e reenvie os dados (nCodProduto, dDtPrevisao, nQtde).",
+    inputSchema: { param: alterarOPParamSchema },
+    execute: async (client, param) => {
+      const parsed = alterarOPParamSchema.parse(param);
+      const useCase = new AlterarOPUseCase(criarOpGateway(client));
+      return useCase.execute(parsed);
+    },
     destructive: true,
   }),
   defineTool({
     name: "omie_op_excluir",
-    description: "Exclui uma Ordem de Produção. Método Omie: ExcluirOrdemProducao.",
-    inputSchema: { param: paramSchema },
-    resource: "produtos/op",
-    call: "ExcluirOrdemProducao",
+    description:
+      "Exclui uma Ordem de Produção. Método Omie: ExcluirOrdemProducao. Identifique por nCodOP " +
+      "ou cCodIntOP.",
+    inputSchema: { param: chaveOPParamSchema },
+    execute: async (client, param) => {
+      const parsed = chaveOPParamSchema.parse(param);
+      const useCase = new ExcluirOPUseCase(criarOpGateway(client));
+      return useCase.execute(parsed);
+    },
     destructive: true,
   }),
   defineTool({
@@ -53,9 +78,12 @@ export const ordemProducaoTools: ToolDef[] = [
       "insumos utilizados. Método Omie: ConsultarOrdemProducao. O produto vem só como código " +
       "(nCodProduto) e a etapa como código cru (cEtapa) — para descrição/SKU do produto, use " +
       "omie_produtos_consultar ou omie_op_listar_com_produto.",
-    inputSchema: { param: paramSchema },
-    resource: "produtos/op",
-    call: "ConsultarOrdemProducao",
+    inputSchema: { param: chaveOPParamSchema },
+    execute: async (client, param) => {
+      const parsed = chaveOPParamSchema.parse(param);
+      const useCase = new ConsultarOPUseCase(criarOpGateway(client));
+      return useCase.execute(parsed);
+    },
   }),
   defineTool({
     name: "omie_op_listar",

@@ -233,8 +233,12 @@ src/
 ## Ferramentas disponíveis
 
 ### Ordem de Produção (`src/modules/ordemProducao/`)
-- `omie_op_incluir` / `omie_op_alterar` / `omie_op_excluir` — passthrough
-- `omie_op_consultar` — passthrough, uma OP com os insumos utilizados (produto só como código)
+- `omie_op_incluir` / `omie_op_alterar` / `omie_op_excluir` / `omie_op_consultar` — **use-case**
+  (as 3 primeiras destrutivas), CRUD sobre `IOrdemProducaoGateway`, testável via `OpFakeGateway`
+  sem tocar na Omie real. **Atenção:** validado ao vivo (round-trip completo com produto/insumo/
+  estrutura descartáveis) que o produto só aceita OP se já tiver estrutura (BOM) preenchida, e
+  que `codigo_local_estoque` é obrigatório mesmo na inclusão simples (0 = local padrão), apesar
+  da doc pública da Omie marcar como opcional
 - `omie_op_listar` — passthrough, lista OPs cruas (produto só como código, etapa como código cru)
 - `omie_op_listar_com_produto` — **use-case**: lista OPs já com a descrição/SKU do produto
   resolvidos (reaproveita o `ProdutosOmieGateway` do módulo `produtos`) e o campo `concluida`
