@@ -367,6 +367,11 @@ src/
 ### Contas Correntes (`src/modules/contasCorrentes/`)
 - `omie_contas_correntes_listar` — passthrough, lista contas correntes (bancos, caixas, cartões,
   maquininhas) com código, descrição, banco, tipo e saldo inicial registrado
+- `omie_extrato_conta_corrente_consultar` — **use-case**: extrato de uma conta corrente num
+  período (movimentos com data/descrição/valor/categoria/situação de conciliação, e saldos
+  anterior/atual/conciliado/disponível). Método Omie: `ListarExtrato` (recurso `financas/extrato`),
+  testável via `ContasCorrentesFakeGateway` sem tocar na Omie real. Suporta o parâmetro genérico
+  `filtros` sobre os movimentos (ex: natureza, categoria). Validado ao vivo contra a conta real.
 
 ### Fluxo de Caixa (`src/modules/fluxoCaixa/`)
 - `omie_fluxo_caixa_gerar` — **use-case**: monta o fluxo de caixa (entradas, saídas, saldo do

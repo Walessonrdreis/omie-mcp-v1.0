@@ -1,6 +1,8 @@
 import { OmieClient } from "../../../../omieClient.js";
 import {
+  ConsultarExtratoParams,
   ContaCorrenteOmie,
+  ExtratoContaCorrenteOmie,
   IContasCorrentesGateway,
 } from "../../domain/interfaces/contas-correntes-gateway.js";
 
@@ -45,5 +47,17 @@ export class ContasCorrentesOmieGateway implements IContasCorrentesGateway {
     } while (pagina <= totalPaginas);
 
     return mapa;
+  }
+
+  async consultarExtrato(params: ConsultarExtratoParams): Promise<ExtratoContaCorrenteOmie> {
+    return this.client.call<ExtratoContaCorrenteOmie>({
+      resource: "financas/extrato",
+      call: "ListarExtrato",
+      param: {
+        nCodCC: params.codigoContaCorrente,
+        dPeriodoInicial: params.periodoInicial,
+        dPeriodoFinal: params.periodoFinal,
+      },
+    });
   }
 }
