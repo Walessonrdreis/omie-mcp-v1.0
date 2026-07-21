@@ -91,6 +91,16 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Notas Fiscais | Lista as NF-e já emitidas/registradas, com resumo (número, série, chave, cliente, valor, se está cancelada), filtro por período de emissão, status e tipo (entrada/saída). |
 | Consultar Nota Fiscal | Busca o detalhe completo de uma nota (pela chave de acesso ou pelo código interno): itens, NCM/CFOP, valores e os títulos financeiros gerados por ela. |
 
+## Nota de Entrada
+
+> Somente leitura, mesma decisão do NF-e/NFS-e: é lançamento fiscal/financeiro definitivo
+> (recebimento físico de compra), sem "testar com segurança" como os demais cadastros.
+
+| Funcionalidade | O que faz |
+|---|---|
+| Listar Notas de Entrada | Lista as notas de entrada (recebimento de compra) já registradas. |
+| Consultar Nota de Entrada | Busca o detalhe de uma nota de entrada (itens com CFOP/NCM, valores). |
+
 ## Características de Produto
 
 | Funcionalidade | O que faz |

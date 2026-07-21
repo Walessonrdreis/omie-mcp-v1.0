@@ -479,6 +479,17 @@ src/
   efeito legal (sem "excluir e não deixar rastro" como nos demais módulos). Validado ao vivo contra
   a conta real (4765 notas na base de teste).
 
+### Nota de Entrada (`src/modules/notaEntrada/`)
+- `omie_nota_entrada_listar` / `omie_nota_entrada_consultar` — **use-case**: consulta notas de
+  entrada (recebimento físico de mercadoria vinda de compra) já registradas, via `ListarNotaEnt`/
+  `ConsultarNotaEnt` (recurso `produtos/notaentrada`), testável via `NotaEntradaFakeGateway`.
+  **SOMENTE LEITURA** — mesma cautela do módulo NF-e de produto e NFS-e: é a etapa final do fluxo
+  Requisição → Pedido de Compra → Recebimento de NF-e → Nota de Entrada, um lançamento fiscal/
+  financeiro definitivo (afeta estoque e financeiro de verdade), sem round-trip seguro de teste.
+  Recebimento de NF-e de fornecedor (`produtos/recebimentonfe`) e o próprio faturamento da nota
+  (`produtos/notaentradafat`) ficaram fora do escopo pelo mesmo motivo. Validado ao vivo contra a
+  conta real (3 notas de entrada existentes).
+
 ### Características de Produto (`src/modules/caracteristicasProduto/`)
 - `omie_caracteristica_incluir` / `omie_caracteristica_alterar` / `omie_caracteristica_excluir` /
   `omie_caracteristica_consultar` / `omie_caracteristica_listar` — **use-case** (as 3 primeiras

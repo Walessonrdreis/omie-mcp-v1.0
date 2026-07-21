@@ -22,3 +22,4 @@
 - [x] Módulo de Cadastros Auxiliares (bancos/cidades/países/NCM/unidade) — 2026-07-21 — [API](./API.md#módulo-de-cadastros-auxiliares-só-leitura-omie_bancos_listar-geralbancos-omie_cidades_listar-geralcidades-omie_paises_listar-geralpaises-omie_ncm_listar-produtosncm-omie_unidade_consultar-geralunidade)
 - [x] Módulo de Categorias e Departamentos — 2026-07-21 — [API](./API.md#módulo-de-categorias-e-departamentos-omie_categoria_incluiralterarconsultarlistar-geralcategorias-omie_departamento_incluiralterarexcluirconsultarlistar-geraldepartamentos)
 - [x] Módulo de Características de Produto — 2026-07-21 — [API](./API.md#módulo-de-características-de-produto-omie_caracteristica_incluiralterarexcluirconsultarlistar-geralcaracteristicas)
+- [x] Módulo Nota de Entrada (só leitura) — 2026-07-21 — [API](./API.md#módulo-nota-de-entrada-só-leitura-omie_nota_entrada_listarconsultar-produtosnotaentrada-listarnotaentconsultarnotaent)

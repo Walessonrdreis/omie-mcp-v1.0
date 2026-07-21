@@ -71,3 +71,8 @@
   - **Data:** 2026-07-21 | **Autor:** Walesson
   - **Arquivos afetados:** `src/modules/caracteristicasProduto/` (módulo novo, padrão gateway+interface+fake+teste), `src/tools/registry.ts`, `README.md`, `FUNCIONALIDADES.md`
   - **Motivo/contexto:** terceiro bloco de "maximizar cobertura da API Omie". Diferente de Categoria (bloco anterior), o CRUD completo aqui funciona sem ressalvas — validado ao vivo com round-trip completo (incluir→consultar→alterar→excluir), sem deixar rastro. Escopo desta implementação é só o cadastro da característica em si (ex: "Cor"); a associação característica↔produto (`IncluirCaractProduto` etc.) ficou fora do escopo por não ter sido pedida ainda.
+
+- [x] Módulo Nota de Entrada (só leitura): `omie_nota_entrada_listar/consultar` (`produtos/notaentrada`: `ListarNotaEnt`/`ConsultarNotaEnt`)
+  - **Data:** 2026-07-21 | **Autor:** Walesson
+  - **Arquivos afetados:** `src/modules/notaEntrada/` (módulo novo, padrão gateway+interface+fake+teste), `src/tools/registry.ts`, `README.md`, `FUNCIONALIDADES.md`
+  - **Motivo/contexto:** último item do levantamento de "maximizar cobertura" — Compras avançado. Usuário escolheu explicitamente escopo "só consulta/listagem" dado o risco (Nota de Entrada é lançamento fiscal/financeiro definitivo — etapa final do fluxo Requisição→Pedido de Compra→Recebimento de NF-e→Nota de Entrada, sem round-trip seguro). Recebimento de NF-e (`produtos/recebimentonfe`) e faturamento da nota (`produtos/notaentradafat`) ficaram fora do escopo pelo mesmo motivo. Validado ao vivo contra a conta real (3 notas de entrada existentes, com itens/CFOP/NCM reais).
