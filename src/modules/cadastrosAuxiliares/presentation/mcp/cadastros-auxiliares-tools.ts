@@ -13,7 +13,7 @@ import {
   ListarNCMUseCase,
   ListarPaisesUseCase,
 } from "../../application/use-cases/cadastros-auxiliares.js";
-import { criarGateway } from "../../infrastructure/gateways/cadastros-auxiliares-gateway-factory.js";
+import { criarCadastrosAuxiliaresGateway } from "../../infrastructure/gateways/cadastros-auxiliares-gateway-factory.js";
 
 export const cadastrosAuxiliaresTools: ToolDef[] = [
   defineTool({
@@ -25,7 +25,7 @@ export const cadastrosAuxiliaresTools: ToolDef[] = [
     inputSchema: { param: listarBancosParamSchema },
     execute: async (client, param) => {
       const parsed = listarBancosParamSchema.parse(param);
-      const useCase = new ListarBancosUseCase(criarGateway(client));
+      const useCase = new ListarBancosUseCase(criarCadastrosAuxiliaresGateway(client));
       return useCase.execute(parsed);
     },
   }),
@@ -38,7 +38,7 @@ export const cadastrosAuxiliaresTools: ToolDef[] = [
     inputSchema: { param: listarCidadesParamSchema },
     execute: async (client, param) => {
       const parsed = listarCidadesParamSchema.parse(param);
-      const useCase = new ListarCidadesUseCase(criarGateway(client));
+      const useCase = new ListarCidadesUseCase(criarCadastrosAuxiliaresGateway(client));
       return useCase.execute(parsed);
     },
   }),
@@ -51,7 +51,7 @@ export const cadastrosAuxiliaresTools: ToolDef[] = [
     inputSchema: { param: listarPaisesParamSchema },
     execute: async (client, param) => {
       const parsed = listarPaisesParamSchema.parse(param);
-      const useCase = new ListarPaisesUseCase(criarGateway(client));
+      const useCase = new ListarPaisesUseCase(criarCadastrosAuxiliaresGateway(client));
       return useCase.execute(parsed);
     },
   }),
@@ -64,7 +64,7 @@ export const cadastrosAuxiliaresTools: ToolDef[] = [
     inputSchema: { param: listarNCMParamSchema },
     execute: async (client, param) => {
       const parsed = listarNCMParamSchema.parse(param);
-      const useCase = new ListarNCMUseCase(criarGateway(client));
+      const useCase = new ListarNCMUseCase(criarCadastrosAuxiliaresGateway(client));
       return useCase.execute(parsed);
     },
   }),
@@ -77,7 +77,7 @@ export const cadastrosAuxiliaresTools: ToolDef[] = [
     inputSchema: { param: consultarUnidadeParamSchema },
     execute: async (client, param) => {
       const parsed = consultarUnidadeParamSchema.parse(param);
-      const useCase = new ConsultarUnidadeUseCase(criarGateway(client));
+      const useCase = new ConsultarUnidadeUseCase(criarCadastrosAuxiliaresGateway(client));
       return useCase.execute(parsed);
     },
   }),

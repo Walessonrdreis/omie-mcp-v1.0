@@ -3,7 +3,7 @@ import { ICadastrosAuxiliaresGateway } from "../../domain/interfaces/cadastros-a
 import { CadastrosAuxiliaresFakeGateway } from "./cadastros-auxiliares-fake-gateway.js";
 import { CadastrosAuxiliaresOmieGateway } from "./cadastros-auxiliares-omie-gateway.js";
 
-export function criarGateway(client: OmieClient): ICadastrosAuxiliaresGateway {
+export function criarCadastrosAuxiliaresGateway(client: OmieClient): ICadastrosAuxiliaresGateway {
   return process.env.OMIE_MOCK === "true"
     ? new CadastrosAuxiliaresFakeGateway()
     : new CadastrosAuxiliaresOmieGateway(client);

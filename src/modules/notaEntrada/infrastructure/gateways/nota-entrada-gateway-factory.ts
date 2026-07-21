@@ -3,6 +3,6 @@ import { INotaEntradaGateway } from "../../domain/interfaces/nota-entrada-gatewa
 import { NotaEntradaFakeGateway } from "./nota-entrada-fake-gateway.js";
 import { NotaEntradaOmieGateway } from "./nota-entrada-omie-gateway.js";
 
-export function criarGateway(client: OmieClient): INotaEntradaGateway {
+export function criarNotaEntradaGateway(client: OmieClient): INotaEntradaGateway {
   return process.env.OMIE_MOCK === "true" ? new NotaEntradaFakeGateway() : new NotaEntradaOmieGateway(client);
 }

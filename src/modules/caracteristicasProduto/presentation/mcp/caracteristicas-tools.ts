@@ -13,7 +13,7 @@ import {
   IncluirCaracteristicaUseCase,
   ListarCaracteristicasUseCase,
 } from "../../application/use-cases/caracteristica-crud.js";
-import { criarGateway } from "../../infrastructure/gateways/caracteristica-gateway-factory.js";
+import { criarCaracteristicaGateway } from "../../infrastructure/gateways/caracteristica-gateway-factory.js";
 
 export const caracteristicasTools: ToolDef[] = [
   defineTool({
@@ -25,7 +25,7 @@ export const caracteristicasTools: ToolDef[] = [
     inputSchema: { param: incluirCaracteristicaParamSchema },
     execute: async (client, param) => {
       const parsed = incluirCaracteristicaParamSchema.parse(param);
-      const useCase = new IncluirCaracteristicaUseCase(criarGateway(client));
+      const useCase = new IncluirCaracteristicaUseCase(criarCaracteristicaGateway(client));
       return useCase.execute(parsed);
     },
     destructive: true,
@@ -36,7 +36,7 @@ export const caracteristicasTools: ToolDef[] = [
     inputSchema: { param: alterarCaracteristicaParamSchema },
     execute: async (client, param) => {
       const parsed = alterarCaracteristicaParamSchema.parse(param);
-      const useCase = new AlterarCaracteristicaUseCase(criarGateway(client));
+      const useCase = new AlterarCaracteristicaUseCase(criarCaracteristicaGateway(client));
       return useCase.execute(parsed);
     },
     destructive: true,
@@ -49,7 +49,7 @@ export const caracteristicasTools: ToolDef[] = [
     inputSchema: { param: excluirCaracteristicaParamSchema },
     execute: async (client, param) => {
       const parsed = excluirCaracteristicaParamSchema.parse(param);
-      const useCase = new ExcluirCaracteristicaUseCase(criarGateway(client));
+      const useCase = new ExcluirCaracteristicaUseCase(criarCaracteristicaGateway(client));
       return useCase.execute(parsed);
     },
     destructive: true,
@@ -60,7 +60,7 @@ export const caracteristicasTools: ToolDef[] = [
     inputSchema: { param: consultarCaracteristicaParamSchema },
     execute: async (client, param) => {
       const parsed = consultarCaracteristicaParamSchema.parse(param);
-      const useCase = new ConsultarCaracteristicaUseCase(criarGateway(client));
+      const useCase = new ConsultarCaracteristicaUseCase(criarCaracteristicaGateway(client));
       return useCase.execute(parsed);
     },
   }),
@@ -72,7 +72,7 @@ export const caracteristicasTools: ToolDef[] = [
     inputSchema: { param: listarCaracteristicasParamSchema },
     execute: async (client, param) => {
       const parsed = listarCaracteristicasParamSchema.parse(param);
-      const useCase = new ListarCaracteristicasUseCase(criarGateway(client));
+      const useCase = new ListarCaracteristicasUseCase(criarCaracteristicaGateway(client));
       return useCase.execute(parsed);
     },
   }),

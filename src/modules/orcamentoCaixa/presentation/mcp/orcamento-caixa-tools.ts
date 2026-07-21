@@ -1,7 +1,7 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
 import { consultarOrcamentoCaixaParamSchema } from "../../application/dto/orcamento-caixa.dto.js";
 import { ConsultarOrcamentoCaixaUseCase } from "../../application/use-cases/consultar-orcamento-caixa.js";
-import { criarGateway } from "../../infrastructure/gateways/orcamento-caixa-gateway-factory.js";
+import { criarOrcamentoCaixaGateway } from "../../infrastructure/gateways/orcamento-caixa-gateway-factory.js";
 
 export const orcamentoCaixaTools: ToolDef[] = [
   defineTool({
@@ -16,7 +16,7 @@ export const orcamentoCaixaTools: ToolDef[] = [
     inputSchema: { param: consultarOrcamentoCaixaParamSchema },
     execute: async (client, param) => {
       const parsed = consultarOrcamentoCaixaParamSchema.parse(param);
-      const useCase = new ConsultarOrcamentoCaixaUseCase(criarGateway(client));
+      const useCase = new ConsultarOrcamentoCaixaUseCase(criarOrcamentoCaixaGateway(client));
       return useCase.execute(parsed);
     },
   }),

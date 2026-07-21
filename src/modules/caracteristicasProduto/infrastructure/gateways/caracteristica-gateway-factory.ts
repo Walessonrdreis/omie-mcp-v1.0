@@ -3,7 +3,7 @@ import { ICaracteristicaGateway } from "../../domain/interfaces/caracteristica-g
 import { CaracteristicaFakeGateway } from "./caracteristica-fake-gateway.js";
 import { CaracteristicaOmieGateway } from "./caracteristica-omie-gateway.js";
 
-export function criarGateway(client: OmieClient): ICaracteristicaGateway {
+export function criarCaracteristicaGateway(client: OmieClient): ICaracteristicaGateway {
   return process.env.OMIE_MOCK === "true"
     ? new CaracteristicaFakeGateway()
     : new CaracteristicaOmieGateway(client);

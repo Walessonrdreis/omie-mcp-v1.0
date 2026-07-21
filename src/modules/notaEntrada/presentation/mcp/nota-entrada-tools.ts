@@ -4,7 +4,7 @@ import {
   listarNotaEntradaParamSchema,
 } from "../../application/dto/nota-entrada.dto.js";
 import { ConsultarNotaEntradaUseCase, ListarNotaEntradaUseCase } from "../../application/use-cases/nota-entrada.js";
-import { criarGateway } from "../../infrastructure/gateways/nota-entrada-gateway-factory.js";
+import { criarNotaEntradaGateway } from "../../infrastructure/gateways/nota-entrada-gateway-factory.js";
 
 export const notaEntradaTools: ToolDef[] = [
   defineTool({
@@ -18,7 +18,7 @@ export const notaEntradaTools: ToolDef[] = [
     inputSchema: { param: listarNotaEntradaParamSchema },
     execute: async (client, param) => {
       const parsed = listarNotaEntradaParamSchema.parse(param);
-      const useCase = new ListarNotaEntradaUseCase(criarGateway(client));
+      const useCase = new ListarNotaEntradaUseCase(criarNotaEntradaGateway(client));
       return useCase.execute(parsed);
     },
   }),
@@ -30,7 +30,7 @@ export const notaEntradaTools: ToolDef[] = [
     inputSchema: { param: consultarNotaEntradaParamSchema },
     execute: async (client, param) => {
       const parsed = consultarNotaEntradaParamSchema.parse(param);
-      const useCase = new ConsultarNotaEntradaUseCase(criarGateway(client));
+      const useCase = new ConsultarNotaEntradaUseCase(criarNotaEntradaGateway(client));
       return useCase.execute(parsed);
     },
   }),
