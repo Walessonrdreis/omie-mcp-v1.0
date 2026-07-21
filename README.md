@@ -479,6 +479,26 @@ src/
   efeito legal (sem "excluir e não deixar rastro" como nos demais módulos). Validado ao vivo contra
   a conta real (4765 notas na base de teste).
 
+### Categorias e Departamentos (`src/modules/categoriasDepartamentos/`)
+- `omie_categoria_incluir` / `omie_categoria_alterar` / `omie_categoria_consultar` /
+  `omie_categoria_listar` — **use-case** (as 2 primeiras destrutivas), CRUD de categorias
+  financeiras (`geral/categorias`), testável via `CategoriaFakeGateway`. **Atenção, achados ao
+  vivo importantes:** (1) `IncluirCategoria` NÃO recebe o código da nova categoria — recebe
+  `categoria_superior` (código do grupo pai) e a Omie GERA o código do filho automaticamente (ex:
+  pai `2.09` gera filho `2.09.04`); (2) **não existe exclusão de categoria na API**, e testar
+  `AlterarCategoria` com `conta_inativa: 'S'` NÃO teve efeito real (confirmado consultando de novo
+  depois) — categorias criadas via API ficam permanentemente ativas na conta, sem forma de
+  remover/desativar. **Isso deixou uma categoria de teste residual nesta conta** (`2.09.04`,
+  "Categoria Teste MCP Alterada") — inofensiva mas registrada aqui pra não confundir quem
+  encontrar depois (mesmo padrão do produto de teste residual do módulo `estoque`).
+- `omie_departamento_incluir` / `omie_departamento_alterar` / `omie_departamento_excluir` /
+  `omie_departamento_consultar` / `omie_departamento_listar` — **use-case** (as 3 primeiras
+  destrutivas), CRUD de Departamento/Centro de Custo (`geral/departamentos`), testável via
+  `DepartamentoFakeGateway`. **Atenção, achado ao vivo**: `codigo` em `IncluirDepartamento` é o
+  código do departamento PAI (onde incluir), não do novo — a Omie gera e devolve o código do
+  filho na resposta (mesmo padrão de Categoria). Diferente de Categoria, `ExcluirDepartamento`
+  funciona de verdade — validado ao vivo com round-trip completo, sem deixar rastro.
+
 ### Cadastros Auxiliares (`src/modules/cadastrosAuxiliares/`)
 - `omie_bancos_listar` / `omie_cidades_listar` / `omie_paises_listar` / `omie_ncm_listar` /
   `omie_unidade_consultar` — **use-case**, tabelas de referência estáticas mantidas pela própria

@@ -91,6 +91,13 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Notas Fiscais | Lista as NF-e já emitidas/registradas, com resumo (número, série, chave, cliente, valor, se está cancelada), filtro por período de emissão, status e tipo (entrada/saída). |
 | Consultar Nota Fiscal | Busca o detalhe completo de uma nota (pela chave de acesso ou pelo código interno): itens, NCM/CFOP, valores e os títulos financeiros gerados por ela. |
 
+## Categorias e Departamentos
+
+| Funcionalidade | O que faz |
+|---|---|
+| Incluir/Alterar/Consultar/Listar Categoria | Gerencia o plano de categorias financeiras (usado em contas a pagar/receber, fluxo de caixa). ⚠️ Não existe exclusão/desativação real de categoria na API — o que for criado fica permanentemente ativo. |
+| Incluir/Alterar/Excluir/Consultar/Listar Departamento | CRUD de departamentos/centro de custo, com exclusão de verdade (diferente de Categoria). |
+
 ## Cadastros Auxiliares
 
 | Funcionalidade | O que faz |
