@@ -449,6 +449,14 @@ src/
 > (fornecedor/cliente por lançamento, sem agregação), úteis pra conferir título por título;
 > o fluxo de caixa agrega tudo por período/conta corrente.
 
+### Orçamento de Caixa (`src/modules/orcamentoCaixa/`)
+- `omie_orcamento_caixa_consultar` — **use-case**: orçamento de caixa NATIVO da Omie (previsto x
+  realizado) por categoria financeira, num mês/ano. Método Omie: `ListarOrcamentos` (recurso
+  `financas/caixa`), testável via `OrcamentoCaixaFakeGateway` sem tocar na Omie real. Diferente de
+  `omie_fluxo_caixa_gerar` (calculado manualmente a partir de contas a pagar/receber, agrupado por
+  conta corrente/dia), este é o relatório pronto da própria Omie, agrupado por categoria (ex:
+  "1.01.01 Vendas"). Suporta o parâmetro genérico `filtros`. Validado ao vivo contra a conta real.
+
 ### PIX (`src/modules/pix/`)
 - `omie_pix_listar` / `omie_pix_obter` / `omie_pix_obter_status` / `omie_pix_gerar` /
   `omie_pix_cancelar` — **use-case** (gerar/cancelar destrutivas), CRUD de PIX sobre títulos de

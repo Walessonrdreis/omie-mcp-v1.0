@@ -16,3 +16,4 @@
 - [x] Extrato de conta corrente — 2026-07-20 — [API](./API.md#extrato-de-conta-corrente-omie_extrato_conta_corrente_consultar-listarextrato-recurso-financasextrato--movimentos-e-saldos-anterioratualconciliadodisponível-de-uma-conta-corrente-num-período)
 - [x] Boleto de contas a receber — 2026-07-20 — [API](./API.md#boleto-de-contas-a-receber-omie_contas_receber_boleto_gerarobterprorrogarcancelar-financascontareceberboleto-gerarboletoobterboletoprorrogarboletocancelarboleto)
 - [x] Módulo PIX de contas a receber — 2026-07-20 — [API](./API.md#módulo-pix-de-contas-a-receber-omie_pix_listarobterobter_statusgerarcancelar-financaspix)
+- [x] Módulo Orçamento de Caixa nativo — 2026-07-20 — [API](./API.md#módulo-orçamento-de-caixa-nativo-omie_orcamento_caixa_consultar-listarorcamentos-recurso-financascaixa--previsto-x-realizado-por-categoria-financeira-num-mêsano)

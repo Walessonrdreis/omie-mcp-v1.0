@@ -42,3 +42,8 @@
   - **Data:** 2026-07-20 | **Autor:** Walesson
   - **Arquivos afetados:** `src/modules/pix/` (módulo novo, padrão gateway+interface+fake+teste), `src/tools/registry.ts`, `README.md`, `FUNCIONALIDADES.md`
   - **Motivo/contexto:** terceiro item do "Financeiro avançado". Diferente de Boleto, esta conta Omie TEM PIX ativo e configurado — `ListarPix` retornou 379 registros reais, todos os métodos de leitura (`ListarPix`/`ObterPix`/`ObterStatusPix`) validados ao vivo contra a conta real. `GerarPix`/`CancelarPix` não foram testados ao vivo contra título de produção pelo mesmo motivo de prudência do Boleto (cobrança PIX real, sem round-trip seguro garantido).
+
+- [x] Módulo Orçamento de Caixa nativo: `omie_orcamento_caixa_consultar` (`ListarOrcamentos`, recurso `financas/caixa`) — previsto x realizado por categoria financeira, num mês/ano
+  - **Data:** 2026-07-20 | **Autor:** Walesson
+  - **Arquivos afetados:** `src/modules/orcamentoCaixa/` (módulo novo, padrão gateway+interface+fake+teste), `src/tools/registry.ts`, `README.md`, `FUNCIONALIDADES.md`
+  - **Motivo/contexto:** último item do "Financeiro avançado" do gap-analysis. Endpoint simples, só leitura, único método (`ListarOrcamentos`). Validado ao vivo contra a conta real (julho/2026, dezenas de categorias com valores reais de receita/despesa). Complementa (não substitui) `omie_fluxo_caixa_gerar`: este é o relatório pronto da Omie por categoria, aquele é calculado pelo MCP por conta corrente/dia a partir de contas a pagar/receber. Com este item concluído, o "Financeiro avançado" do gap-analysis está completo (extrato, boleto, PIX, orçamento de caixa).
