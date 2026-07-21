@@ -479,6 +479,13 @@ src/
   efeito legal (sem "excluir e não deixar rastro" como nos demais módulos). Validado ao vivo contra
   a conta real (4765 notas na base de teste).
 
+### Características de Produto (`src/modules/caracteristicasProduto/`)
+- `omie_caracteristica_incluir` / `omie_caracteristica_alterar` / `omie_caracteristica_excluir` /
+  `omie_caracteristica_consultar` / `omie_caracteristica_listar` — **use-case** (as 3 primeiras
+  destrutivas), CRUD de características reutilizáveis de produto (ex: "Cor", "Tamanho") via
+  `geral/caracteristicas`, testável via `CaracteristicaFakeGateway`. Diferente de Categoria,
+  testado ao vivo que o CRUD completo funciona sem ressalvas (round-trip completo, sem rastro).
+
 ### Categorias e Departamentos (`src/modules/categoriasDepartamentos/`)
 - `omie_categoria_incluir` / `omie_categoria_alterar` / `omie_categoria_consultar` /
   `omie_categoria_listar` — **use-case** (as 2 primeiras destrutivas), CRUD de categorias

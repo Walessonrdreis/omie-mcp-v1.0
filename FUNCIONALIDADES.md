@@ -91,6 +91,12 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Notas Fiscais | Lista as NF-e já emitidas/registradas, com resumo (número, série, chave, cliente, valor, se está cancelada), filtro por período de emissão, status e tipo (entrada/saída). |
 | Consultar Nota Fiscal | Busca o detalhe completo de uma nota (pela chave de acesso ou pelo código interno): itens, NCM/CFOP, valores e os títulos financeiros gerados por ela. |
 
+## Características de Produto
+
+| Funcionalidade | O que faz |
+|---|---|
+| Incluir/Alterar/Excluir/Consultar/Listar Característica | CRUD de atributos reutilizáveis de produto (ex: "Cor", "Tamanho"). |
+
 ## Categorias e Departamentos
 
 | Funcionalidade | O que faz |

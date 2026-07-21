@@ -18,6 +18,7 @@ import { servicosModuleTools } from "../modules/servicos/index.js";
 import { crmModuleTools } from "../modules/crm/index.js";
 import { cadastrosAuxiliaresModuleTools } from "../modules/cadastrosAuxiliares/index.js";
 import { categoriasDepartamentosModuleTools } from "../modules/categoriasDepartamentos/index.js";
+import { caracteristicasProdutoModuleTools } from "../modules/caracteristicasProduto/index.js";
 
 /**
  * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
@@ -51,6 +52,7 @@ export const allTools: ToolDef[] = [
   ...crmModuleTools,
   ...cadastrosAuxiliaresModuleTools,
   ...categoriasDepartamentosModuleTools,
+  ...caracteristicasProdutoModuleTools,
   ...contasPagarModuleTools,
   ...contasReceberModuleTools,
 ];
