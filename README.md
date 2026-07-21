@@ -286,7 +286,13 @@ src/
   opcional) e que `AlterarEstrutura`/`ExcluirEstrutura` exigem `idProdMalha` junto do `idMalha`
 
 ### Estoque (`src/modules/estoque/`)
-- `omie_estoque_ajuste_incluir` — passthrough, registra ajuste de estoque
+- `omie_estoque_ajuste_incluir` / `omie_estoque_ajuste_excluir` — **use-case** (destrutivas),
+  CRUD de ajuste sobre `IEstoqueGateway.incluirAjuste/excluirAjuste`, testável via
+  `EstoqueFakeGateway` sem tocar na Omie real. **Atenção, achado ao vivo importante:** o campo
+  `motivo` só aceita `'INI'`/`'INV'`/`'OPE'`/`'PDV'` (não documentado na doc pública, só aparece
+  no erro de validação da Omie); e depois de QUALQUER ajuste de estoque num produto, esse
+  produto **nunca mais pode ser excluído** — a Omie mantém um "Movimento de Estoque
+  (calculado)" permanente vinculado a ele, mesmo se o ajuste em si for excluído depois.
 - `omie_estoque_movimentos_listar` — passthrough, lista movimentos por período
 - `omie_estoque_total_produto` — **use-case**: soma o estoque físico de um produto em
   todos os locais de estoque, já que a Omie só expõe posição por local
@@ -295,7 +301,12 @@ src/
 > existe na API Omie atual (retorna `Method "ConsultarEstoque" not exists`).
 
 ### Pedido de Venda (`src/modules/pedidoVenda/`)
-- `omie_pedido_venda_consultar` — passthrough, um pedido específico com todos os itens/impostos
+- `omie_pedido_venda_consultar` / `omie_pedido_venda_incluir` / `omie_pedido_venda_alterar` /
+  `omie_pedido_venda_excluir` — **use-case** (as 3 últimas destrutivas), CRUD sobre
+  `IPedidoVendaGateway`, testável via `PedidoVendaFakeGateway` sem tocar na Omie real.
+  **Atenção:** validado ao vivo (round-trip completo com cliente/produto descartáveis) que o
+  cliente precisa ter UF preenchida no cadastro (senão a Omie recusa o pedido) e que
+  `codigo_categoria`/`codigo_conta_corrente` são obrigatórios mesmo num pedido simples
 - `omie_pedido_venda_listar` — passthrough, lista pedidos (aceita filtro `etapa` nativo da Omie)
 - `omie_pedido_venda_etapas_listar` — passthrough, catálogo de etapas de faturamento (kanban de
   vendas/OS/compras) com código e descrição — ao contrário da etapa de OP, aqui é fixo e documentado
@@ -333,6 +344,11 @@ src/
   pela tag `Fornecedor`, com busca por razão social/nome fantasia/CNPJ-CPF e `apenas_ativos`
   (remove inativos client-side, já que o filtro `clientesFiltro.tags` não combina com filtro de
   status na mesma chamada de forma direta)
+- `omie_clientes_incluir` / `omie_clientes_alterar` / `omie_clientes_excluir` — **use-case**
+  (destrutivas), CRUD sobre `IClientesGateway.incluirCliente/alterarCliente/excluirCliente`,
+  testável via `ClientesFakeGateway` sem tocar na Omie real. **Atenção:** validado ao vivo
+  (round-trip criar→alterar→excluir) que `codigo_cliente_integracao` é obrigatório em
+  `IncluirCliente`, mesmo a doc pública da Omie marcando como opcional
 
 > **Escopo atual: só leitura (consulta/listagem).** A pedido do usuário, o CRUD completo (incluir,
 > alterar, excluir) de clientes/fornecedores fica pra depois — só depois que o MCP tiver segurança

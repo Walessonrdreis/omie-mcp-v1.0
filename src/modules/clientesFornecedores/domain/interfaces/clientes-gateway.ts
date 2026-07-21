@@ -7,6 +7,47 @@ export interface ClienteOmie {
   inativo: "S" | "N";
 }
 
+export interface TagCliente {
+  tag: string;
+}
+
+/**
+ * Dados pra gravar cliente/fornecedor (Incluir/Alterar). Testado ao vivo:
+ * `codigo_cliente_integracao` é obrigatório mesmo no Incluir, apesar da doc
+ * pública da Omie marcar como opcional.
+ */
+export interface DadosClienteParaGravar {
+  codigo_cliente_omie?: number;
+  codigo_cliente_integracao: string;
+  razao_social: string;
+  cnpj_cpf: string;
+  nome_fantasia?: string;
+  email?: string;
+  tags?: TagCliente[];
+  telefone1_ddd?: string;
+  telefone1_numero?: string;
+  endereco?: string;
+  endereco_numero?: string;
+  bairro?: string;
+  complemento?: string;
+  estado?: string;
+  cidade?: string;
+  cep?: string;
+  observacao?: string;
+}
+
+export interface ChaveCliente {
+  codigo_cliente_omie?: number;
+  codigo_cliente_integracao?: string;
+}
+
+export interface StatusClienteOmie {
+  codigo_cliente_omie: number;
+  codigo_cliente_integracao: string;
+  codigo_status: string;
+  descricao_status: string;
+}
+
 /**
  * Contrato de acesso ao cadastro de Clientes/Fornecedores, independente de
  * vir da Omie real ou de um fake em memória (`OMIE_MOCK=true`). Reaproveitado
@@ -23,4 +64,13 @@ export interface IClientesGateway {
    * "cliente não existe".
    */
   consultarClientesPorCodigo(codigosCliente: number[]): Promise<Map<number, ClienteOmie>>;
+
+  incluirCliente(dados: DadosClienteParaGravar): Promise<StatusClienteOmie>;
+
+  alterarCliente(
+    chave: ChaveCliente,
+    dados: Partial<DadosClienteParaGravar>
+  ): Promise<StatusClienteOmie>;
+
+  excluirCliente(chave: ChaveCliente): Promise<StatusClienteOmie>;
 }

@@ -1,9 +1,13 @@
 import { OmieClient } from "../../../../omieClient.js";
 import {
+  ChavePedido,
   COD_OPERACAO_VENDA_PRODUTO,
+  DadosPedidoParaGravar,
   IPedidoVendaGateway,
   ListarPedidosResponse,
   OperacaoEtapas,
+  PedidoVenda,
+  StatusPedidoOmie,
 } from "../../domain/interfaces/pedido-venda-gateway.js";
 
 export {
@@ -61,5 +65,64 @@ export class PedidoVendaOmieGateway implements IPedidoVendaGateway {
       mapa.set(etapa.cCodigo, etapa.cDescricao || etapa.cDescrPadrao);
     }
     return mapa;
+  }
+
+  async consultarPedido(chave: ChavePedido): Promise<PedidoVenda> {
+    const resposta = await this.client.call<{ pedido_venda_produto: PedidoVenda }>({
+      resource: "produtos/pedido",
+      call: "ConsultarPedido",
+      param: { ...chave },
+    });
+    return resposta.pedido_venda_produto;
+  }
+
+  private montarParamGravacao(dados: DadosPedidoParaGravar): Record<string, unknown> {
+    return {
+      cabecalho: {
+        codigo_pedido: dados.codigo_pedido,
+        codigo_pedido_integracao: dados.codigo_pedido_integracao,
+        codigo_cliente: dados.codigo_cliente,
+        data_previsao: dados.data_previsao,
+        etapa: dados.etapa ?? "10",
+        codigo_parcela: dados.codigo_parcela ?? "000",
+      },
+      informacoes_adicionais: {
+        codigo_categoria: dados.codigo_categoria,
+        codigo_conta_corrente: dados.codigo_conta_corrente,
+        consumidor_final: dados.consumidor_final ?? "N",
+      },
+      det: dados.itens.map((item) => ({
+        ide: { codigo_item_integracao: item.codigo_item_integracao },
+        produto: {
+          codigo_produto: item.codigo_produto,
+          quantidade: item.quantidade,
+          valor_unitario: item.valor_unitario,
+        },
+      })),
+    };
+  }
+
+  async incluirPedido(dados: DadosPedidoParaGravar): Promise<StatusPedidoOmie> {
+    return this.client.call<StatusPedidoOmie>({
+      resource: "produtos/pedido",
+      call: "IncluirPedido",
+      param: this.montarParamGravacao(dados),
+    });
+  }
+
+  async alterarPedido(dados: DadosPedidoParaGravar): Promise<StatusPedidoOmie> {
+    return this.client.call<StatusPedidoOmie>({
+      resource: "produtos/pedido",
+      call: "AlterarPedidoVenda",
+      param: this.montarParamGravacao(dados),
+    });
+  }
+
+  async excluirPedido(chave: ChavePedido): Promise<StatusPedidoOmie> {
+    return this.client.call<StatusPedidoOmie>({
+      resource: "produtos/pedido",
+      call: "ExcluirPedido",
+      param: { ...chave },
+    });
   }
 }

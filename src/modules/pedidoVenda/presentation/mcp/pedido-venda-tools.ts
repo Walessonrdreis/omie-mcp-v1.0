@@ -6,9 +6,18 @@ import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructur
 import { listarPedidosComClienteParamSchema } from "../../application/dto/listar-pedidos-com-cliente.dto.js";
 import { listarPedidosSepararEstoqueParamSchema } from "../../application/dto/listar-pedidos-separar-estoque.dto.js";
 import { listarProdutosParaSepararParamSchema } from "../../application/dto/listar-produtos-para-separar.dto.js";
+import {
+  alterarPedidoParamSchema,
+  chavePedidoParamSchema,
+  incluirPedidoParamSchema,
+} from "../../application/dto/pedido-crud.dto.js";
 import { ListarPedidosComClienteUseCase } from "../../application/use-cases/listar-pedidos-com-cliente.js";
 import { ListarPedidosSepararEstoqueUseCase } from "../../application/use-cases/listar-pedidos-separar-estoque.js";
 import { ListarProdutosParaSepararUseCase } from "../../application/use-cases/listar-produtos-para-separar.js";
+import { IncluirPedidoUseCase } from "../../application/use-cases/incluir-pedido.js";
+import { AlterarPedidoUseCase } from "../../application/use-cases/alterar-pedido.js";
+import { ExcluirPedidoUseCase } from "../../application/use-cases/excluir-pedido.js";
+import { ConsultarPedidoUseCase } from "../../application/use-cases/consultar-pedido.js";
 import { IPedidoVendaGateway } from "../../domain/interfaces/pedido-venda-gateway.js";
 import { PedidoVendaFakeGateway } from "../../infrastructure/gateways/pedido-venda-fake-gateway.js";
 import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
@@ -30,10 +39,58 @@ export const pedidoVendaTools: ToolDef[] = [
     name: "omie_pedido_venda_consultar",
     description:
       "Consulta um Pedido de Venda específico, com todos os itens/impostos. Método Omie: " +
-      "ConsultarPedido.",
-    inputSchema: { param: paramSchema },
-    resource: "produtos/pedido",
-    call: "ConsultarPedido",
+      "ConsultarPedido. Identifique por codigo_pedido ou codigo_pedido_integracao.",
+    inputSchema: { param: chavePedidoParamSchema },
+    execute: async (client, param) => {
+      const parsed = chavePedidoParamSchema.parse(param);
+      const useCase = new ConsultarPedidoUseCase(criarPedidoVendaGateway(client));
+      return useCase.execute(parsed);
+    },
+  }),
+  defineTool({
+    name: "omie_pedido_venda_incluir",
+    description:
+      "Cria um novo Pedido de Venda. Método Omie: IncluirPedido. Precisa de codigo_cliente (o " +
+      "cliente precisa ter UF preenchida no cadastro, senão a Omie recusa — teste ao vivo), " +
+      "data_previsao, codigo_categoria (via omie_chamar_api resource 'geral/categorias' call " +
+      "'ListarCategorias' — use uma categoria de receita), codigo_conta_corrente (via " +
+      "omie_contas_correntes_listar) e itens (codigo_item_integracao, codigo_produto, " +
+      "quantidade, valor_unitario). etapa (padrão '10') e codigo_parcela (padrão '000' = à vista) " +
+      "são opcionais.",
+    inputSchema: { param: incluirPedidoParamSchema },
+    execute: async (client, param) => {
+      const parsed = incluirPedidoParamSchema.parse(param);
+      const useCase = new IncluirPedidoUseCase(criarPedidoVendaGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
+  }),
+  defineTool({
+    name: "omie_pedido_venda_alterar",
+    description:
+      "Altera um Pedido de Venda existente. Método Omie: AlterarPedidoVenda. Identifique por " +
+      "codigo_pedido ou codigo_pedido_integracao e reenvie os dados (mesmos campos de " +
+      "omie_pedido_venda_incluir) — os itens enviados substituem os itens atuais do pedido.",
+    inputSchema: { param: alterarPedidoParamSchema },
+    execute: async (client, param) => {
+      const parsed = alterarPedidoParamSchema.parse(param);
+      const useCase = new AlterarPedidoUseCase(criarPedidoVendaGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
+  }),
+  defineTool({
+    name: "omie_pedido_venda_excluir",
+    description:
+      "Exclui um Pedido de Venda. Método Omie: ExcluirPedido. Identifique por codigo_pedido ou " +
+      "codigo_pedido_integracao. A Omie recusa se o pedido já estiver faturado.",
+    inputSchema: { param: chavePedidoParamSchema },
+    execute: async (client, param) => {
+      const parsed = chavePedidoParamSchema.parse(param);
+      const useCase = new ExcluirPedidoUseCase(criarPedidoVendaGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
   }),
   defineTool({
     name: "omie_pedido_venda_listar",

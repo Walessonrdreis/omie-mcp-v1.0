@@ -1,5 +1,10 @@
 import { OmieClient } from "../../../../omieClient.js";
-import { IEstoqueGateway, PosicaoEstoque } from "../../domain/interfaces/estoque-gateway.js";
+import {
+  DadosAjusteEstoqueParaGravar,
+  IEstoqueGateway,
+  PosicaoEstoque,
+  StatusAjusteEstoqueOmie,
+} from "../../domain/interfaces/estoque-gateway.js";
 
 export { PosicaoEstoque } from "../../domain/interfaces/estoque-gateway.js";
 
@@ -51,5 +56,27 @@ export class EstoqueOmieGateway implements IEstoqueGateway {
   async listarPosicoesPorProduto(codigoProduto: number): Promise<PosicaoEstoque[]> {
     const todas = await this.listarTodasPosicoes();
     return todas.filter((p) => p.nCodProd === codigoProduto);
+  }
+
+  async incluirAjuste(dados: DadosAjusteEstoqueParaGravar): Promise<StatusAjusteEstoqueOmie> {
+    return this.client.call<StatusAjusteEstoqueOmie>({
+      resource: "estoque/ajuste",
+      call: "IncluirAjusteEstoque",
+      param: { ...dados },
+    });
+  }
+
+  /**
+   * Atenção: excluir o ajuste não desfaz a dependência criada no produto — a
+   * Omie mantém um "Movimento de Estoque (calculado)" permanente, que passa a
+   * bloquear `ExcluirProduto` pra sempre (testado ao vivo). Avise o usuário
+   * antes de ajustar estoque de um produto que ele possa querer excluir depois.
+   */
+  async excluirAjuste(idAjuste: number): Promise<StatusAjusteEstoqueOmie> {
+    return this.client.call<StatusAjusteEstoqueOmie>({
+      resource: "estoque/ajuste",
+      call: "ExcluirAjusteEstoque",
+      param: { id_ajuste: idAjuste },
+    });
   }
 }

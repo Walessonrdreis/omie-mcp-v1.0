@@ -35,7 +35,8 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Funcionalidade | O que faz |
 |---|---|
 | Estoque Total do Produto | Soma quanto você tem de um produto **somando todos os locais de estoque** — a Omie só mostra por local, essa ferramenta já entrega o total pronto. |
-| Registrar Ajuste de Estoque | Lança uma movimentação manual (ex: consumo de insumo, entrada de produto acabado). |
+| Registrar Ajuste de Estoque | Lança uma movimentação manual (ex: consumo de insumo, entrada de produto acabado, correção de inventário). ⚠️ Depois de ajustar o estoque de um produto, ele nunca mais pode ser excluído do cadastro. |
+| Excluir Ajuste de Estoque | Reverte um ajuste lançado (não desfaz a restrição de exclusão do produto, ver acima). |
 | Listar Movimentos de Estoque | Lista as entradas/saídas de um produto em um período. |
 
 ## Pedido de Venda
@@ -43,6 +44,9 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Funcionalidade | O que faz |
 |---|---|
 | Consultar Pedido de Venda | Busca os detalhes completos de um pedido específico. |
+| Incluir Pedido de Venda | Cria um novo pedido de venda (cliente, itens, categoria financeira, conta corrente). |
+| Alterar Pedido de Venda | Atualiza um pedido de venda já cadastrado. |
+| Excluir Pedido de Venda | Remove um pedido de venda (a Omie recusa se já estiver faturado). |
 | Listar Pedidos de Venda | Lista os pedidos cadastrados, com filtros. |
 | Listar Etapas do Funil de Vendas | Mostra as fases possíveis de um pedido (Pedido de Venda, Separar Estoque, Faturar, Faturado, Entrega). |
 | Produtos para Separar (Expedição) | Lista **os produtos que precisam ser separados do estoque agora** para despachar pedidos em aberto, já removendo os cancelados, com um resumo de quanto separar de cada produto e em quantos pedidos ele aparece. |
@@ -58,8 +62,9 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Consultar Cliente/Fornecedor | Busca o cadastro completo de um cliente ou fornecedor específico (razão social, nome fantasia, CNPJ/CPF, contato, endereço). |
 | Listar Clientes/Fornecedores | Lista os cadastros, com filtros (por nome, CNPJ, etc.). |
 | Listar Fornecedores | Atalho já filtrado só pelos fornecedores, com busca por nome/CNPJ e opção de esconder os inativos. |
-
-*(Por enquanto só consulta/listagem — incluir, alterar ou excluir cliente/fornecedor fica pra depois de reforçar a segurança do MCP.)*
+| Incluir Cliente/Fornecedor | Cria um novo cliente ou fornecedor no cadastro (a tag define qual). |
+| Alterar Cliente/Fornecedor | Atualiza um cliente/fornecedor já cadastrado. |
+| Excluir Cliente/Fornecedor | Remove um cliente/fornecedor do cadastro (a Omie recusa se já tiver movimentação). |
 
 ## Financeiro
 

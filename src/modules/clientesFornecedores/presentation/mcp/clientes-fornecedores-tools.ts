@@ -1,5 +1,23 @@
 import { z } from "zod";
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
+import { OmieClient } from "../../../../omieClient.js";
+import {
+  alterarClienteParamSchema,
+  excluirClienteParamSchema,
+  incluirClienteParamSchema,
+} from "../../application/dto/cliente-crud.dto.js";
+import { IncluirClienteUseCase } from "../../application/use-cases/incluir-cliente.js";
+import { AlterarClienteUseCase } from "../../application/use-cases/alterar-cliente.js";
+import { ExcluirClienteUseCase } from "../../application/use-cases/excluir-cliente.js";
+import { IClientesGateway } from "../../domain/interfaces/clientes-gateway.js";
+import { ClientesFakeGateway } from "../../infrastructure/gateways/clientes-fake-gateway.js";
+import { ClientesOmieGateway } from "../../infrastructure/gateways/clientes-omie-gateway.js";
+
+function criarClientesGateway(client: OmieClient): IClientesGateway {
+  return process.env.OMIE_MOCK === "true"
+    ? new ClientesFakeGateway()
+    : new ClientesOmieGateway(client);
+}
 
 const fornecedoresListarParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem (padrão 1)."),
@@ -73,5 +91,49 @@ export const clientesFornecedoresTools: ToolDef[] = [
 
       return { ...resposta, clientes_cadastro: cadastro };
     },
+  }),
+  defineTool({
+    name: "omie_clientes_incluir",
+    description:
+      "Cria um novo cliente/fornecedor no cadastro (lembre: é o MESMO cadastro na Omie, " +
+      "diferenciado só pela tag — use tags: [{ tag: 'Cliente' }] ou [{ tag: 'Fornecedor' }]). " +
+      "Método Omie: IncluirCliente. Campos obrigatórios (testado ao vivo — a doc pública da " +
+      "Omie erra ao marcar 'codigo_cliente_integracao' como opcional): codigo_cliente_integracao, " +
+      "razao_social, cnpj_cpf. Opcionais comuns: nome_fantasia, email, tags, telefone, endereço.",
+    inputSchema: { param: incluirClienteParamSchema },
+    execute: async (client, param) => {
+      const parsed = incluirClienteParamSchema.parse(param);
+      const useCase = new IncluirClienteUseCase(criarClientesGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
+  }),
+  defineTool({
+    name: "omie_clientes_alterar",
+    description:
+      "Altera um cliente/fornecedor já cadastrado. Método Omie: AlterarCliente. Identifique por " +
+      "codigo_cliente_omie ou codigo_cliente_integracao, e envie os campos que devem mudar " +
+      "(mesmos aceitos em omie_clientes_incluir).",
+    inputSchema: { param: alterarClienteParamSchema },
+    execute: async (client, param) => {
+      const parsed = alterarClienteParamSchema.parse(param);
+      const useCase = new AlterarClienteUseCase(criarClientesGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
+  }),
+  defineTool({
+    name: "omie_clientes_excluir",
+    description:
+      "Exclui um cliente/fornecedor do cadastro. Método Omie: ExcluirCliente. Identifique por " +
+      "codigo_cliente_omie ou codigo_cliente_integracao. A Omie recusa se já houver movimentação " +
+      "(pedido, conta a pagar/receber, etc.).",
+    inputSchema: { param: excluirClienteParamSchema },
+    execute: async (client, param) => {
+      const parsed = excluirClienteParamSchema.parse(param);
+      const useCase = new ExcluirClienteUseCase(criarClientesGateway(client));
+      return useCase.execute(parsed);
+    },
+    destructive: true,
   }),
 ];

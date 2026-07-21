@@ -1,6 +1,12 @@
 import { OmieClient } from "../../../../omieClient.js";
 import { mapWithConcurrency } from "../../../../shared/concurrency.js";
-import { ClienteOmie, IClientesGateway } from "../../domain/interfaces/clientes-gateway.js";
+import {
+  ChaveCliente,
+  ClienteOmie,
+  DadosClienteParaGravar,
+  IClientesGateway,
+  StatusClienteOmie,
+} from "../../domain/interfaces/clientes-gateway.js";
 
 export { ClienteOmie } from "../../domain/interfaces/clientes-gateway.js";
 
@@ -42,5 +48,32 @@ export class ClientesOmieGateway implements IClientesGateway {
       }
     }
     return mapa;
+  }
+
+  async incluirCliente(dados: DadosClienteParaGravar): Promise<StatusClienteOmie> {
+    return this.client.call<StatusClienteOmie>({
+      resource: "geral/clientes",
+      call: "IncluirCliente",
+      param: { ...dados },
+    });
+  }
+
+  async alterarCliente(
+    chave: ChaveCliente,
+    dados: Partial<DadosClienteParaGravar>
+  ): Promise<StatusClienteOmie> {
+    return this.client.call<StatusClienteOmie>({
+      resource: "geral/clientes",
+      call: "AlterarCliente",
+      param: { ...chave, ...dados },
+    });
+  }
+
+  async excluirCliente(chave: ChaveCliente): Promise<StatusClienteOmie> {
+    return this.client.call<StatusClienteOmie>({
+      resource: "geral/clientes",
+      call: "ExcluirCliente",
+      param: { ...chave },
+    });
   }
 }
