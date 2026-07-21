@@ -91,6 +91,15 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Notas Fiscais | Lista as NF-e já emitidas/registradas, com resumo (número, série, chave, cliente, valor, se está cancelada), filtro por período de emissão, status e tipo (entrada/saída). |
 | Consultar Nota Fiscal | Busca o detalhe completo de uma nota (pela chave de acesso ou pelo código interno): itens, NCM/CFOP, valores e os títulos financeiros gerados por ela. |
 
+## Serviços
+
+| Funcionalidade | O que faz |
+|---|---|
+| Incluir/Alterar/Excluir/Consultar/Listar Serviço | CRUD do cadastro de serviços prestados pela empresa (não é uma venda, é o "produto" de serviço). |
+| Incluir/Alterar/Excluir/Consultar/Listar Ordem de Serviço | CRUD de vendas de serviço para um cliente (Ordem de Serviço). |
+| Listar NFS-e | Lista as notas fiscais de serviço já emitidas. Somente leitura. |
+| Listar Códigos LC116 | Lista os códigos válidos da Lei Complementar 116 (necessários pra criar uma Ordem de Serviço). |
+
 ## Compras
 
 | Funcionalidade | O que faz |

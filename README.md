@@ -479,6 +479,32 @@ src/
   efeito legal (sem "excluir e não deixar rastro" como nos demais módulos). Validado ao vivo contra
   a conta real (4765 notas na base de teste).
 
+### Serviços / Ordem de Serviço / NFS-e (`src/modules/servicos/`)
+- `omie_servico_incluir` / `omie_servico_alterar` / `omie_servico_excluir` / `omie_servico_consultar` /
+  `omie_servico_listar` — **use-case** (as 3 primeiras destrutivas), CRUD do cadastro de serviços
+  prestados (`servicos/servico`), testável via `ServicoFakeGateway` sem tocar na Omie real.
+  **Atenção, achado ao vivo**: `AlterarCadastroServico` exige o identificador aninhado em
+  `intEditar` (não em `cabecalho` como pareceria natural) — a doc pública não deixa isso claro.
+- `omie_os_incluir` / `omie_os_alterar` / `omie_os_excluir` / `omie_os_consultar` / `omie_os_listar`
+  — **use-case** (as 3 primeiras destrutivas), CRUD de Ordem de Serviço (`servicos/os`), testável
+  via `OrdemServicoFakeGateway` sem tocar na Omie real. **Atenção, achados ao vivo importantes:**
+  (1) cada item exige `codigo_servico_municipal`/`codigo_servico_lc116` como um código JÁ
+  CADASTRADO na tabela LC116 (ver `omie_servicos_lc116_listar`), não texto livre — a Omie recusa
+  com "Código da LC116 não cadastrada" senão; (2) `cRetemISS` é obrigatório em cada item mesmo não
+  estando marcado como tal na doc pública; (3) cliente do cabeçalho precisa ter UF preenchida
+  (mesmo requisito já visto em Pedido de Venda). Validado ao vivo com round-trip completo e seguro
+  (cliente de teste descartável, criado e excluído sem deixar rastro).
+- `omie_nfse_listar` — **use-case**: lista NFS-e já emitidas (`servicos/nfse`, `ListarNFSEs`),
+  testável via `NfseFakeGateway`. **SOMENTE LEITURA** — mesma cautela do módulo NF-e de produto
+  (documento fiscal com efeito legal, sem round-trip seguro de emissão).
+- `omie_servicos_lc116_listar` — **use-case**: lista os 255 códigos válidos da Lei Complementar 116
+  (classificação de serviços), usado pra descobrir o código certo antes de criar uma OS. Método
+  Omie: ListarLC116 (recurso `servicos/lc116`).
+
+> Fora do escopo deste ciclo (não pedido, baixa prioridade): Contrato de Serviço recorrente
+> (`servicos/contrato`) e faturamento em lote de OS/contrato (`servicos/osp`, `servicos/oslote`,
+> `servicos/contratofat`, `servicos/contratolote`) — implementar só quando o usuário precisar.
+
 ### Compras (`src/modules/compras/`)
 - `omie_pedido_compra_incluir` / `omie_pedido_compra_alterar` / `omie_pedido_compra_excluir` /
   `omie_pedido_compra_consultar` / `omie_pedido_compra_listar` — **use-case** (as 3 primeiras
