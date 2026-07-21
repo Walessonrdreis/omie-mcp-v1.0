@@ -1,7 +1,9 @@
 import {
+  BoletoOmie,
   ContaReceberOmie,
   IContasReceberGateway,
   ListarContasReceberResponse,
+  StatusCancelamentoBoletoOmie,
 } from "../../domain/interfaces/contas-receber-gateway.js";
 
 const CONTAS_FAKE: ContaReceberOmie[] = [
@@ -34,7 +36,53 @@ const CONTAS_FAKE: ContaReceberOmie[] = [
  * alteração, só pagina os dados fixos).
  */
 export class ContasReceberFakeGateway implements IContasReceberGateway {
+  private readonly boletosGerados = new Set<number>();
+
   constructor(private readonly contas: ContaReceberOmie[] = CONTAS_FAKE) {}
+
+  private boletoBase(codigoTitulo: number): BoletoOmie {
+    const gerado = this.boletosGerados.has(codigoTitulo);
+    return {
+      cLinkBoleto: gerado ? `https://fake.omie/boleto/${codigoTitulo}` : "",
+      cCodStatus: gerado ? "0" : "1998",
+      cDesStatus: gerado
+        ? "Boleto gerado com sucesso! (fake)"
+        : "Nenhum boleto foi gerado para essa conta a receber. (fake)",
+      dDtEmBol: gerado ? "20/07/2026" : "",
+      cNumBoleto: gerado ? String(codigoTitulo) : "",
+      cCodBarras: gerado ? "00000000000000000000000000000000000000000" : "",
+      nPerJuros: 0,
+      nPerMulta: 0,
+      cNumBancario: "",
+    };
+  }
+
+  async gerarBoleto(codigoTitulo: number): Promise<BoletoOmie> {
+    this.boletosGerados.add(codigoTitulo);
+    return this.boletoBase(codigoTitulo);
+  }
+
+  async obterBoleto(codigoTitulo: number): Promise<BoletoOmie> {
+    return this.boletoBase(codigoTitulo);
+  }
+
+  async prorrogarBoleto(codigoTitulo: number): Promise<BoletoOmie> {
+    if (!this.boletosGerados.has(codigoTitulo)) {
+      throw new Error(`Nenhum boleto gerado para o título ${codigoTitulo} (fake).`);
+    }
+    return this.boletoBase(codigoTitulo);
+  }
+
+  async cancelarBoleto(codigoTitulo: number): Promise<StatusCancelamentoBoletoOmie> {
+    const gerado = this.boletosGerados.has(codigoTitulo);
+    this.boletosGerados.delete(codigoTitulo);
+    return {
+      cCodStatus: gerado ? "0" : "1998",
+      cDesStatus: gerado
+        ? "Boleto cancelado com sucesso! (fake)"
+        : "Nenhum boleto foi gerado para essa conta a receber. (fake)",
+    };
+  }
 
   async listarPagina(
     pagina: number,

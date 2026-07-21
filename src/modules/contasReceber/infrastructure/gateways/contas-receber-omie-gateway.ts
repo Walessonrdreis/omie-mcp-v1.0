@@ -1,7 +1,9 @@
 import { OmieClient } from "../../../../omieClient.js";
 import {
+  BoletoOmie,
   IContasReceberGateway,
   ListarContasReceberResponse,
+  StatusCancelamentoBoletoOmie,
 } from "../../domain/interfaces/contas-receber-gateway.js";
 
 export { ContaReceberOmie } from "../../domain/interfaces/contas-receber-gateway.js";
@@ -32,6 +34,38 @@ export class ContasReceberOmieGateway implements IContasReceberGateway {
         ...(dataDe ? { filtrar_por_data_de: dataDe } : {}),
         ...(dataAte ? { filtrar_por_data_ate: dataAte } : {}),
       },
+    });
+  }
+
+  async gerarBoleto(codigoTitulo: number): Promise<BoletoOmie> {
+    return this.client.call<BoletoOmie>({
+      resource: "financas/contareceberboleto",
+      call: "GerarBoleto",
+      param: { nCodTitulo: codigoTitulo },
+    });
+  }
+
+  async obterBoleto(codigoTitulo: number): Promise<BoletoOmie> {
+    return this.client.call<BoletoOmie>({
+      resource: "financas/contareceberboleto",
+      call: "ObterBoleto",
+      param: { nCodTitulo: codigoTitulo },
+    });
+  }
+
+  async prorrogarBoleto(codigoTitulo: number, novaDataVencimento: string): Promise<BoletoOmie> {
+    return this.client.call<BoletoOmie>({
+      resource: "financas/contareceberboleto",
+      call: "ProrrogarBoleto",
+      param: { nCodTitulo: codigoTitulo, dDtVenc: novaDataVencimento },
+    });
+  }
+
+  async cancelarBoleto(codigoTitulo: number): Promise<StatusCancelamentoBoletoOmie> {
+    return this.client.call<StatusCancelamentoBoletoOmie>({
+      resource: "financas/contareceberboleto",
+      call: "CancelarBoleto",
+      param: { nCodTitulo: codigoTitulo },
     });
   }
 }

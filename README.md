@@ -424,6 +424,16 @@ src/
   `ClientesOmieGateway` do módulo `clientesFornecedores`), valor, data de vencimento, status
   (PAGO/ABERTO/VENCIDO), documento fiscal, número do pedido e categoria. Paginado, com filtro
   opcional `data_alteracao_de`/`data_alteracao_ate`.
+- `omie_contas_receber_boleto_gerar` / `omie_contas_receber_boleto_obter` /
+  `omie_contas_receber_boleto_prorrogar` / `omie_contas_receber_boleto_cancelar` — **use-case**
+  (gerar/prorrogar/cancelar destrutivas), CRUD de boleto sobre um título de contas a receber
+  (`financas/contareceberboleto`: `GerarBoleto`/`ObterBoleto`/`ProrrogarBoleto`/`CancelarBoleto`),
+  testável via `ContasReceberFakeGateway` sem tocar na Omie real. **Atenção:** testado ao vivo que
+  esta conta Omie não tem convênio bancário/boleto configurado — `ProrrogarBoleto` retorna
+  "Não temos suporte para geração da remessa de pagamento para o banco -sem instituição-";
+  `GerarBoleto` provavelmente falha pelo mesmo motivo (não testado ao vivo pra não gerar um boleto
+  real de um título de cliente de produção). `ObterBoleto`/`CancelarBoleto` foram validados ao
+  vivo (devolvem "nenhum boleto gerado" com segurança, sem side-effect).
 
 > **Achado importante testando**: o parâmetro de filtro de data da Omie nesses dois endpoints
 > (`filtrar_por_data_de`/`filtrar_por_data_ate`) filtra pela **data de última alteração do

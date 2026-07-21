@@ -17,6 +17,23 @@ export interface ListarContasReceberResponse {
   conta_receber_cadastro: ContaReceberOmie[];
 }
 
+export interface BoletoOmie {
+  cLinkBoleto: string;
+  cCodStatus: string;
+  cDesStatus: string;
+  dDtEmBol: string;
+  cNumBoleto: string;
+  cCodBarras: string;
+  nPerJuros: number;
+  nPerMulta: number;
+  cNumBancario: string;
+}
+
+export interface StatusCancelamentoBoletoOmie {
+  cCodStatus: string;
+  cDesStatus: string;
+}
+
 /**
  * Contrato de acesso ao módulo de Contas a Receber, independente de vir da
  * Omie real ou de um fake em memória (`OMIE_MOCK=true`).
@@ -34,4 +51,9 @@ export interface IContasReceberGateway {
     dataDe?: string,
     dataAte?: string
   ): Promise<ListarContasReceberResponse>;
+
+  gerarBoleto(codigoTitulo: number): Promise<BoletoOmie>;
+  obterBoleto(codigoTitulo: number): Promise<BoletoOmie>;
+  prorrogarBoleto(codigoTitulo: number, novaDataVencimento: string): Promise<BoletoOmie>;
+  cancelarBoleto(codigoTitulo: number): Promise<StatusCancelamentoBoletoOmie>;
 }
