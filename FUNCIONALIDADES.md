@@ -75,12 +75,32 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Contas a Receber | Lista as contas a receber já com o **nome do cliente** (a Omie só devolve o código), valor, vencimento, status, documento fiscal, número do pedido e categoria. Dá pra filtrar por lançamentos alterados/criados num período. |
 | Gerar Fluxo de Caixa | Monta o **fluxo de caixa** (entradas, saídas e saldo) por dia ou por mês e por conta corrente, já separando o que **já aconteceu** (realizado) do que **ainda vai vencer** (previsto) — em formato de tabela, pronto pra virar planilha no futuro. A Omie não tem esse relatório pronto, só lançamento por lançamento; esta ferramenta busca tudo e organiza. Por padrão mostra só as **contas favoritas** (Cartão NuBank, Stone, Banco do Brasil, Wix, iFood, Sicoob, Itaú, Cartão Elo LEANDRO, Amazon, CAIXA LOJA) — dá pra pedir todas as contas ou uma lista específica. Opcionalmente (`usar_saldo_real`), aproxima do **saldo bancário real** usando o saldo configurado no cadastro da conta na Omie — quando alguém atualizar esse saldo lá, o cálculo já reflete automaticamente. |
 
+## Notas Fiscais (NF-e)
+
+> Somente leitura por decisão de projeto: nota fiscal emitida é documento com efeito legal e não
+> tem como "testar com segurança" (criar → excluir sem rastro) como os demais módulos. A API da
+> Omie também não expõe um jeito simples de emitir NF-e do zero — emissão é resolvida no próprio
+> ERP, não aqui.
+
+| Funcionalidade | O que faz |
+|---|---|
+| Listar Notas Fiscais | Lista as NF-e já emitidas/registradas, com resumo (número, série, chave, cliente, valor, se está cancelada), filtro por período de emissão, status e tipo (entrada/saída). |
+| Consultar Nota Fiscal | Busca o detalhe completo de uma nota (pela chave de acesso ou pelo código interno): itens, NCM/CFOP, valores e os títulos financeiros gerados por ela. |
+
 ## Compras
 
 | Funcionalidade | O que faz |
 |---|---|
+| Incluir Pedido de Compra | Cria um novo pedido de compra (fornecedor, itens, previsão de entrega, conta corrente). |
+| Alterar Pedido de Compra | Atualiza um pedido de compra já cadastrado. |
+| Excluir Pedido de Compra | Remove um pedido de compra. |
+| Consultar Pedido de Compra | Busca os detalhes completos de um pedido (itens, quantidade recebida, valores). |
+| Listar Pedidos de Compra | Lista os pedidos de compra cadastrados, com filtros. |
 | Incluir Requisição de Compra | Solicita a compra de insumos para produção. |
-| Incluir Pedido de Compra | Registra um pedido de compra de insumos. |
+| Alterar Requisição de Compra | Atualiza uma requisição de compra já cadastrada. |
+| Excluir Requisição de Compra | Remove uma requisição de compra. |
+| Consultar Requisição de Compra | Busca os detalhes de uma requisição específica. |
+| Listar Requisições de Compra | Lista as requisições de compra cadastradas, com filtros. |
 
 ## Qualquer outra coisa da Omie
 

@@ -434,8 +434,39 @@ src/
 > (fornecedor/cliente por lançamento, sem agregação), úteis pra conferir título por título;
 > o fluxo de caixa agrega tudo por período/conta corrente.
 
-### Compras (`src/tools/compras.ts`)
-- `omie_requisicao_compra_incluir` / `omie_pedido_compra_incluir`
+### Notas Fiscais / NF-e (`src/modules/nfe/`)
+- `omie_nfe_listar` / `omie_nfe_consultar` — **use-case**: consulta notas fiscais (NF-e) já
+  emitidas/registradas na Omie via `produtos/nfconsultar` (`ListarNF`/`ConsultarNF`), testável via
+  `NfeFakeGateway` sem tocar na Omie real. Listagem devolve resumo (número, série, chave, cliente,
+  valor, cancelada ou não); consulta traz o detalhe (itens, títulos financeiros gerados pela nota).
+  **Módulo deliberadamente SOMENTE LEITURA**: não emite nem cancela NF-e. Pesquisa contra a doc
+  oficial não encontrou um endpoint de "emitir NF-e do zero" (tipo `IncluirNFe(itens, cliente)`)
+  equivalente ao `IncluirPedidoVenda` — a API trata NF-e majoritariamente como consulta/importação
+  de documento já processado pelo motor fiscal do ERP, e nota fiscal emitida é documento com
+  efeito legal (sem "excluir e não deixar rastro" como nos demais módulos). Validado ao vivo contra
+  a conta real (4765 notas na base de teste).
+
+### Compras (`src/modules/compras/`)
+- `omie_pedido_compra_incluir` / `omie_pedido_compra_alterar` / `omie_pedido_compra_excluir` /
+  `omie_pedido_compra_consultar` / `omie_pedido_compra_listar` — **use-case** (as 3 primeiras
+  destrutivas), CRUD completo sobre `IPedidoCompraGateway` (`produtos/pedidocompra`), testável via
+  `PedidoCompraFakeGateway` sem tocar na Omie real. **Atenção, achados ao vivo importantes:**
+  (1) `nCodCC` (passado como `codigo_conta_corrente`) exige um código de **conta corrente**
+  (`geral/contacorrente`), não de departamento/centro de custo, apesar do nome — a Omie recusa
+  com "Conta Corrente não cadastrada" se usar código de departamento; (2) `PesquisarPedCompra`
+  (listagem) esconde TODOS os pedidos por padrão — é preciso pedir explicitamente cada situação
+  (`lExibirPedidosPendentes`/`Faturados`/`Recebidos`/`Cancelados`/`Encerrados`/`RecParciais`/
+  `FatParciais`, tudo `'S'`), o que o gateway já faz sempre; (3) quando a página não tem
+  registros a Omie devolve erro (`SOAP-ENV:Client-5113`) em vez de lista vazia — normalizado no
+  gateway pra devolver lista vazia.
+- `omie_requisicao_compra_incluir` / `omie_requisicao_compra_alterar` /
+  `omie_requisicao_compra_excluir` / `omie_requisicao_compra_consultar` /
+  `omie_requisicao_compra_listar` — **use-case** (as 3 primeiras destrutivas), CRUD completo sobre
+  `IRequisicaoCompraGateway` (`produtos/requisicaocompra`), testável via
+  `RequisicaoCompraFakeGateway` sem tocar na Omie real. **Atenção, achado ao vivo importante:**
+  diferente de outros endpoints da Omie, os campos de `IncluirReq`/`AlterarReq` vão direto na
+  raiz do `param` — não existe o wrapper `requisicaoCadastro: {...}` que a doc pública sugere (a
+  Omie recusa com "Tag [REQUISICAOCADASTRO] não faz parte da estrutura").
 
 ### Genérica (cobre todos os outros módulos)
 - `omie_chamar_api` — recebe `resource` (caminho do módulo), `call` (método) e `param` (parâmetros), permitindo acessar qualquer endpoint listado em https://developer.omie.com.br/service-list/ (clientes, financeiro, CRM, vendas, NF-e, serviços, etc.)

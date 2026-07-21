@@ -1,6 +1,6 @@
 import { OmieClient } from "../omieClient.js";
 import { ToolDef } from "./types.js";
-import { comprasTools } from "./compras.js";
+import { comprasModuleTools } from "../modules/compras/index.js";
 import { contasPagarModuleTools } from "../modules/contasPagar/index.js";
 import { contasReceberModuleTools } from "../modules/contasReceber/index.js";
 import { estoqueModuleTools } from "../modules/estoque/index.js";
@@ -11,6 +11,7 @@ import { clientesFornecedoresModuleTools } from "../modules/clientesFornecedores
 import { contasCorrentesModuleTools } from "../modules/contasCorrentes/index.js";
 import { fluxoCaixaModuleTools } from "../modules/fluxoCaixa/index.js";
 import { estruturaModuleTools } from "../modules/estrutura/index.js";
+import { nfeModuleTools } from "../modules/nfe/index.js";
 
 /**
  * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
@@ -36,7 +37,8 @@ export const allTools: ToolDef[] = [
   ...contasCorrentesModuleTools,
   ...fluxoCaixaModuleTools,
   ...estruturaModuleTools,
-  ...comprasTools,
+  ...nfeModuleTools,
+  ...comprasModuleTools,
   ...contasPagarModuleTools,
   ...contasReceberModuleTools,
 ];
