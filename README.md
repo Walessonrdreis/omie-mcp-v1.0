@@ -479,6 +479,32 @@ src/
   efeito legal (sem "excluir e não deixar rastro" como nos demais módulos). Validado ao vivo contra
   a conta real (4765 notas na base de teste).
 
+### CRM (`src/modules/crm/`)
+- `omie_crm_conta_incluir` / `omie_crm_conta_alterar` / `omie_crm_conta_excluir` /
+  `omie_crm_conta_consultar` / `omie_crm_conta_listar` — **use-case** (as 3 primeiras destrutivas),
+  CRUD de Conta do CRM (`crm/contas` — funil de vendas B2B, diferente do cadastro de Cliente/
+  Fornecedor), testável via `ContaFakeGateway` sem tocar na Omie real. **Atenção, achado ao vivo**:
+  `IncluirConta`/`AlterarConta` exigem os blocos `endereco` e `telefone_email` inteiros presentes
+  (mesmo com poucos campos preenchidos) — a Omie recusa com "Tag [endereco]/[telefone_email] não
+  informada!" se o bloco faltar por completo.
+- `omie_crm_contato_incluir` / `omie_crm_contato_alterar` / `omie_crm_contato_excluir` /
+  `omie_crm_contato_consultar` / `omie_crm_contato_listar` — **use-case** (as 3 primeiras
+  destrutivas), CRUD de Contato do CRM (`crm/contatos`), sempre vinculado a uma Conta.
+- `omie_crm_oportunidade_incluir` / `omie_crm_oportunidade_alterar` /
+  `omie_crm_oportunidade_excluir` / `omie_crm_oportunidade_consultar` /
+  `omie_crm_oportunidade_listar` — **use-case** (as 3 primeiras destrutivas), CRUD de Oportunidade
+  do funil (`crm/oportunidades`). **Atenção, achado ao vivo**: além de conta e contato, exige
+  `codigo_solucao` e `codigo_origem` — cadastros auxiliares que precisam existir antes (a Omie já
+  vem com "Solução 01"/"Solução 02" e origens padrão como "Ativo").
+- `omie_crm_fases_listar` / `omie_crm_solucoes_listar` / `omie_crm_origens_listar` — **use-case**
+  (leitura), cadastros auxiliares do CRM (`crm/fases`, `crm/solucoes`, `crm/origens`) — as duas
+  últimas são pré-requisito pra conseguir criar uma Oportunidade.
+- Validado ao vivo com round-trip completo e seguro (conta, contato e oportunidade de teste,
+  criados e excluídos sem deixar rastro).
+
+> Fora do escopo deste ciclo (não pedido, baixa prioridade): Tarefas (`crm/tarefas`) e
+> Características de Conta (`crm/contascaract`) — implementar só quando o usuário precisar.
+
 ### Serviços / Ordem de Serviço / NFS-e (`src/modules/servicos/`)
 - `omie_servico_incluir` / `omie_servico_alterar` / `omie_servico_excluir` / `omie_servico_consultar` /
   `omie_servico_listar` — **use-case** (as 3 primeiras destrutivas), CRUD do cadastro de serviços

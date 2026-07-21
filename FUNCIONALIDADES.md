@@ -91,6 +91,18 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Notas Fiscais | Lista as NF-e já emitidas/registradas, com resumo (número, série, chave, cliente, valor, se está cancelada), filtro por período de emissão, status e tipo (entrada/saída). |
 | Consultar Nota Fiscal | Busca o detalhe completo de uma nota (pela chave de acesso ou pelo código interno): itens, NCM/CFOP, valores e os títulos financeiros gerados por ela. |
 
+## CRM
+
+> Funil de vendas B2B da Omie — diferente do cadastro de Cliente/Fornecedor e do Pedido de Venda
+> já cobertos. Só relevante se você usa o CRM dentro da própria Omie.
+
+| Funcionalidade | O que faz |
+|---|---|
+| Incluir/Alterar/Excluir/Consultar/Listar Conta (CRM) | CRUD de empresas/pessoas no funil de vendas. |
+| Incluir/Alterar/Excluir/Consultar/Listar Contato (CRM) | CRUD de pessoas de contato, vinculadas a uma Conta. |
+| Incluir/Alterar/Excluir/Consultar/Listar Oportunidade | CRUD de oportunidades de venda no funil. |
+| Listar Fases/Soluções/Origens (CRM) | Consulta os cadastros auxiliares necessários pra montar uma oportunidade (fase do funil, solução/produto ofertado, origem do lead). |
+
 ## Serviços
 
 | Funcionalidade | O que faz |

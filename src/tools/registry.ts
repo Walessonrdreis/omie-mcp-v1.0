@@ -15,6 +15,7 @@ import { nfeModuleTools } from "../modules/nfe/index.js";
 import { pixModuleTools } from "../modules/pix/index.js";
 import { orcamentoCaixaModuleTools } from "../modules/orcamentoCaixa/index.js";
 import { servicosModuleTools } from "../modules/servicos/index.js";
+import { crmModuleTools } from "../modules/crm/index.js";
 
 /**
  * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
@@ -45,6 +46,7 @@ export const allTools: ToolDef[] = [
   ...pixModuleTools,
   ...orcamentoCaixaModuleTools,
   ...servicosModuleTools,
+  ...crmModuleTools,
   ...contasPagarModuleTools,
   ...contasReceberModuleTools,
 ];

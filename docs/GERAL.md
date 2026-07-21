@@ -18,3 +18,4 @@
 - [x] Módulo PIX de contas a receber — 2026-07-20 — [API](./API.md#módulo-pix-de-contas-a-receber-omie_pix_listarobterobter_statusgerarcancelar-financaspix)
 - [x] Módulo Orçamento de Caixa nativo — 2026-07-20 — [API](./API.md#módulo-orçamento-de-caixa-nativo-omie_orcamento_caixa_consultar-listarorcamentos-recurso-financascaixa--previsto-x-realizado-por-categoria-financeira-num-mêsano)
 - [x] Módulo Serviços/Ordem de Serviço/NFS-e — 2026-07-21 — [API](./API.md#módulo-serviçosordem-de-serviçonfs-e-omie_servico_-crud-servicosservico-omie_os_-crud-servicosos-omie_nfse_listar-leitura-servicosnfse-omie_servicos_lc116_listar-leitura-servicoslc116)
+- [x] Módulo CRM completo — 2026-07-21 — [API](./API.md#módulo-crm-completo-omie_crm_conta_-crud-crmcontas-omie_crm_contato_-crud-crmcontatos-omie_crm_oportunidade_-crud-crmoportunidades-omie_crm_fases_listaromie_crm_solucoes_listaromie_crm_origens_listar-leitura-cadastros-auxiliares)

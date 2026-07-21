@@ -1,0 +1,13 @@
+export { crmModuleTools } from "./crm-register.js";
+export type { IContaGateway, ContaOmie } from "./domain/interfaces/conta-gateway.js";
+export type { IContatoGateway, ContatoOmie } from "./domain/interfaces/contato-gateway.js";
+export type { IOportunidadeGateway, OportunidadeOmie } from "./domain/interfaces/oportunidade-gateway.js";
+export type { ICrmAuxiliarGateway } from "./domain/interfaces/crm-auxiliar-gateway.js";
+export { ContaOmieGateway } from "./infrastructure/gateways/conta-omie-gateway.js";
+export { ContaFakeGateway } from "./infrastructure/gateways/conta-fake-gateway.js";
+export { ContatoOmieGateway } from "./infrastructure/gateways/contato-omie-gateway.js";
+export { ContatoFakeGateway } from "./infrastructure/gateways/contato-fake-gateway.js";
+export { OportunidadeOmieGateway } from "./infrastructure/gateways/oportunidade-omie-gateway.js";
+export { OportunidadeFakeGateway } from "./infrastructure/gateways/oportunidade-fake-gateway.js";
+export { CrmAuxiliarOmieGateway } from "./infrastructure/gateways/crm-auxiliar-omie-gateway.js";
+export { CrmAuxiliarFakeGateway } from "./infrastructure/gateways/crm-auxiliar-fake-gateway.js";
