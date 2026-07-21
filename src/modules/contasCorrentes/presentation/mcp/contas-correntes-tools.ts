@@ -1,5 +1,5 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { consultarExtratoParamSchema } from "../../application/dto/extrato.dto.js";
 import { ConsultarExtratoUseCase } from "../../application/use-cases/consultar-extrato.js";
 import { IContasCorrentesGateway } from "../../domain/interfaces/contas-correntes-gateway.js";

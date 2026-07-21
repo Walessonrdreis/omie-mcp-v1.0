@@ -1,5 +1,5 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { consultarNfeParamSchema, listarNfeParamSchema } from "../../application/dto/nfe.dto.js";
 import { ListarNfeUseCase } from "../../application/use-cases/listar-nfe.js";
 import { ConsultarNfeUseCase } from "../../application/use-cases/consultar-nfe.js";

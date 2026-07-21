@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OmieClient } from "../omieClient.js";
+import { OmieClient } from "../integrations/omie/omieClient.js";
 
 /**
  * Ferramenta genérica que permite chamar QUALQUER endpoint da API Omie,

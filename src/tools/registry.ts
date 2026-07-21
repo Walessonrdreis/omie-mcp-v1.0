@@ -1,4 +1,4 @@
-import { OmieClient } from "../omieClient.js";
+import { OmieClient } from "../integrations/omie/omieClient.js";
 import { ToolDef } from "./types.js";
 import { comprasModuleTools } from "../modules/compras/index.js";
 import { contasPagarModuleTools } from "../modules/contasPagar/index.js";

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   alterarClienteParamSchema,
   excluirClienteParamSchema,

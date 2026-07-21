@@ -10,7 +10,7 @@ import { ExcluirAjusteEstoqueUseCase } from "../../application/use-cases/excluir
 import { IEstoqueGateway } from "../../domain/interfaces/estoque-gateway.js";
 import { EstoqueFakeGateway } from "../../infrastructure/gateways/estoque-fake-gateway.js";
 import { EstoqueOmieGateway } from "../../infrastructure/gateways/estoque-omie-gateway.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 
 function criarEstoqueGateway(client: OmieClient): IEstoqueGateway {
   return process.env.OMIE_MOCK === "true"

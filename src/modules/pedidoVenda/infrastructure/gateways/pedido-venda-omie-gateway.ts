@@ -1,4 +1,4 @@
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   ChavePedido,
   COD_OPERACAO_VENDA_PRODUTO,

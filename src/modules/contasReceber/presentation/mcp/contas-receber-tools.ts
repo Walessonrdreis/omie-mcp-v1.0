@@ -1,5 +1,5 @@
 import { ToolDef, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { IClientesGateway } from "../../../clientesFornecedores/domain/interfaces/clientes-gateway.js";
 import { ClientesFakeGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-fake-gateway.js";
 import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";

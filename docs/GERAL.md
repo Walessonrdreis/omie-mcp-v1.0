@@ -23,3 +23,4 @@
 - [x] Módulo de Categorias e Departamentos — 2026-07-21 — [API](./API.md#módulo-de-categorias-e-departamentos-omie_categoria_incluiralterarconsultarlistar-geralcategorias-omie_departamento_incluiralterarexcluirconsultarlistar-geraldepartamentos)
 - [x] Módulo de Características de Produto — 2026-07-21 — [API](./API.md#módulo-de-características-de-produto-omie_caracteristica_incluiralterarexcluirconsultarlistar-geralcaracteristicas)
 - [x] Módulo Nota de Entrada (só leitura) — 2026-07-21 — [API](./API.md#módulo-nota-de-entrada-só-leitura-omie_nota_entrada_listarconsultar-produtosnotaentrada-listarnotaentconsultarnotaent)
+- [x] Camada de integração Omie isolada — 2026-07-21 — [Padrão de Projeto](./PADRAO-PROJETO.md#camada-de-integração-omie-isolada-move-omieclientts-de-src-para-srcintegrationsomie)

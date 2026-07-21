@@ -6,7 +6,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 // @ts-ignore
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { OmieClient, OmieApiError } from "./omieClient.js";
+import { OmieClient, OmieApiError } from "./integrations/omie/omieClient.js";
 import { genericToolDefinition, handleGenericCall } from "./tools/generic.js";
 import { allTools, handleToolCall } from "./tools/registry.js";
 

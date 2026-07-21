@@ -1,4 +1,4 @@
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { ICrmAuxiliarGateway } from "../../domain/interfaces/crm-auxiliar-gateway.js";
 
 export class CrmAuxiliarOmieGateway implements ICrmAuxiliarGateway {

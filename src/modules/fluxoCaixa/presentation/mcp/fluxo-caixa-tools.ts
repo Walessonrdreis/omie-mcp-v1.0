@@ -1,5 +1,5 @@
 import { ToolDef, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { IContasCorrentesGateway } from "../../../contasCorrentes/domain/interfaces/contas-correntes-gateway.js";
 import { ContasCorrentesFakeGateway } from "../../../contasCorrentes/infrastructure/gateways/contas-correntes-fake-gateway.js";
 import { ContasCorrentesOmieGateway } from "../../../contasCorrentes/infrastructure/gateways/contas-correntes-omie-gateway.js";

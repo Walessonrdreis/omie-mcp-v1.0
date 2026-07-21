@@ -1,5 +1,5 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { IEstoqueGateway } from "../../../estoque/domain/interfaces/estoque-gateway.js";
 import { EstoqueFakeGateway } from "../../../estoque/infrastructure/gateways/estoque-fake-gateway.js";
 import { EstoqueOmieGateway } from "../../../estoque/infrastructure/gateways/estoque-omie-gateway.js";

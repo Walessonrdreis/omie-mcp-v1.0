@@ -1,4 +1,4 @@
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { mapWithConcurrency } from "../../../../shared/concurrency.js";
 import {
   ChaveCliente,

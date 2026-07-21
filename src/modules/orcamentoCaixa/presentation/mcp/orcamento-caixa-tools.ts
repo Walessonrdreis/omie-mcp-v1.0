@@ -1,5 +1,5 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../omieClient.js";
+import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { consultarOrcamentoCaixaParamSchema } from "../../application/dto/orcamento-caixa.dto.js";
 import { ConsultarOrcamentoCaixaUseCase } from "../../application/use-cases/consultar-orcamento-caixa.js";
 import { IOrcamentoCaixaGateway } from "../../domain/interfaces/orcamento-caixa-gateway.js";

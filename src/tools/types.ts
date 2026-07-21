@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OmieClient } from "../omieClient.js";
+import { OmieClient } from "../integrations/omie/omieClient.js";
 
 /**
  * Ferramenta MCP no formato "passthrough": mapeia 1:1 para um método da API

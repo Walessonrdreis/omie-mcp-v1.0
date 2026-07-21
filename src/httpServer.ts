@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import express, { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { OmieApiError, OmieClient } from "./omieClient.js";
+import { OmieApiError, OmieClient } from "./integrations/omie/omieClient.js";
 import { genericToolDefinition, handleGenericCall } from "./tools/generic.js";
 import { allTools, handleToolCall } from "./tools/registry.js";
 

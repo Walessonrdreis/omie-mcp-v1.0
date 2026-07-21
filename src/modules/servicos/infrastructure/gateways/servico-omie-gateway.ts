@@ -1,4 +1,4 @@
-import { OmieApiError, OmieClient } from "../../../../omieClient.js";
+import { OmieApiError, OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   IServicoGateway,
   ListarServicosPageParams,
