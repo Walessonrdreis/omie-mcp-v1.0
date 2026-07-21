@@ -232,6 +232,16 @@ src/
 
 ## Ferramentas disponíveis
 
+> **Filtro genérico (`filtros`):** várias ferramentas de listagem "enriquecida" (que já resolvem
+> nome de cliente/produto etc.) aceitam um parâmetro opcional `filtros`: lista de critérios
+> `{ campo, operador, valor }` aplicada sobre QUALQUER campo do resultado, mesmo os que a Omie
+> não filtra nativamente (`src/shared/filtro.ts`). Operadores: `igual`, `diferente`, `contem`
+> (ignora maiúsculas/acentos), `maior_que`, `menor_que`, `entre` (`valor: [min, max]`). Suporta
+> campo aninhado via dot-path (ex: `cliente.razaoSocial`). Todos os critérios precisam bater
+> (AND). Complementa, não substitui, os filtros nativos de cada endpoint (família, etapa, data
+> etc.), que continuam preferíveis quando existem — rodam no servidor da Omie, sem precisar
+> paginar tudo antes de filtrar.
+
 ### Ordem de Produção (`src/modules/ordemProducao/`)
 - `omie_op_incluir` / `omie_op_alterar` / `omie_op_excluir` / `omie_op_consultar` — **use-case**
   (as 3 primeiras destrutivas), CRUD sobre `IOrdemProducaoGateway`, testável via `OpFakeGateway`

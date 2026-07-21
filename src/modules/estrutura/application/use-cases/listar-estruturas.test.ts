@@ -25,4 +25,15 @@ describe("ListarEstruturasUseCase", () => {
     expect(resultado.totalPaginas).toBe(2);
     expect(resultado.produtos).toHaveLength(1);
   });
+
+  it("aplica o filtro genérico sobre o resultado já enriquecido", async () => {
+    const useCase = new ListarEstruturasUseCase(new EstruturaFakeGateway());
+
+    const resultado = await useCase.execute({
+      filtros: [{ campo: "descricaoProduto", operador: "contem", valor: "ração" }],
+    });
+
+    expect(resultado.produtos).toHaveLength(1);
+    expect(resultado.produtos[0].codigoProduto).toBe(111);
+  });
 });

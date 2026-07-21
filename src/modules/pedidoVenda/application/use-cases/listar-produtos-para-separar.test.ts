@@ -21,4 +21,15 @@ describe("ListarProdutosParaSepararUseCase", () => {
     ]);
     expect(resultado.etapaDescricao).toBe("Separar Estoque");
   });
+
+  it("aplica o filtro genérico sobre os itens antes de resumir por produto", async () => {
+    const useCase = new ListarProdutosParaSepararUseCase(new PedidoVendaFakeGateway());
+
+    const resultado = await useCase.execute({
+      filtros: [{ campo: "quantidade", operador: "maior_que", valor: 10 }],
+    });
+
+    expect(resultado.itens).toHaveLength(0);
+    expect(resultado.resumoPorProduto).toHaveLength(0);
+  });
 });

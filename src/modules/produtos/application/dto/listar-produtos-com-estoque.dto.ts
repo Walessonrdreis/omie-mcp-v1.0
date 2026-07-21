@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filtrosParamSchema } from "../../../../shared/filtro.js";
 
 export const listarProdutosComEstoqueParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem de produtos (padrão 1)."),
@@ -17,6 +18,7 @@ export const listarProdutosComEstoqueParamSchema = z.object({
       "Código da família de produtos pra filtrar (obtido via omie_familias_listar, campo " +
         "'codigo'). Se omitido, lista produtos de todas as famílias."
     ),
+  filtros: filtrosParamSchema,
 });
 
 export type ListarProdutosComEstoqueParam = z.infer<typeof listarProdutosComEstoqueParamSchema>;

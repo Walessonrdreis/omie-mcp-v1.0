@@ -1,4 +1,5 @@
 import { IPedidoVendaGateway } from "../../domain/interfaces/pedido-venda-gateway.js";
+import { aplicarFiltros } from "../../../../shared/filtro.js";
 import {
   ItemParaSeparar,
   ListarProdutosParaSepararParam,
@@ -36,7 +37,7 @@ export class ListarProdutosParaSepararUseCase {
       (pedido) => pedido.infoCadastro.cancelado !== "S"
     );
 
-    const itens: ItemParaSeparar[] = pedidosAtivos.flatMap((pedido) =>
+    let itens: ItemParaSeparar[] = pedidosAtivos.flatMap((pedido) =>
       pedido.det.map((item) => ({
         numeroPedido: pedido.cabecalho.numero_pedido,
         codigoPedido: pedido.cabecalho.codigo_pedido,
@@ -49,6 +50,8 @@ export class ListarProdutosParaSepararUseCase {
         unidade: item.produto.unidade,
       }))
     );
+
+    itens = aplicarFiltros(itens, param.filtros);
 
     const resumoPorProdutoMap = new Map<number, ResumoProdutoParaSeparar>();
     for (const item of itens) {

@@ -1,4 +1,5 @@
 import { IEstruturaGateway } from "../../domain/interfaces/estrutura-gateway.js";
+import { aplicarFiltros } from "../../../../shared/filtro.js";
 import { ListarEstruturasParam, ListarEstruturasResult } from "../dto/estrutura.dto.js";
 import { mapearProdutoComEstrutura } from "./mapear-produto-com-estrutura.js";
 
@@ -19,11 +20,16 @@ export class ListarEstruturasUseCase {
       registrosPorPagina
     );
 
+    const produtos = aplicarFiltros(
+      resposta.produtosEncontrados.map(mapearProdutoComEstrutura),
+      param.filtros
+    );
+
     return {
       pagina: resposta.nPagina,
       totalPaginas: resposta.nTotPaginas,
       totalRegistros: resposta.nTotRegistros,
-      produtos: resposta.produtosEncontrados.map(mapearProdutoComEstrutura),
+      produtos,
     };
   }
 }

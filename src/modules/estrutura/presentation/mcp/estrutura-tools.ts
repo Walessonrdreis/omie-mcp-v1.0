@@ -31,7 +31,9 @@ export const estruturaTools: ToolDef[] = [
       "Lista os produtos que TÊM estrutura (BOM/ficha técnica) cadastrada, já com o nome do " +
       "produto e o nome de cada insumo/componente (a Omie devolve isso pronto — não precisa " +
       "cruzar com o cadastro de produtos). Método Omie: ListarEstruturas (recurso 'malha'). " +
-      "Suporta paginação (pagina/registros_por_pagina, padrão 50).",
+      "Suporta paginação (pagina/registros_por_pagina, padrão 50) e o parâmetro genérico " +
+      "'filtros' (critérios campo/operador/valor sobre qualquer campo do produto, ex: " +
+      "descricaoProduto, itens).",
     inputSchema: { param: listarEstruturasParamSchema },
     execute: async (client, param) => {
       const parsed = listarEstruturasParamSchema.parse(param);

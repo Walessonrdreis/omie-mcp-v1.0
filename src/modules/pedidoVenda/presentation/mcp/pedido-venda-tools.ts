@@ -125,8 +125,9 @@ export const pedidoVendaTools: ToolDef[] = [
       "o produto (código/SKU/descrição/quantidade — já vem no próprio pedido, sem cruzar outro " +
       "endpoint) e um resumo agregado por produto (quantidade total a separar, em quantos pedidos). " +
       "Use quando o usuário perguntar 'quais produtos preciso separar', 'o que tá pendente de " +
-      "expedição', etc. Suporta paginação e o filtro etapa_codigo (para outras etapas do funil de " +
-      "vendas, ex: '50' Faturar).",
+      "expedição', etc. Suporta paginação, o filtro etapa_codigo (para outras etapas do funil de " +
+      "vendas, ex: '50' Faturar) e o parâmetro genérico 'filtros' (critérios campo/operador/valor " +
+      "sobre qualquer campo do item, ex: descricaoProduto, quantidade).",
     inputSchema: { param: listarProdutosParaSepararParamSchema },
     execute: async (client, param) => {
       const parsed = listarProdutosParaSepararParamSchema.parse(param);
@@ -143,7 +144,9 @@ export const pedidoVendaTools: ToolDef[] = [
       "a Omie só devolve o código do cliente e o código cru da etapa na listagem crua. Também " +
       "expõe 'cancelado' e 'faturado' já como booleano, e o valor total do pedido. Suporta " +
       "paginação e o filtro opcional etapa_codigo (ex: '20' Separar Estoque, '50' Faturar); sem " +
-      "esse filtro, traz pedidos de todas as etapas.",
+      "esse filtro, traz pedidos de todas as etapas. Também aceita o parâmetro genérico 'filtros' " +
+      "(critérios campo/operador/valor sobre qualquer campo do pedido já resolvido, ex: " +
+      "'cliente.razaoSocial', 'valorTotalPedido').",
     inputSchema: { param: listarPedidosComClienteParamSchema },
     execute: async (client, param) => {
       const parsed = listarPedidosComClienteParamSchema.parse(param);
@@ -161,7 +164,8 @@ export const pedidoVendaTools: ToolDef[] = [
       "(produto/SKU/descrição/quantidade/unidade) e valor total resolvidos — mesmo formato de " +
       "omie_pedido_venda_listar_com_cliente, mas sem precisar passar etapa_codigo toda vez. Os " +
       "pedidos cancelados são removidos por padrão (a Omie não reseta a etapa de um pedido " +
-      "cancelado); use incluir_cancelados=true pra vê-los também. Suporta paginação.",
+      "cancelado); use incluir_cancelados=true pra vê-los também. Suporta paginação e o parâmetro " +
+      "genérico 'filtros' (mesmo formato de omie_pedido_venda_listar_com_cliente).",
     inputSchema: { param: listarPedidosSepararEstoqueParamSchema },
     execute: async (client, param) => {
       const parsed = listarPedidosSepararEstoqueParamSchema.parse(param);

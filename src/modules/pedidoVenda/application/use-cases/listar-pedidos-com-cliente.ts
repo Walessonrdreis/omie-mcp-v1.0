@@ -1,4 +1,5 @@
 import { IClientesGateway } from "../../../clientesFornecedores/domain/interfaces/clientes-gateway.js";
+import { aplicarFiltros } from "../../../../shared/filtro.js";
 import { IPedidoVendaGateway } from "../../domain/interfaces/pedido-venda-gateway.js";
 import {
   ListarPedidosComClienteParam,
@@ -36,7 +37,7 @@ export class ListarPedidosComClienteUseCase {
       codigosCliente
     );
 
-    const pedidos: PedidoComCliente[] = pedidosResposta.pedido_venda_produto.map((pedido) => {
+    let pedidos: PedidoComCliente[] = pedidosResposta.pedido_venda_produto.map((pedido) => {
       const cliente = clientesPorCodigo.get(pedido.cabecalho.codigo_cliente);
       return {
         numeroPedido: pedido.cabecalho.numero_pedido,
@@ -62,6 +63,8 @@ export class ListarPedidosComClienteUseCase {
         })),
       };
     });
+
+    pedidos = aplicarFiltros(pedidos, param.filtros);
 
     return {
       pagina: pedidosResposta.pagina,

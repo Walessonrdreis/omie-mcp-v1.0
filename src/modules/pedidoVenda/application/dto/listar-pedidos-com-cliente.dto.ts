@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filtrosParamSchema } from "../../../../shared/filtro.js";
 
 export const listarPedidosComClienteParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem de pedidos (padrão 1)."),
@@ -16,6 +17,7 @@ export const listarPedidosComClienteParamSchema = z.object({
       "Filtra por uma etapa específica do funil de vendas (ex: '20' = Separar Estoque, '50' = " +
         "Faturar). Se omitido, traz pedidos de todas as etapas."
     ),
+  filtros: filtrosParamSchema,
 });
 
 export type ListarPedidosComClienteParam = z.infer<typeof listarPedidosComClienteParamSchema>;

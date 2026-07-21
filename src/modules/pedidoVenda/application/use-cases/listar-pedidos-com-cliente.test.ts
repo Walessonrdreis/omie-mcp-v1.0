@@ -30,4 +30,18 @@ describe("ListarPedidosComClienteUseCase", () => {
 
     expect(resultado.pedidos).toHaveLength(2);
   });
+
+  it("aplica o filtro genérico sobre campo aninhado (cliente.razaoSocial)", async () => {
+    const useCase = new ListarPedidosComClienteUseCase(
+      new PedidoVendaFakeGateway(),
+      new ClientesFakeGateway()
+    );
+
+    const resultado = await useCase.execute({
+      filtros: [{ campo: "cliente.razaoSocial", operador: "contem", valor: "fornecedor" }],
+    });
+
+    expect(resultado.pedidos).toHaveLength(1);
+    expect(resultado.pedidos[0].codigoPedido).toBe(9002);
+  });
 });

@@ -113,7 +113,9 @@ export const produtosTools: ToolDef[] = [
       "produto: quantidadeEmEstoque, valorEmEstoqueVenda (preço de venda) e valorEmEstoqueCusto " +
       "(custo médio). Suporta paginação (pagina/registros_por_pagina), o filtro " +
       "apenas_com_estoque (remove produtos com estoque zerado) e filtrar_apenas_familia (código " +
-      "da família, via omie_familias_listar) pra restringir a uma família de produtos.",
+      "da família, via omie_familias_listar) pra restringir a uma família de produtos. Também " +
+      "aceita o parâmetro genérico 'filtros' (critérios campo/operador/valor sobre qualquer " +
+      "campo do item, ex: descricao, valorEmEstoqueVenda).",
     inputSchema: { param: listarProdutosComEstoqueParamSchema },
     execute: async (client, param) => {
       const parsed = listarProdutosComEstoqueParamSchema.parse(param);

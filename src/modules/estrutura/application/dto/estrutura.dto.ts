@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filtrosParamSchema } from "../../../../shared/filtro.js";
 
 export const listarEstruturasParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem (padrão 1)."),
@@ -6,6 +7,7 @@ export const listarEstruturasParamSchema = z.object({
     .number()
     .optional()
     .describe("Quantidade de produtos por página (padrão 50)."),
+  filtros: filtrosParamSchema,
 });
 
 export type ListarEstruturasParam = z.infer<typeof listarEstruturasParamSchema>;

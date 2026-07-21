@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filtrosParamSchema } from "../../../../shared/filtro.js";
 
 export const listarPedidosSepararEstoqueParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem de pedidos (padrão 1)."),
@@ -17,6 +18,7 @@ export const listarPedidosSepararEstoqueParamSchema = z.object({
         "reseta a etapa de um pedido quando ele é cancelado, então sem esse filtro apareceriam " +
         "pedidos cancelados como se ainda precisassem ser separados)."
     ),
+  filtros: filtrosParamSchema,
 });
 
 export type ListarPedidosSepararEstoqueParam = z.infer<typeof listarPedidosSepararEstoqueParamSchema>;

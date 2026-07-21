@@ -1,4 +1,5 @@
 import { IEstoqueGateway } from "../../../estoque/domain/interfaces/estoque-gateway.js";
+import { aplicarFiltros } from "../../../../shared/filtro.js";
 import { IProdutosGateway } from "../../domain/interfaces/produtos-gateway.js";
 import {
   ListarProdutosComEstoqueParam,
@@ -62,6 +63,8 @@ export class ListarProdutosComEstoqueUseCase {
     if (param.apenas_com_estoque) {
       itens = itens.filter((item) => item.quantidadeEmEstoque !== 0);
     }
+
+    itens = aplicarFiltros(itens, param.filtros);
 
     return {
       pagina: produtosResposta.pagina,

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filtrosParamSchema } from "../../../../shared/filtro.js";
 
 export const listarProdutosParaSepararParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem de pedidos (padrão 1)."),
@@ -17,6 +18,7 @@ export const listarProdutosParaSepararParamSchema = z.object({
         "Separar Estoque. Outros códigos comuns: '10' Pedido de Venda, '50' Faturar, '60' " +
         "Faturado, '70' Entrega."
     ),
+  filtros: filtrosParamSchema,
 });
 
 export type ListarProdutosParaSepararParam = z.infer<typeof listarProdutosParaSepararParamSchema>;

@@ -21,6 +21,7 @@ export class ListarPedidosSepararEstoqueUseCase {
       pagina: param.pagina,
       registros_por_pagina: param.registros_por_pagina,
       etapa_codigo: ETAPA_SEPARAR_ESTOQUE,
+      filtros: param.filtros,
     });
 
     if (param.incluir_cancelados) {

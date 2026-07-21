@@ -42,4 +42,18 @@ describe("ListarProdutosComEstoqueUseCase", () => {
     expect(resultado.itens.every((i) => i.quantidadeEmEstoque !== 0)).toBe(true);
     expect(resultado.itens.find((i) => i.codigoProduto === 111)).toBeUndefined();
   });
+
+  it("aplica o filtro genérico sobre o resultado já enriquecido", async () => {
+    const useCase = new ListarProdutosComEstoqueUseCase(
+      new ProdutosFakeGateway(),
+      new EstoqueFakeGateway()
+    );
+
+    const resultado = await useCase.execute({
+      filtros: [{ campo: "descricao", operador: "contem", valor: "fake 2" }],
+    });
+
+    expect(resultado.itens).toHaveLength(1);
+    expect(resultado.itens[0].codigoProduto).toBe(222);
+  });
 });
