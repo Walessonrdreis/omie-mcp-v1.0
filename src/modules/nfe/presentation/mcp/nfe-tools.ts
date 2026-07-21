@@ -1,15 +1,8 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { consultarNfeParamSchema, listarNfeParamSchema } from "../../application/dto/nfe.dto.js";
 import { ListarNfeUseCase } from "../../application/use-cases/listar-nfe.js";
 import { ConsultarNfeUseCase } from "../../application/use-cases/consultar-nfe.js";
-import { INfeGateway } from "../../domain/interfaces/nfe-gateway.js";
-import { NfeFakeGateway } from "../../infrastructure/gateways/nfe-fake-gateway.js";
-import { NfeOmieGateway } from "../../infrastructure/gateways/nfe-omie-gateway.js";
-
-function criarNfeGateway(client: OmieClient): INfeGateway {
-  return process.env.OMIE_MOCK === "true" ? new NfeFakeGateway() : new NfeOmieGateway(client);
-}
+import { criarNfeGateway } from "../../infrastructure/gateways/nfe-gateway-factory.js";
 
 export const nfeTools: ToolDef[] = [
   defineTool({

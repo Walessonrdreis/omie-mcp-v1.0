@@ -1,17 +1,10 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   consultarNotaEntradaParamSchema,
   listarNotaEntradaParamSchema,
 } from "../../application/dto/nota-entrada.dto.js";
 import { ConsultarNotaEntradaUseCase, ListarNotaEntradaUseCase } from "../../application/use-cases/nota-entrada.js";
-import { INotaEntradaGateway } from "../../domain/interfaces/nota-entrada-gateway.js";
-import { NotaEntradaFakeGateway } from "../../infrastructure/gateways/nota-entrada-fake-gateway.js";
-import { NotaEntradaOmieGateway } from "../../infrastructure/gateways/nota-entrada-omie-gateway.js";
-
-function criarGateway(client: OmieClient): INotaEntradaGateway {
-  return process.env.OMIE_MOCK === "true" ? new NotaEntradaFakeGateway() : new NotaEntradaOmieGateway(client);
-}
+import { criarGateway } from "../../infrastructure/gateways/nota-entrada-gateway-factory.js";
 
 export const notaEntradaTools: ToolDef[] = [
   defineTool({

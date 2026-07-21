@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   cancelarPixParamSchema,
   codigoTituloPixParamSchema,
@@ -13,13 +12,7 @@ import {
   ObterPixUseCase,
   ObterStatusPixUseCase,
 } from "../../application/use-cases/pix-crud.js";
-import { IPixGateway } from "../../domain/interfaces/pix-gateway.js";
-import { PixFakeGateway } from "../../infrastructure/gateways/pix-fake-gateway.js";
-import { PixOmieGateway } from "../../infrastructure/gateways/pix-omie-gateway.js";
-
-function criarPixGateway(client: OmieClient): IPixGateway {
-  return process.env.OMIE_MOCK === "true" ? new PixFakeGateway() : new PixOmieGateway(client);
-}
+import { criarPixGateway } from "../../infrastructure/gateways/pix-gateway-factory.js";
 
 export const pixTools: ToolDef[] = [
   defineTool({

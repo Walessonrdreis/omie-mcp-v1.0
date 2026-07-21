@@ -7,16 +7,7 @@ import {
 import { ConsultarEstoqueTotalProdutoUseCase } from "../../application/use-cases/consultar-estoque-total-produto.js";
 import { IncluirAjusteEstoqueUseCase } from "../../application/use-cases/incluir-ajuste-estoque.js";
 import { ExcluirAjusteEstoqueUseCase } from "../../application/use-cases/excluir-ajuste-estoque.js";
-import { IEstoqueGateway } from "../../domain/interfaces/estoque-gateway.js";
-import { EstoqueFakeGateway } from "../../infrastructure/gateways/estoque-fake-gateway.js";
-import { EstoqueOmieGateway } from "../../infrastructure/gateways/estoque-omie-gateway.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
-
-function criarEstoqueGateway(client: OmieClient): IEstoqueGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new EstoqueFakeGateway()
-    : new EstoqueOmieGateway(client);
-}
+import { criarEstoqueGateway } from "../../infrastructure/gateways/estoque-gateway-factory.js";
 
 export const estoqueTools: ToolDef[] = [
   defineTool({

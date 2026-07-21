@@ -1,8 +1,4 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
-import { IClientesGateway } from "../../../clientesFornecedores/domain/interfaces/clientes-gateway.js";
-import { ClientesFakeGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-fake-gateway.js";
-import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
 import { listarPedidosComClienteParamSchema } from "../../application/dto/listar-pedidos-com-cliente.dto.js";
 import { listarPedidosSepararEstoqueParamSchema } from "../../application/dto/listar-pedidos-separar-estoque.dto.js";
 import { listarProdutosParaSepararParamSchema } from "../../application/dto/listar-produtos-para-separar.dto.js";
@@ -18,21 +14,7 @@ import { IncluirPedidoUseCase } from "../../application/use-cases/incluir-pedido
 import { AlterarPedidoUseCase } from "../../application/use-cases/alterar-pedido.js";
 import { ExcluirPedidoUseCase } from "../../application/use-cases/excluir-pedido.js";
 import { ConsultarPedidoUseCase } from "../../application/use-cases/consultar-pedido.js";
-import { IPedidoVendaGateway } from "../../domain/interfaces/pedido-venda-gateway.js";
-import { PedidoVendaFakeGateway } from "../../infrastructure/gateways/pedido-venda-fake-gateway.js";
-import { PedidoVendaOmieGateway } from "../../infrastructure/gateways/pedido-venda-omie-gateway.js";
-
-function criarPedidoVendaGateway(client: OmieClient): IPedidoVendaGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new PedidoVendaFakeGateway()
-    : new PedidoVendaOmieGateway(client);
-}
-
-function criarClientesGateway(client: OmieClient): IClientesGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new ClientesFakeGateway()
-    : new ClientesOmieGateway(client);
-}
+import { criarPedidoVendaGateway, criarClientesGateway } from "../../infrastructure/gateways/pedido-venda-gateway-factory.js";
 
 export const pedidoVendaTools: ToolDef[] = [
   defineTool({

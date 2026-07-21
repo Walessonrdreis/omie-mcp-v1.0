@@ -1,8 +1,4 @@
 import { ToolDef, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
-import { IClientesGateway } from "../../../clientesFornecedores/domain/interfaces/clientes-gateway.js";
-import { ClientesFakeGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-fake-gateway.js";
-import { ClientesOmieGateway } from "../../../clientesFornecedores/infrastructure/gateways/clientes-omie-gateway.js";
 import { listarContasReceberParamSchema } from "../../application/dto/listar-contas-receber.dto.js";
 import {
   codigoTituloParamSchema,
@@ -15,21 +11,7 @@ import {
   ObterBoletoUseCase,
   ProrrogarBoletoUseCase,
 } from "../../application/use-cases/boleto-crud.js";
-import { IContasReceberGateway } from "../../domain/interfaces/contas-receber-gateway.js";
-import { ContasReceberFakeGateway } from "../../infrastructure/gateways/contas-receber-fake-gateway.js";
-import { ContasReceberOmieGateway } from "../../infrastructure/gateways/contas-receber-omie-gateway.js";
-
-function criarContasReceberGateway(client: OmieClient): IContasReceberGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new ContasReceberFakeGateway()
-    : new ContasReceberOmieGateway(client);
-}
-
-function criarClientesGateway(client: OmieClient): IClientesGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new ClientesFakeGateway()
-    : new ClientesOmieGateway(client);
-}
+import { criarContasReceberGateway, criarClientesGateway } from "../../infrastructure/gateways/contas-receber-gateway-factory.js";
 
 export const contasReceberTools: ToolDef[] = [
   defineTool({

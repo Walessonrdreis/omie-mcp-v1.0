@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   alterarServicoParamSchema,
   consultarServicoParamSchema,
@@ -30,29 +29,7 @@ import {
   ListarOSUseCase,
 } from "../../application/use-cases/ordem-servico-crud.js";
 import { ListarLC116UseCase, ListarNFSeUseCase } from "../../application/use-cases/nfse-lc116.js";
-import { IServicoGateway } from "../../domain/interfaces/servico-gateway.js";
-import { IOrdemServicoGateway } from "../../domain/interfaces/ordem-servico-gateway.js";
-import { INfseGateway } from "../../domain/interfaces/nfse-gateway.js";
-import { ServicoFakeGateway } from "../../infrastructure/gateways/servico-fake-gateway.js";
-import { ServicoOmieGateway } from "../../infrastructure/gateways/servico-omie-gateway.js";
-import { OrdemServicoFakeGateway } from "../../infrastructure/gateways/ordem-servico-fake-gateway.js";
-import { OrdemServicoOmieGateway } from "../../infrastructure/gateways/ordem-servico-omie-gateway.js";
-import { NfseFakeGateway } from "../../infrastructure/gateways/nfse-fake-gateway.js";
-import { NfseOmieGateway } from "../../infrastructure/gateways/nfse-omie-gateway.js";
-
-function criarServicoGateway(client: OmieClient): IServicoGateway {
-  return process.env.OMIE_MOCK === "true" ? new ServicoFakeGateway() : new ServicoOmieGateway(client);
-}
-
-function criarOrdemServicoGateway(client: OmieClient): IOrdemServicoGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new OrdemServicoFakeGateway()
-    : new OrdemServicoOmieGateway(client);
-}
-
-function criarNfseGateway(client: OmieClient): INfseGateway {
-  return process.env.OMIE_MOCK === "true" ? new NfseFakeGateway() : new NfseOmieGateway(client);
-}
+import { criarServicoGateway, criarOrdemServicoGateway, criarNfseGateway } from "../../infrastructure/gateways/servicos-gateway-factory.js";
 
 export const servicosTools: ToolDef[] = [
   defineTool({

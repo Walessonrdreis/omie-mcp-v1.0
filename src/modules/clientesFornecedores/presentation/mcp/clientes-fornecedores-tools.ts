@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   alterarClienteParamSchema,
   excluirClienteParamSchema,
@@ -9,15 +8,7 @@ import {
 import { IncluirClienteUseCase } from "../../application/use-cases/incluir-cliente.js";
 import { AlterarClienteUseCase } from "../../application/use-cases/alterar-cliente.js";
 import { ExcluirClienteUseCase } from "../../application/use-cases/excluir-cliente.js";
-import { IClientesGateway } from "../../domain/interfaces/clientes-gateway.js";
-import { ClientesFakeGateway } from "../../infrastructure/gateways/clientes-fake-gateway.js";
-import { ClientesOmieGateway } from "../../infrastructure/gateways/clientes-omie-gateway.js";
-
-function criarClientesGateway(client: OmieClient): IClientesGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new ClientesFakeGateway()
-    : new ClientesOmieGateway(client);
-}
+import { criarClientesGateway } from "../../infrastructure/gateways/clientes-gateway-factory.js";
 
 const fornecedoresListarParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem (padrão 1)."),

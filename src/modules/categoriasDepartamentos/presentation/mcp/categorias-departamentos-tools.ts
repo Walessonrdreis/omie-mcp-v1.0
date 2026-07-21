@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   alterarCategoriaParamSchema,
   consultarCategoriaParamSchema,
@@ -26,19 +25,7 @@ import {
   IncluirDepartamentoUseCase,
   ListarDepartamentosUseCase,
 } from "../../application/use-cases/departamento-crud.js";
-import { ICategoriaGateway } from "../../domain/interfaces/categoria-gateway.js";
-import { IDepartamentoGateway } from "../../domain/interfaces/departamento-gateway.js";
-import { CategoriaFakeGateway } from "../../infrastructure/gateways/categoria-fake-gateway.js";
-import { CategoriaOmieGateway } from "../../infrastructure/gateways/categoria-omie-gateway.js";
-import { DepartamentoFakeGateway } from "../../infrastructure/gateways/departamento-fake-gateway.js";
-import { DepartamentoOmieGateway } from "../../infrastructure/gateways/departamento-omie-gateway.js";
-
-function criarCategoriaGateway(client: OmieClient): ICategoriaGateway {
-  return process.env.OMIE_MOCK === "true" ? new CategoriaFakeGateway() : new CategoriaOmieGateway(client);
-}
-function criarDepartamentoGateway(client: OmieClient): IDepartamentoGateway {
-  return process.env.OMIE_MOCK === "true" ? new DepartamentoFakeGateway() : new DepartamentoOmieGateway(client);
-}
+import { criarCategoriaGateway, criarDepartamentoGateway } from "../../infrastructure/gateways/categorias-departamentos-gateway-factory.js";
 
 export const categoriasDepartamentosTools: ToolDef[] = [
   defineTool({

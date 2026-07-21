@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   buscarEstruturaPorProdutoParamSchema,
   listarEstruturasParamSchema,
@@ -14,15 +13,7 @@ import { ListarEstruturasUseCase } from "../../application/use-cases/listar-estr
 import { IncluirEstruturaUseCase } from "../../application/use-cases/incluir-estrutura.js";
 import { AlterarEstruturaUseCase } from "../../application/use-cases/alterar-estrutura.js";
 import { ExcluirEstruturaUseCase } from "../../application/use-cases/excluir-estrutura.js";
-import { IEstruturaGateway } from "../../domain/interfaces/estrutura-gateway.js";
-import { EstruturaFakeGateway } from "../../infrastructure/gateways/estrutura-fake-gateway.js";
-import { EstruturaOmieGateway } from "../../infrastructure/gateways/estrutura-omie-gateway.js";
-
-function criarEstruturaGateway(client: OmieClient): IEstruturaGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new EstruturaFakeGateway()
-    : new EstruturaOmieGateway(client);
-}
+import { criarEstruturaGateway } from "../../infrastructure/gateways/estrutura-gateway-factory.js";
 
 export const estruturaTools: ToolDef[] = [
   defineTool({

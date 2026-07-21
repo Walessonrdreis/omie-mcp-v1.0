@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   consultarUnidadeParamSchema,
   listarBancosParamSchema,
@@ -14,15 +13,7 @@ import {
   ListarNCMUseCase,
   ListarPaisesUseCase,
 } from "../../application/use-cases/cadastros-auxiliares.js";
-import { ICadastrosAuxiliaresGateway } from "../../domain/interfaces/cadastros-auxiliares-gateway.js";
-import { CadastrosAuxiliaresFakeGateway } from "../../infrastructure/gateways/cadastros-auxiliares-fake-gateway.js";
-import { CadastrosAuxiliaresOmieGateway } from "../../infrastructure/gateways/cadastros-auxiliares-omie-gateway.js";
-
-function criarGateway(client: OmieClient): ICadastrosAuxiliaresGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new CadastrosAuxiliaresFakeGateway()
-    : new CadastrosAuxiliaresOmieGateway(client);
-}
+import { criarGateway } from "../../infrastructure/gateways/cadastros-auxiliares-gateway-factory.js";
 
 export const cadastrosAuxiliaresTools: ToolDef[] = [
   defineTool({

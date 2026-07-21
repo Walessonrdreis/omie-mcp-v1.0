@@ -1,8 +1,4 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
-import { IEstoqueGateway } from "../../../estoque/domain/interfaces/estoque-gateway.js";
-import { EstoqueFakeGateway } from "../../../estoque/infrastructure/gateways/estoque-fake-gateway.js";
-import { EstoqueOmieGateway } from "../../../estoque/infrastructure/gateways/estoque-omie-gateway.js";
 import { listarProdutosComEstoqueParamSchema } from "../../application/dto/listar-produtos-com-estoque.dto.js";
 import {
   alterarProdutoParamSchema,
@@ -13,21 +9,7 @@ import { ListarProdutosComEstoqueUseCase } from "../../application/use-cases/lis
 import { IncluirProdutoUseCase } from "../../application/use-cases/incluir-produto.js";
 import { AlterarProdutoUseCase } from "../../application/use-cases/alterar-produto.js";
 import { ExcluirProdutoUseCase } from "../../application/use-cases/excluir-produto.js";
-import { IProdutosGateway } from "../../domain/interfaces/produtos-gateway.js";
-import { ProdutosFakeGateway } from "../../infrastructure/gateways/produtos-fake-gateway.js";
-import { ProdutosOmieGateway } from "../../infrastructure/gateways/produtos-omie-gateway.js";
-
-function criarProdutosGateway(client: OmieClient): IProdutosGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new ProdutosFakeGateway()
-    : new ProdutosOmieGateway(client);
-}
-
-function criarEstoqueGateway(client: OmieClient): IEstoqueGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new EstoqueFakeGateway()
-    : new EstoqueOmieGateway(client);
-}
+import { criarProdutosGateway, criarEstoqueGateway } from "../../infrastructure/gateways/produtos-gateway-factory.js";
 
 export const produtosTools: ToolDef[] = [
   defineTool({

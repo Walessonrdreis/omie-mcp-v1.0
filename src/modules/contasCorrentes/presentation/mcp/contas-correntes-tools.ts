@@ -1,16 +1,7 @@
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { consultarExtratoParamSchema } from "../../application/dto/extrato.dto.js";
 import { ConsultarExtratoUseCase } from "../../application/use-cases/consultar-extrato.js";
-import { IContasCorrentesGateway } from "../../domain/interfaces/contas-correntes-gateway.js";
-import { ContasCorrentesFakeGateway } from "../../infrastructure/gateways/contas-correntes-fake-gateway.js";
-import { ContasCorrentesOmieGateway } from "../../infrastructure/gateways/contas-correntes-omie-gateway.js";
-
-function criarContasCorrentesGateway(client: OmieClient): IContasCorrentesGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new ContasCorrentesFakeGateway()
-    : new ContasCorrentesOmieGateway(client);
-}
+import { criarContasCorrentesGateway } from "../../infrastructure/gateways/contas-correntes-gateway-factory.js";
 
 export const contasCorrentesTools: ToolDef[] = [
   defineTool({

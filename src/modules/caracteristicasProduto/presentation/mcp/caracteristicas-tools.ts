@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   alterarCaracteristicaParamSchema,
   consultarCaracteristicaParamSchema,
@@ -14,15 +13,7 @@ import {
   IncluirCaracteristicaUseCase,
   ListarCaracteristicasUseCase,
 } from "../../application/use-cases/caracteristica-crud.js";
-import { ICaracteristicaGateway } from "../../domain/interfaces/caracteristica-gateway.js";
-import { CaracteristicaFakeGateway } from "../../infrastructure/gateways/caracteristica-fake-gateway.js";
-import { CaracteristicaOmieGateway } from "../../infrastructure/gateways/caracteristica-omie-gateway.js";
-
-function criarGateway(client: OmieClient): ICaracteristicaGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new CaracteristicaFakeGateway()
-    : new CaracteristicaOmieGateway(client);
-}
+import { criarGateway } from "../../infrastructure/gateways/caracteristica-gateway-factory.js";
 
 export const caracteristicasTools: ToolDef[] = [
   defineTool({

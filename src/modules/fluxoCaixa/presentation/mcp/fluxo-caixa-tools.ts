@@ -1,25 +1,7 @@
 import { ToolDef, defineTool } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
-import { IContasCorrentesGateway } from "../../../contasCorrentes/domain/interfaces/contas-correntes-gateway.js";
-import { ContasCorrentesFakeGateway } from "../../../contasCorrentes/infrastructure/gateways/contas-correntes-fake-gateway.js";
-import { ContasCorrentesOmieGateway } from "../../../contasCorrentes/infrastructure/gateways/contas-correntes-omie-gateway.js";
 import { gerarFluxoCaixaParamSchema } from "../../application/dto/gerar-fluxo-caixa.dto.js";
 import { GerarFluxoCaixaUseCase } from "../../application/use-cases/gerar-fluxo-caixa.js";
-import { IFinancasGateway } from "../../domain/interfaces/financas-gateway.js";
-import { FinancasFakeGateway } from "../../infrastructure/gateways/financas-fake-gateway.js";
-import { FinancasOmieGateway } from "../../infrastructure/gateways/financas-omie-gateway.js";
-
-function criarFinancasGateway(client: OmieClient): IFinancasGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new FinancasFakeGateway()
-    : new FinancasOmieGateway(client);
-}
-
-function criarContasCorrentesGateway(client: OmieClient): IContasCorrentesGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new ContasCorrentesFakeGateway()
-    : new ContasCorrentesOmieGateway(client);
-}
+import { criarFinancasGateway, criarContasCorrentesGateway } from "../../infrastructure/gateways/financas-gateway-factory.js";
 
 export const fluxoCaixaTools: ToolDef[] = [
   defineTool({

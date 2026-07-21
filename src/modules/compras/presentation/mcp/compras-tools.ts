@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   alterarPedidoCompraParamSchema,
   consultarPedidoCompraParamSchema,
@@ -28,24 +27,7 @@ import {
   IncluirRequisicaoCompraUseCase,
   ListarRequisicoesCompraUseCase,
 } from "../../application/use-cases/requisicao-compra-crud.js";
-import { IPedidoCompraGateway } from "../../domain/interfaces/pedido-compra-gateway.js";
-import { IRequisicaoCompraGateway } from "../../domain/interfaces/requisicao-compra-gateway.js";
-import { PedidoCompraFakeGateway } from "../../infrastructure/gateways/pedido-compra-fake-gateway.js";
-import { PedidoCompraOmieGateway } from "../../infrastructure/gateways/pedido-compra-omie-gateway.js";
-import { RequisicaoCompraFakeGateway } from "../../infrastructure/gateways/requisicao-compra-fake-gateway.js";
-import { RequisicaoCompraOmieGateway } from "../../infrastructure/gateways/requisicao-compra-omie-gateway.js";
-
-function criarPedidoCompraGateway(client: OmieClient): IPedidoCompraGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new PedidoCompraFakeGateway()
-    : new PedidoCompraOmieGateway(client);
-}
-
-function criarRequisicaoCompraGateway(client: OmieClient): IRequisicaoCompraGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new RequisicaoCompraFakeGateway()
-    : new RequisicaoCompraOmieGateway(client);
-}
+import { criarPedidoCompraGateway, criarRequisicaoCompraGateway } from "../../infrastructure/gateways/compras-gateway-factory.js";
 
 export const comprasTools: ToolDef[] = [
   defineTool({

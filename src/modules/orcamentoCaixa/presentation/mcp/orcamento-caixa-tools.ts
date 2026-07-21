@@ -1,16 +1,7 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import { consultarOrcamentoCaixaParamSchema } from "../../application/dto/orcamento-caixa.dto.js";
 import { ConsultarOrcamentoCaixaUseCase } from "../../application/use-cases/consultar-orcamento-caixa.js";
-import { IOrcamentoCaixaGateway } from "../../domain/interfaces/orcamento-caixa-gateway.js";
-import { OrcamentoCaixaFakeGateway } from "../../infrastructure/gateways/orcamento-caixa-fake-gateway.js";
-import { OrcamentoCaixaOmieGateway } from "../../infrastructure/gateways/orcamento-caixa-omie-gateway.js";
-
-function criarGateway(client: OmieClient): IOrcamentoCaixaGateway {
-  return process.env.OMIE_MOCK === "true"
-    ? new OrcamentoCaixaFakeGateway()
-    : new OrcamentoCaixaOmieGateway(client);
-}
+import { criarGateway } from "../../infrastructure/gateways/orcamento-caixa-gateway-factory.js";
 
 export const orcamentoCaixaTools: ToolDef[] = [
   defineTool({

@@ -1,5 +1,4 @@
 import { defineTool, ToolDef } from "../../../../tools/types.js";
-import { OmieClient } from "../../../../integrations/omie/omieClient.js";
 import {
   alterarContaParamSchema,
   consultarContaParamSchema,
@@ -44,32 +43,7 @@ import {
   ListarOportunidadesUseCase,
 } from "../../application/use-cases/oportunidade-crud.js";
 import { ListarFasesUseCase, ListarOrigensUseCase, ListarSolucoesUseCase } from "../../application/use-cases/crm-auxiliar.js";
-import { IContaGateway } from "../../domain/interfaces/conta-gateway.js";
-import { IContatoGateway } from "../../domain/interfaces/contato-gateway.js";
-import { IOportunidadeGateway } from "../../domain/interfaces/oportunidade-gateway.js";
-import { ICrmAuxiliarGateway } from "../../domain/interfaces/crm-auxiliar-gateway.js";
-import { ContaFakeGateway } from "../../infrastructure/gateways/conta-fake-gateway.js";
-import { ContaOmieGateway } from "../../infrastructure/gateways/conta-omie-gateway.js";
-import { ContatoFakeGateway } from "../../infrastructure/gateways/contato-fake-gateway.js";
-import { ContatoOmieGateway } from "../../infrastructure/gateways/contato-omie-gateway.js";
-import { OportunidadeFakeGateway } from "../../infrastructure/gateways/oportunidade-fake-gateway.js";
-import { OportunidadeOmieGateway } from "../../infrastructure/gateways/oportunidade-omie-gateway.js";
-import { CrmAuxiliarFakeGateway } from "../../infrastructure/gateways/crm-auxiliar-fake-gateway.js";
-import { CrmAuxiliarOmieGateway } from "../../infrastructure/gateways/crm-auxiliar-omie-gateway.js";
-
-const mock = () => process.env.OMIE_MOCK === "true";
-function criarContaGateway(client: OmieClient): IContaGateway {
-  return mock() ? new ContaFakeGateway() : new ContaOmieGateway(client);
-}
-function criarContatoGateway(client: OmieClient): IContatoGateway {
-  return mock() ? new ContatoFakeGateway() : new ContatoOmieGateway(client);
-}
-function criarOportunidadeGateway(client: OmieClient): IOportunidadeGateway {
-  return mock() ? new OportunidadeFakeGateway() : new OportunidadeOmieGateway(client);
-}
-function criarCrmAuxiliarGateway(client: OmieClient): ICrmAuxiliarGateway {
-  return mock() ? new CrmAuxiliarFakeGateway() : new CrmAuxiliarOmieGateway(client);
-}
+import { criarContaGateway, criarContatoGateway, criarOportunidadeGateway, criarCrmAuxiliarGateway } from "../../infrastructure/gateways/crm-gateway-factory.js";
 
 export const crmTools: ToolDef[] = [
   defineTool({
