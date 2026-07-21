@@ -232,6 +232,11 @@ src/
 
 ## Ferramentas disponíveis
 
+> **Referência técnica completa** (nome de cada ferramenta, parâmetros um a um, quais são
+> destrutivas e limitações gerais): [`docs/FERRAMENTAS.md`](docs/FERRAMENTAS.md), gerado
+> automaticamente do código via `npm run doc-ferramentas`. As seções abaixo focam no contexto
+> de negócio e nas descobertas de cada módulo (o "porquê"); o gerado foca no "o quê" (schema).
+
 > **Filtro genérico (`filtros`):** várias ferramentas de listagem "enriquecida" (que já resolvem
 > nome de cliente/produto etc.) aceitam um parâmetro opcional `filtros`: lista de critérios
 > `{ campo, operador, valor }` aplicada sobre QUALQUER campo do resultado, mesmo os que a Omie
