@@ -24,3 +24,4 @@
 - [x] Módulo de Características de Produto — 2026-07-21 — [API](./API.md#módulo-de-características-de-produto-omie_caracteristica_incluiralterarexcluirconsultarlistar-geralcaracteristicas)
 - [x] Módulo Nota de Entrada (só leitura) — 2026-07-21 — [API](./API.md#módulo-nota-de-entrada-só-leitura-omie_nota_entrada_listarconsultar-produtosnotaentrada-listarnotaentconsultarnotaent)
 - [x] Camada de integração Omie isolada — 2026-07-21 — [Padrão de Projeto](./PADRAO-PROJETO.md#camada-de-integração-omie-isolada-move-omieclientts-de-src-para-srcintegrationsomie)
+- [x] Cache com TTL para cadastros de apoio — 2026-07-21 — [Padrão de Projeto](./PADRAO-PROJETO.md#cache-com-ttl-para-cadastros-de-apoio-srcsharedcachets-cacheia-em-memória-lazy-populado-só-quando-o-comando-roda-as-listagens-que-mudam-pouco--bancos-cidades-países-ncm-unidade-famílias-categorias-departamentos-fasesorigenssoluções-de-crm)

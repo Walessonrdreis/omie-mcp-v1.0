@@ -1,4 +1,5 @@
 import { OmieClient } from "../../../../integrations/omie/omieClient.js";
+import { comCache, chaveCache, limparCache } from "../../../../shared/cache.js";
 import {
   CategoriaOmie,
   CategoriaParaAlterar,
@@ -22,6 +23,7 @@ export class CategoriaOmieGateway implements ICategoriaGateway {
       call: "IncluirCategoria",
       param: { categoria_superior: dados.categoriaSuperior, descricao: dados.descricao },
     });
+    limparCache("geral/categorias");
 
     return {
       codigo: resposta.codigo,
@@ -43,6 +45,7 @@ export class CategoriaOmieGateway implements ICategoriaGateway {
         ...(dados.descricao !== undefined ? { descricao: dados.descricao } : {}),
       },
     });
+    limparCache("geral/categorias");
 
     return {
       codigo: resposta.codigo,
@@ -60,10 +63,11 @@ export class CategoriaOmieGateway implements ICategoriaGateway {
   }
 
   async listarCategoriasPagina(params: ListarCategoriasPageParams): Promise<ListarCategoriasResponse> {
-    return this.client.call<ListarCategoriasResponse>({
-      resource: "geral/categorias",
-      call: "ListarCategorias",
-      param: { pagina: params.pagina, registros_por_pagina: params.registrosPorPagina },
-    });
+    const resource = "geral/categorias";
+    const call = "ListarCategorias";
+    const param = { pagina: params.pagina, registros_por_pagina: params.registrosPorPagina };
+    return comCache(chaveCache(resource, call, param), () =>
+      this.client.call<ListarCategoriasResponse>({ resource, call, param })
+    );
   }
 }

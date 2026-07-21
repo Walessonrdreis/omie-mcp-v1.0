@@ -1,4 +1,5 @@
 import { OmieClient } from "../../../../integrations/omie/omieClient.js";
+import { comCache, chaveCache, limparCache } from "../../../../shared/cache.js";
 import {
   DepartamentoOmie,
   DepartamentoParaAlterar,
@@ -25,6 +26,7 @@ export class DepartamentoOmieGateway implements IDepartamentoGateway {
       // Omie gera e devolve o código do novo departamento na resposta.
       param: { codigo: dados.codigoPai, descricao: dados.descricao },
     });
+    limparCache("geral/departamentos");
 
     return {
       codigo: resposta.codigo,
@@ -48,6 +50,7 @@ export class DepartamentoOmieGateway implements IDepartamentoGateway {
         ...(dados.descricao !== undefined ? { descricao: dados.descricao } : {}),
       },
     });
+    limparCache("geral/departamentos");
 
     return {
       codigo: resposta.codigo,
@@ -68,6 +71,7 @@ export class DepartamentoOmieGateway implements IDepartamentoGateway {
       call: "ExcluirDepartamento",
       param: { codigo },
     });
+    limparCache("geral/departamentos");
 
     return {
       codigo: resposta.codigo,
@@ -88,10 +92,11 @@ export class DepartamentoOmieGateway implements IDepartamentoGateway {
   async listarDepartamentosPagina(
     params: ListarDepartamentosPageParams
   ): Promise<ListarDepartamentosResponse> {
-    return this.client.call<ListarDepartamentosResponse>({
-      resource: "geral/departamentos",
-      call: "ListarDepartamentos",
-      param: { pagina: params.pagina, registros_por_pagina: params.registrosPorPagina },
-    });
+    const resource = "geral/departamentos";
+    const call = "ListarDepartamentos";
+    const param = { pagina: params.pagina, registros_por_pagina: params.registrosPorPagina };
+    return comCache(chaveCache(resource, call, param), () =>
+      this.client.call<ListarDepartamentosResponse>({ resource, call, param })
+    );
   }
 }

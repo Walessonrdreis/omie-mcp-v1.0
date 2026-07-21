@@ -20,3 +20,7 @@
   - **Data:** 2026-07-21 | **Autor:** Walesson
   - **Arquivos afetados:** `src/integrations/omie/omieClient.ts` (movido), ~52 arquivos de gateways/presentation/tools que importam `OmieClient` (paths atualizados)
   - **Motivo/contexto:** primeiro passo de uma reorganização maior — isolar tudo que é integração externa (API da Omie) numa camada própria, preparando o projeto para eventualmente virar uma lib reutilizável (`packages/omie-core`) por trás de múltiplas interfaces (MCP, HTTP). Refatoração pura de caminho, sem mudança de comportamento — `tsc --noEmit` limpo e 119 testes passando após a mudança.
+- [x] Cache com TTL para cadastros de apoio: `src/shared/cache.ts` cacheia em memória (lazy, populado só quando o comando roda) as listagens que mudam pouco — bancos, cidades, países, NCM, unidade, famílias, categorias, departamentos, fases/origens/soluções de CRM
+  - **Data:** 2026-07-21 | **Autor:** Walesson
+  - **Arquivos afetados:** `src/shared/cache.ts`, `src/tools/types.ts` (flag `cacheable`), `src/tools/registry.ts`, gateways de `cadastrosAuxiliares`, `categoriasDepartamentos` (com invalidação no incluir/alterar/excluir), `crm` (auxiliar), `produtos-tools.ts` (famílias)
+  - **Motivo/contexto:** reduzir chamadas repetidas à API da Omie para dados que praticamente não mudam, sem arriscar servir dado velho nos módulos que têm escrita (categoria/departamento invalidam o cache na hora). TTL padrão 5 min via `OMIE_CACHE_TTL_MS`.

@@ -16,6 +16,8 @@ export interface PassthroughToolDef {
   execute?: undefined;
   /** Inclui, altera ou exclui dado na Omie — exige confirmação explícita via HTTP (ver httpServer.ts). */
   destructive?: boolean;
+  /** Cadastro de apoio que muda pouco (ex: famílias) — resposta cacheada por OMIE_CACHE_TTL_MS. */
+  cacheable?: boolean;
 }
 
 /**

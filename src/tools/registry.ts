@@ -1,4 +1,5 @@
 import { OmieClient } from "../integrations/omie/omieClient.js";
+import { chaveCache, comCache } from "../shared/cache.js";
 import { ToolDef } from "./types.js";
 import { comprasModuleTools } from "../modules/compras/index.js";
 import { contasPagarModuleTools } from "../modules/contasPagar/index.js";
@@ -73,9 +74,9 @@ export async function handleToolCall(
     return tool.execute(client, args.param ?? {});
   }
 
-  return client.call({
-    resource: tool.resource,
-    call: tool.call,
-    param: args.param ?? {},
-  });
+  const chamada = { resource: tool.resource, call: tool.call, param: args.param ?? {} };
+  if (tool.cacheable) {
+    return comCache(chaveCache(chamada.resource, chamada.call, chamada.param), () => client.call(chamada));
+  }
+  return client.call(chamada);
 }

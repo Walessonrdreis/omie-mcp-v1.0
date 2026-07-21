@@ -101,6 +101,7 @@ export const produtosTools: ToolDef[] = [
     inputSchema: { param: paramSchema },
     resource: "geral/familias",
     call: "PesquisarFamilias",
+    cacheable: true,
   }),
   defineTool({
     name: "omie_produtos_listar_com_estoque",
