@@ -449,6 +449,16 @@ src/
 > (fornecedor/cliente por lançamento, sem agregação), úteis pra conferir título por título;
 > o fluxo de caixa agrega tudo por período/conta corrente.
 
+### PIX (`src/modules/pix/`)
+- `omie_pix_listar` / `omie_pix_obter` / `omie_pix_obter_status` / `omie_pix_gerar` /
+  `omie_pix_cancelar` — **use-case** (gerar/cancelar destrutivas), CRUD de PIX sobre títulos de
+  contas a receber (`financas/pix`: `ListarPix`/`ObterPix`/`ObterStatusPix`/`GerarPix`/
+  `CancelarPix`), testável via `PixFakeGateway` sem tocar na Omie real. Diferente de Boleto, esta
+  conta Omie **TEM PIX configurado e ativo** (379 registros reais na base testada) — `Listar`/
+  `Obter`/`ObterStatus` validados ao vivo contra a conta real. `Gerar`/`Cancelar` não foram
+  testados ao vivo contra título de produção por prudência (gerariam/cancelariam uma cobrança PIX
+  de fato, sem round-trip seguro garantido — mesmo cuidado do Boleto).
+
 ### Notas Fiscais / NF-e (`src/modules/nfe/`)
 - `omie_nfe_listar` / `omie_nfe_consultar` — **use-case**: consulta notas fiscais (NF-e) já
   emitidas/registradas na Omie via `produtos/nfconsultar` (`ListarNF`/`ConsultarNF`), testável via
