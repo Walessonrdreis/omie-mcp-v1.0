@@ -479,6 +479,16 @@ src/
   efeito legal (sem "excluir e não deixar rastro" como nos demais módulos). Validado ao vivo contra
   a conta real (4765 notas na base de teste).
 
+### Cadastros Auxiliares (`src/modules/cadastrosAuxiliares/`)
+- `omie_bancos_listar` / `omie_cidades_listar` / `omie_paises_listar` / `omie_ncm_listar` /
+  `omie_unidade_consultar` — **use-case**, tabelas de referência estáticas mantidas pela própria
+  Omie (Bacen, IBGE, Receita Federal): bancos (`geral/bancos`), cidades (`geral/cidades`), países
+  (`geral/paises`), NCM (`produtos/ncm`) e unidades de medida (`geral/unidade`). Todos só leitura,
+  testável via `CadastrosAuxiliaresFakeGateway`. Suportam filtro nativo (nome, UF, código, etc.) e
+  o parâmetro genérico `filtros`. **Atenção, achado ao vivo**: `omie_unidade_consultar` exige o
+  código exato (não pagina/lista tudo, diferente dos demais) — é consulta pontual, não listagem.
+  Validado ao vivo contra a conta real.
+
 ### CRM (`src/modules/crm/`)
 - `omie_crm_conta_incluir` / `omie_crm_conta_alterar` / `omie_crm_conta_excluir` /
   `omie_crm_conta_consultar` / `omie_crm_conta_listar` — **use-case** (as 3 primeiras destrutivas),

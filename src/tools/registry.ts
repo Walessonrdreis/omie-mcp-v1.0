@@ -16,6 +16,7 @@ import { pixModuleTools } from "../modules/pix/index.js";
 import { orcamentoCaixaModuleTools } from "../modules/orcamentoCaixa/index.js";
 import { servicosModuleTools } from "../modules/servicos/index.js";
 import { crmModuleTools } from "../modules/crm/index.js";
+import { cadastrosAuxiliaresModuleTools } from "../modules/cadastrosAuxiliares/index.js";
 
 /**
  * Ponto único de agregação de todas as ferramentas MCP do servidor. Para
@@ -47,6 +48,7 @@ export const allTools: ToolDef[] = [
   ...orcamentoCaixaModuleTools,
   ...servicosModuleTools,
   ...crmModuleTools,
+  ...cadastrosAuxiliaresModuleTools,
   ...contasPagarModuleTools,
   ...contasReceberModuleTools,
 ];

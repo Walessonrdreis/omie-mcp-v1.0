@@ -91,6 +91,16 @@ Lista do que você pode pedir pro Claude fazer, hoje, usando essa integração c
 | Listar Notas Fiscais | Lista as NF-e já emitidas/registradas, com resumo (número, série, chave, cliente, valor, se está cancelada), filtro por período de emissão, status e tipo (entrada/saída). |
 | Consultar Nota Fiscal | Busca o detalhe completo de uma nota (pela chave de acesso ou pelo código interno): itens, NCM/CFOP, valores e os títulos financeiros gerados por ela. |
 
+## Cadastros Auxiliares
+
+| Funcionalidade | O que faz |
+|---|---|
+| Listar Bancos | Consulta a tabela oficial de bancos (Bacen). |
+| Listar Cidades | Consulta a tabela de cidades brasileiras (IBGE), filtro por UF/nome. |
+| Listar Países | Consulta a tabela de países com código ISO. |
+| Listar NCM | Consulta a tabela oficial de códigos NCM (Receita Federal). |
+| Consultar Unidade de Medida | Busca a descrição de uma unidade (ex: 'UN', 'KG') pelo código. |
+
 ## CRM
 
 > Funil de vendas B2B da Omie — diferente do cadastro de Cliente/Fornecedor e do Pedido de Venda
