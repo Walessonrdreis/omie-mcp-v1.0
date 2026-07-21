@@ -1,4 +1,5 @@
 import { IProdutosGateway } from "../../../produtos/domain/interfaces/produtos-gateway.js";
+import { aplicarFiltros } from "../../../../shared/filtro.js";
 import { IOrdemProducaoGateway } from "../../domain/interfaces/op-gateway.js";
 import {
   ListarOpsComProdutoParam,
@@ -48,6 +49,8 @@ export class ListarOpsComProdutoUseCase {
     if (param.apenas_nao_concluidas) {
       itens = itens.filter((item) => !item.concluida);
     }
+
+    itens = aplicarFiltros(itens, param.filtros);
 
     return {
       pagina: opsResposta.pagina,

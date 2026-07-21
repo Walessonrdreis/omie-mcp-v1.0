@@ -24,4 +24,15 @@ describe("ListarOpsComProdutoUseCase", () => {
     expect(resultado.itens.every((i) => !i.concluida)).toBe(true);
     expect(resultado.itens.find((i) => i.codigoOP === 1002)).toBeUndefined();
   });
+
+  it("aplica o filtro genérico sobre o resultado já enriquecido", async () => {
+    const useCase = new ListarOpsComProdutoUseCase(new OpFakeGateway(), new ProdutosFakeGateway());
+
+    const resultado = await useCase.execute({
+      filtros: [{ campo: "descricaoProduto", operador: "contem", valor: "fake 1" }],
+    });
+
+    expect(resultado.itens).toHaveLength(1);
+    expect(resultado.itens[0].codigoOP).toBe(1001);
+  });
 });

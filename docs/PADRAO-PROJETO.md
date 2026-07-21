@@ -12,3 +12,7 @@
   - **Data:** 2026-07-20 | **Autor:** Walesson
   - **Arquivos afetados:** todos os 9 módulos em `src/modules/` (`estoque`, `produtos`, `ordemProducao`, `pedidoVenda`, `clientesFornecedores`, `contasCorrentes`, `fluxoCaixa`, `contasPagar`, `contasReceber`)
   - **Motivo/contexto:** permitir testes automatizados (`vitest`, `npm run test`) e desenvolvimento/demonstração offline sem bater na API real da Omie (sem credencial, sem consumir rate limit), sem duplicar a lógica de negócio dos use cases — a interface é o único ponto de acoplamento entre lógica e integração externa
+- [x] Filtro genérico client-side (`shared/filtro.ts`): utilitário reutilizável pra filtrar qualquer resultado enriquecido por critérios arbitrários (campo/operador/valor), complementando os filtros nativos da Omie
+  - **Data:** 2026-07-20 | **Autor:** Walesson
+  - **Arquivos afetados:** `src/shared/filtro.ts`, `src/modules/ordemProducao/application/dto/listar-ops-com-produto.dto.ts`, `src/modules/ordemProducao/application/use-cases/listar-ops-com-produto.ts`
+  - **Motivo/contexto:** usuário pediu um sistema de filtro robusto nos módulos, cobrindo o máximo de busca possível. Decisão: combinar filtro nativo da Omie (server-side, rápido, mas limitado aos campos que a API expõe) com filtro genérico client-side (cobre qualquer campo do resultado já enriquecido — nome de cliente resolvido, descrição de produto, etc. — mas exige ter os dados em mãos primeiro). Piloto implementado em `omie_op_listar_com_produto` (dataset pequeno) antes de replicar pros demais módulos.

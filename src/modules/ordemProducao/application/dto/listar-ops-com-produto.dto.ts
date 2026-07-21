@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filtrosParamSchema } from "../../../../shared/filtro.js";
 
 export const listarOpsComProdutoParamSchema = z.object({
   pagina: z.number().optional().describe("Página da listagem de OPs (padrão 1)."),
@@ -10,6 +11,7 @@ export const listarOpsComProdutoParamSchema = z.object({
     .boolean()
     .optional()
     .describe("Se true, remove da lista as OPs já concluídas (cConcluida = 'S')."),
+  filtros: filtrosParamSchema,
 });
 
 export type ListarOpsComProdutoParam = z.infer<typeof listarOpsComProdutoParamSchema>;

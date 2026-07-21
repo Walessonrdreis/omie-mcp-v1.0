@@ -105,7 +105,11 @@ export const ordemProducaoTools: ToolDef[] = [
       "além do 'etapaCodigo' cru (a etapa do kanban é configurável por conta — de 3 a 6 fases com " +
       "nomes próprios — e a API não tem endpoint pra traduzir o código pro nome; se você souber o " +
       "significado das etapas dessa conta, pode interpretar etapaCodigo). Suporta paginação " +
-      "(pagina/registros_por_pagina) e o filtro apenas_nao_concluidas.",
+      "(pagina/registros_por_pagina), o filtro apenas_nao_concluidas e o parâmetro genérico " +
+      "'filtros' — lista de critérios (campo/operador/valor) aplicados sobre QUALQUER campo do " +
+      "resultado já enriquecido (ex: descricaoProduto, codigoSku, quantidade), com operadores " +
+      "igual/diferente/contem/maior_que/menor_que/entre. Ex: filtros: [{ campo: " +
+      "'descricaoProduto', operador: 'contem', valor: '100kg' }].",
     inputSchema: { param: listarOpsComProdutoParamSchema },
     execute: async (client, param) => {
       const parsed = listarOpsComProdutoParamSchema.parse(param);
