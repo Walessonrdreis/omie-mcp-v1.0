@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "node .claude/hooks/memoria-sessao-reminder.mjs",
-            "timeout": 10
+            "timeout": 10000
           }
         ]
       }
