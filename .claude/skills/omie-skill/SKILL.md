@@ -40,12 +40,40 @@ invocar direto no chat (`.claude/commands/omie-skill/`):
 
 | Comando | O que faz |
 |---|---|
-| `/omie-skill:guia` | Mostra o índice de módulos (`cache/_index.md`) e, se o pedido já indicar um módulo/operação, abre o arquivo correspondente e resume as ferramentas. Ponto de entrada rápido, sem precisar que a skill dispare sozinha. |
+| `/omie-skill:guia` | Mostra o índice de módulos (`cache/_index.md`) e, se o pedido já indicar um módulo/operação, abre o arquivo correspondente e resume as ferramentas. Só documentação — não chama a API. |
 | `/omie-skill:atualizar-cache` | Roda `npm run skill-cache` (recompila e regenera `cache/*.md` + `manifest.json` a partir do registro atual de ferramentas) e resume o que mudou. |
 | `/omie-skill:verificar-cache` | Roda `npm run skill-cache:check` — só diz se o cache está desatualizado, sem regenerar nada. |
+| `/omie-skill:estoque`, `/omie-skill:produtos`, `/omie-skill:op`, `/omie-skill:estrutura`, `/omie-skill:pedidos` | **Chamam a API da Omie de verdade** (leitura apenas) e devolvem o resultado formatado pro usuário, seguindo `referencia/formatacao-saida.md` — em vez de JSON cru. Ver seção "Comandos de consulta formatada" abaixo. |
 
-Os mesmos comandos existem como scripts npm (ver seção abaixo) pra quem
-preferir rodar fora do chat.
+Os três primeiros comandos existem também como scripts npm (ver seção
+abaixo) pra quem preferir rodar fora do chat.
+
+## Comandos de consulta formatada (dado real, não documentação)
+
+`/omie-skill:guia` e os comandos de cache (acima) só leem arquivos locais.
+Já `/omie-skill:estoque`, `/omie-skill:produtos`, `/omie-skill:op`,
+`/omie-skill:estrutura` e `/omie-skill:pedidos`
+(`.claude/commands/omie-skill/*.md`) fazem algo diferente: chamam a
+ferramenta `omie_*` de verdade (só operações de leitura — nunca
+incluir/alterar/excluir) e formatam o resultado antes de responder, em vez
+de devolver o JSON cru da Omie.
+
+Cada um desses comandos prioriza, dentro do seu módulo, a variante já
+"enriquecida" da tool quando ela existe (ex: `omie_op_listar_com_produto`
+em vez de `omie_op_listar` cru, `omie_produtos_listar_com_estoque` em vez
+de `omie_produtos_listar`) — essas já devolvem campo com nome legível. Pro
+que sobrar cru (tools passthrough, ou campos sem tradução como `cEtapa`),
+as regras de formatação — heurística de prefixo húngaro, o que NÃO
+traduzir, formato de tabela vs. bloco, moeda/data/booleano — estão em
+`referencia/formatacao-saida.md` (fora de `cache/` de propósito: aquele
+diretório é apagado e reescrito do zero por `npm run skill-cache`, e este
+arquivo é escrito à mão, não gerado).
+
+Esta primeira leva cobre só 5 módulos (os mais usados no foco "Chão de
+Fábrica" do projeto, mais Pedido de Venda com foco em separação/expedição)
+— os outros 16 módulos ainda não têm comando de consulta formatada
+dedicado; pra eles, siga o fluxo automático da skill (chamar a tool
+relevante numa conversa normal) até que um comando seja adicionado.
 
 ## Atualizando o cache (só por comando, nunca automático)
 

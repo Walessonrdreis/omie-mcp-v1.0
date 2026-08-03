@@ -244,6 +244,9 @@ src/
 > `/omie-skill:atualizar-cache` no chat), não automaticamente; ver
 > `.claude/skills/omie-skill/SKILL.md` para detalhes e `.claude/commands/omie-skill/` para os
 > comandos de terminal (`/omie-skill:guia`, `/omie-skill:atualizar-cache`, `/omie-skill:verificar-cache`).
+> Também tem comandos que chamam a API de verdade e devolvem o resultado já formatado (não
+> JSON cru) pra alguns módulos: `/omie-skill:estoque`, `/omie-skill:produtos`, `/omie-skill:op`,
+> `/omie-skill:estrutura`, `/omie-skill:pedidos`.
 
 > **Filtro genérico (`filtros`):** várias ferramentas de listagem "enriquecida" (que já resolvem
 > nome de cliente/produto etc.) aceitam um parâmetro opcional `filtros`: lista de critérios
