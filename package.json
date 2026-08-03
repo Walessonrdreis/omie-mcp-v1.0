@@ -15,6 +15,8 @@
     "dev:http": "tsx src/httpServer.ts",
     "gerar-api-key": "node scripts/gerar-api-key.mjs",
     "doc-ferramentas": "npm run build && node scripts/gerar-doc-ferramentas.mjs",
+    "skill-cache": "npm run build && node scripts/gerar-skill-cache.mjs",
+    "skill-cache:check": "npm run build && node scripts/gerar-skill-cache.mjs --check",
     "test": "vitest run"
   },
   "dependencies": {
