@@ -237,11 +237,13 @@ src/
 > automaticamente do código via `npm run doc-ferramentas`. As seções abaixo focam no contexto
 > de negócio e nas descobertas de cada módulo (o "porquê"); o gerado foca no "o quê" (schema).
 
-> **Skill do Claude Code** (`.claude/skills/omie-mcp/`): a mesma referência técnica, mas
+> **Skill do Claude Code** (`.claude/skills/omie-skill/`): a mesma referência técnica, mas
 > quebrada em um cache por módulo (`cache/*.md` + `cache/_index.md`) pra o Claude consultar só
 > o módulo relevante em vez do `FERRAMENTAS.md` inteiro — economiza tokens de contexto ao usar
-> as ferramentas `omie_*`. O cache é gerado por comando (`npm run skill-cache`), não
-> automaticamente; ver `.claude/skills/omie-mcp/SKILL.md` para detalhes.
+> as ferramentas `omie_*`. O cache é gerado por comando (`npm run skill-cache`, ou
+> `/omie-skill:atualizar-cache` no chat), não automaticamente; ver
+> `.claude/skills/omie-skill/SKILL.md` para detalhes e `.claude/commands/omie-skill/` para os
+> comandos de terminal (`/omie-skill:guia`, `/omie-skill:atualizar-cache`, `/omie-skill:verificar-cache`).
 
 > **Filtro genérico (`filtros`):** várias ferramentas de listagem "enriquecida" (que já resolvem
 > nome de cliente/produto etc.) aceitam um parâmetro opcional `filtros`: lista de critérios

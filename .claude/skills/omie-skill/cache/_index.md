@@ -1,4 +1,4 @@
-# Índice de ferramentas — omie-mcp (cache da skill)
+# Índice de ferramentas — omie-skill (cache da skill)
 
 > Gerado por `npm run skill-cache` a partir de `src/tools/registry.ts`. Não editar à mão. Cada linha abaixo é um módulo com arquivo próprio — abra só o(s) módulo(s) relevante(s) pra pergunta atual em vez de carregar tudo.
 

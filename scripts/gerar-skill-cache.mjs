@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gera o cache da skill `omie-mcp` (.claude/skills/omie-mcp/cache/) a partir
+ * Gera o cache da skill `omie-skill` (.claude/skills/omie-skill/cache/) a partir
  * do registro real de ferramentas (`src/tools/registry.ts` + `src/tools/generic.ts`),
  * a mesma fonte usada por `npm run doc-ferramentas`.
  *
@@ -50,7 +50,7 @@ import { contasPagarModuleTools } from "../dist/modules/contasPagar/index.js";
 import { contasReceberModuleTools } from "../dist/modules/contasReceber/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CACHE_DIR = join(__dirname, "..", ".claude", "skills", "omie-mcp", "cache");
+const CACHE_DIR = join(__dirname, "..", ".claude", "skills", "omie-skill", "cache");
 const MANIFEST_PATH = join(CACHE_DIR, "manifest.json");
 
 // Mesmo agrupamento de docs/FERRAMENTAS.md — grupo real por módulo (não
@@ -188,18 +188,18 @@ function main() {
 
   if (check) {
     if (!existsSync(MANIFEST_PATH)) {
-      console.log("Cache da skill omie-mcp não existe ainda. Rode `npm run skill-cache` pra gerar.");
+      console.log("Cache da skill omie-skill não existe ainda. Rode `npm run skill-cache` pra gerar.");
       process.exit(1);
     }
     const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf8"));
     if (manifest.hash !== hashAtual) {
       console.log(
-        "Cache da skill omie-mcp está DESATUALIZADO (registro de ferramentas mudou desde a última " +
+        "Cache da skill omie-skill está DESATUALIZADO (registro de ferramentas mudou desde a última " +
           `geração em ${manifest.geradoEm}). Rode \`npm run skill-cache\` pra atualizar.`
       );
       process.exit(1);
     }
-    console.log(`Cache da skill omie-mcp está atualizado (gerado em ${manifest.geradoEm}).`);
+    console.log(`Cache da skill omie-skill está atualizado (gerado em ${manifest.geradoEm}).`);
     process.exit(0);
   }
 
@@ -210,7 +210,7 @@ function main() {
   }
 
   const indice = [];
-  indice.push("# Índice de ferramentas — omie-mcp (cache da skill)");
+  indice.push("# Índice de ferramentas — omie-skill (cache da skill)");
   indice.push("");
   indice.push(
     "> Gerado por `npm run skill-cache` a partir de `src/tools/registry.ts`. Não editar à mão. " +
@@ -259,7 +259,7 @@ function main() {
   writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
 
   console.log(
-    `Cache da skill omie-mcp gerado: ${totalTools} ferramentas em ${gruposCompletos.length} arquivos ` +
+    `Cache da skill omie-skill gerado: ${totalTools} ferramentas em ${gruposCompletos.length} arquivos ` +
       `(${CACHE_DIR}).`
   );
 }
