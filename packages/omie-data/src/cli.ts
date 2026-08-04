@@ -86,16 +86,16 @@ async function main() {
   }
 
   if (comando.tipo === "produtos") {
+    if (comando.ajuda && !process.stdout.isTTY) {
+      console.log(textoAjudaProdutos());
+      process.exitCode = 0;
+      return;
+    }
+
     const credencial = carregarCredencialAtiva();
     if (!credencial) {
       console.log(JSON.stringify({ status: "sem_credencial" }));
       process.exitCode = 1;
-      return;
-    }
-
-    if (comando.ajuda && !process.stdout.isTTY) {
-      console.log(textoAjudaProdutos());
-      process.exitCode = 0;
       return;
     }
 
@@ -105,7 +105,7 @@ async function main() {
       const client = new OmieHttpClientReal(credencial.appKey, credencial.appSecret);
 
       if (comando.ajuda) {
-        const resultado = await rodarAjudaInterativa(db, client, comando.atualizar);
+        const resultado = await rodarAjudaInterativa(db, client, comando.atualizar, comando.filtros);
         console.log(JSON.stringify(resultado));
         process.exitCode = 0;
         return;

@@ -56,6 +56,7 @@ export async function rodarAjudaInterativa(
   db: Database.Database,
   client: IOmieHttpClient,
   atualizar: boolean,
+  filtrosBase: FiltrosProdutos = {},
   prompts: IPromptsInterativos = criarPromptsReais()
 ): Promise<ResultadoConsultaProdutos> {
   if (atualizar) {
@@ -63,15 +64,17 @@ export async function rodarAjudaInterativa(
   }
 
   const filtroEscolhido = await prompts.selecionarFiltro();
-  const filtros: FiltrosProdutos = {};
+  const filtroPrompt: FiltrosProdutos = {};
 
   if (filtroEscolhido === "busca") {
-    filtros.busca = await prompts.buscarTermo((termo) => valoresDistintos(db, "nome", termo));
+    filtroPrompt.busca = await prompts.buscarTermo((termo) => valoresDistintos(db, "nome", termo));
   } else if (filtroEscolhido === "categoria") {
-    filtros.categoria = await prompts.buscarTermo((termo) => valoresDistintos(db, "categoria", termo));
+    filtroPrompt.categoria = await prompts.buscarTermo((termo) => valoresDistintos(db, "categoria", termo));
   } else if (filtroEscolhido === "ativo") {
-    filtros.ativo = await prompts.selecionarAtivo();
+    filtroPrompt.ativo = await prompts.selecionarAtivo();
   }
+
+  const filtros: FiltrosProdutos = { ...filtrosBase, ...filtroPrompt };
 
   return rodarProdutos(db, client, false, filtros);
 }

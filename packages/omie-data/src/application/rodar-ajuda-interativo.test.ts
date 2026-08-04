@@ -19,7 +19,7 @@ describe("rodarAjudaInterativa", () => {
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
 
-    const resultado = await rodarAjudaInterativa(db, client, true, fakePrompts({}));
+    const resultado = await rodarAjudaInterativa(db, client, true, {}, fakePrompts({}));
 
     expect(resultado.status).toBe("dado_disponivel");
     expect(resultado.produtos).toHaveLength(1);
@@ -38,6 +38,7 @@ describe("rodarAjudaInterativa", () => {
       db,
       client,
       true,
+      {},
       fakePrompts({ selecionarFiltro: async () => "busca", buscarTermo: async () => "Arroz Branco" })
     );
 
@@ -59,12 +60,51 @@ describe("rodarAjudaInterativa", () => {
       db,
       client,
       true,
+      {},
       fakePrompts({ selecionarFiltro: async () => "ativo", selecionarAtivo: async () => "Não" })
     );
 
     expect(resultado.status).toBe("dado_disponivel");
     expect(resultado.produtos).toHaveLength(1);
     expect(resultado.produtos[0].nome).toBe("Produto B");
+
+    db.close();
+  });
+
+  it("filtrosBase com busca já setada + prompt escolhe 'nenhum' → usa só o filtro da base", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Arroz Branco", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
+      { codigo_produto: 2, codigo: "B", descricao: "Feijão Preto", unidade: "UN", valor_unitario: 8, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
+    ]);
+
+    const resultado = await rodarAjudaInterativa(db, client, true, { busca: "Arroz Branco" }, fakePrompts({}));
+
+    expect(resultado.status).toBe("dado_disponivel");
+    expect(resultado.produtos).toHaveLength(1);
+    expect(resultado.produtos[0].nome).toBe("Arroz Branco");
+
+    db.close();
+  });
+
+  it("filtrosBase com um filtro + prompt escolhe outro filtro diferente → combinam com AND", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Arroz Branco", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
+      { codigo_produto: 2, codigo: "B", descricao: "Arroz Integral", unidade: "UN", valor_unitario: 12, inativo: "S", codigo_familia: 1, descricao_familia: "Grãos" },
+    ]);
+
+    const resultado = await rodarAjudaInterativa(
+      db,
+      client,
+      true,
+      { busca: "Arroz" },
+      fakePrompts({ selecionarFiltro: async () => "ativo", selecionarAtivo: async () => "Sim" })
+    );
+
+    expect(resultado.status).toBe("dado_disponivel");
+    expect(resultado.produtos).toHaveLength(1);
+    expect(resultado.produtos[0].nome).toBe("Arroz Branco");
 
     db.close();
   });
