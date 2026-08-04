@@ -28,3 +28,6 @@ TestResults.xml
 .env
 node_modules/
 dist/
+
+# graphify cache
+graphify-out/cache/
