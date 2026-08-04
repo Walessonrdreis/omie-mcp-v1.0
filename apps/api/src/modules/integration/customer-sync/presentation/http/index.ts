@@ -1,1 +1,0 @@
-export { customerSyncIntegrationRoutes } from "./routes";
