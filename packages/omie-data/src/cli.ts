@@ -66,7 +66,19 @@ export function textoAjudaProdutos(): string {
     "  --busca <texto>      ex: produtos --busca arroz",
     "  --categoria <texto>  ex: produtos --categoria bebida",
     "  --ativo <sim|nao>    ex: produtos --ativo sim",
+    "",
+    "Dica: rode 'produtos' sem nenhuma flag num terminal real pra abrir",
+    "o menu interativo, sem precisar decorar essas flags.",
   ].join("\n");
+}
+
+export function deveAbrirMenuInterativo(
+  isTTY: boolean,
+  comando: { ajuda: boolean; filtros: FiltrosProdutos }
+): boolean {
+  if (comando.ajuda) return false;
+  if (!isTTY) return false;
+  return Object.keys(comando.filtros).length === 0;
 }
 
 function formatarDataHoraBrasilia(iso: string): string {
@@ -136,7 +148,7 @@ async function main() {
   }
 
   if (comando.tipo === "produtos") {
-    if (comando.ajuda && !process.stdout.isTTY) {
+    if (comando.ajuda) {
       console.log(textoAjudaProdutos());
       process.exitCode = 0;
       return;
@@ -154,15 +166,13 @@ async function main() {
       db = abrirBanco(path.join(diretorioDados(), `${credencial.hash}.db`));
       const client = new OmieHttpClientReal(credencial.appKey, credencial.appSecret);
 
-      if (comando.ajuda) {
-        const resultado = await rodarAjudaInterativa(db, client, comando.atualizar, comando.filtros);
-        console.log(formatarResultadoProdutos(resultado));
-        process.exitCode = 0;
-        return;
-      }
+      const abrirMenu = deveAbrirMenuInterativo(!!process.stdout.isTTY, comando);
 
-      const resultado = await rodarProdutos(db, client, comando.atualizar, comando.filtros);
-      console.log(JSON.stringify(resultado));
+      const resultado = abrirMenu
+        ? await rodarAjudaInterativa(db, client, comando.atualizar, comando.filtros)
+        : await rodarProdutos(db, client, comando.atualizar, comando.filtros);
+
+      console.log(process.stdout.isTTY ? formatarResultadoProdutos(resultado) : JSON.stringify(resultado));
       process.exitCode = 0;
     } catch (erro) {
       console.log(JSON.stringify({ status: "erro", erro: erro instanceof Error ? erro.message : String(erro) }));
@@ -173,7 +183,9 @@ async function main() {
     return;
   }
 
-  console.error("Comando desconhecido. Uso: cli.js configurar --app-key X --app-secret Y | cli.js produtos [--atualizar]");
+  console.error(
+    "Comando desconhecido. Uso: cli.js configurar --app-key X --app-secret Y | cli.js produtos [--atualizar] [--busca X] [--categoria X] [--ativo sim|nao] [--ajuda]"
+  );
   process.exitCode = 1;
 }
 

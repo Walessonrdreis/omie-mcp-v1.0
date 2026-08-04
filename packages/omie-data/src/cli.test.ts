@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseArgv, textoAjudaProdutos, formatarResultadoProdutos } from "./cli.js";
+import { parseArgv, textoAjudaProdutos, formatarResultadoProdutos, deveAbrirMenuInterativo } from "./cli.js";
 
 describe("parseArgv", () => {
   it("reconhece 'configurar --app-key X --app-secret Y'", () => {
@@ -166,5 +166,23 @@ describe("formatarResultadoProdutos", () => {
         expect(celula.length).toBe(largurasCabecalho[indice]);
       });
     }
+  });
+});
+
+describe("deveAbrirMenuInterativo", () => {
+  it("true quando há TTY, sem filtro nenhum e sem --ajuda", () => {
+    expect(deveAbrirMenuInterativo(true, { ajuda: false, filtros: {} })).toBe(true);
+  });
+
+  it("false quando não há TTY, mesmo sem filtro", () => {
+    expect(deveAbrirMenuInterativo(false, { ajuda: false, filtros: {} })).toBe(false);
+  });
+
+  it("false quando há filtro na flag, mesmo com TTY", () => {
+    expect(deveAbrirMenuInterativo(true, { ajuda: false, filtros: { busca: "arroz" } })).toBe(false);
+  });
+
+  it("false quando --ajuda foi passado, mesmo com TTY e sem filtro", () => {
+    expect(deveAbrirMenuInterativo(true, { ajuda: true, filtros: {} })).toBe(false);
   });
 });
