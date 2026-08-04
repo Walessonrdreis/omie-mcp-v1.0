@@ -31,3 +31,6 @@ dist/
 
 # graphify cache
 graphify-out/cache/
+
+# worktrees isolados (subagent-driven-development)
+.worktrees/
