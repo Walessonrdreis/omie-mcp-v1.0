@@ -114,4 +114,57 @@ describe("formatarResultadoProdutos", () => {
     expect(texto).toContain("R$ 38,00");
     expect(texto).toContain("Sim");
   });
+
+  it("formata geradoEm em horário de Brasília e idadeMs como HH:MM:SS", () => {
+    const texto = formatarResultadoProdutos({
+      status: "dado_disponivel",
+      geradoEm: "2026-08-04T18:27:19.191Z",
+      idadeMs: 17462390,
+      produtos: [
+        {
+          codigoProduto: 1,
+          codigo: "A",
+          nome: "Produto A",
+          categoria: "Cat",
+          unidade: "UN",
+          valorFormatado: "R$ 1,00",
+          ativo: "Sim",
+        },
+      ],
+    });
+
+    expect(texto).not.toContain("geradoEm");
+    expect(texto).not.toContain("idadeMs");
+    expect(texto).toContain("04/08/2026, 15:27:19");
+    expect(texto).toContain("04:51:02");
+  });
+
+  it("alinha as colunas da tabela com largura fixa por coluna", () => {
+    const texto = formatarResultadoProdutos({
+      status: "dado_disponivel",
+      geradoEm: "2026-08-04T18:27:19.191Z",
+      idadeMs: 1000,
+      produtos: [
+        { codigoProduto: 1, codigo: "A", nome: "Curto", categoria: "Cat", unidade: "UN", valorFormatado: "R$ 1,00", ativo: "Sim" },
+        {
+          codigoProduto: 2,
+          codigo: "BBBBBB",
+          nome: "Nome bem mais comprido",
+          categoria: "Categoria Grande",
+          unidade: "UN",
+          valorFormatado: "R$ 100,00",
+          ativo: "Não",
+        },
+      ],
+    });
+
+    const linhasTabela = texto.split("\n").filter((linha) => linha.includes(" | "));
+    const largurasCabecalho = linhasTabela[0].split(" | ").map((celula) => celula.length);
+    for (const linha of linhasTabela) {
+      const celulas = linha.split(" | ");
+      celulas.forEach((celula, indice) => {
+        expect(celula.length).toBe(largurasCabecalho[indice]);
+      });
+    }
+  });
 });

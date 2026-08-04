@@ -69,17 +69,54 @@ export function textoAjudaProdutos(): string {
   ].join("\n");
 }
 
+function formatarDataHoraBrasilia(iso: string): string {
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(new Date(iso));
+}
+
+function formatarDuracaoHms(ms: number): string {
+  const totalSegundos = Math.floor(ms / 1000);
+  const horas = Math.floor(totalSegundos / 3600);
+  const minutos = Math.floor((totalSegundos % 3600) / 60);
+  const segundos = totalSegundos % 60;
+  const dois = (n: number) => String(n).padStart(2, "0");
+  return `${dois(horas)}:${dois(minutos)}:${dois(segundos)}`;
+}
+
 export function formatarResultadoProdutos(resultado: ResultadoConsultaProdutos): string {
   if (resultado.status === "sem_dado") {
     return "Nenhum produto encontrado.";
   }
 
-  const cabecalho = ["Nome", "Código", "Categoria", "Valor", "Ativo"].join(" | ");
-  const linhas = resultado.produtos.map((produto) =>
-    [produto.nome, produto.codigo, produto.categoria, produto.valorFormatado, produto.ativo].join(" | ")
+  const infoData = `Dado coletado em ${formatarDataHoraBrasilia(resultado.geradoEm as string)} (horário de Brasília) — há ${formatarDuracaoHms(resultado.idadeMs as number)}`;
+
+  const colunas = ["Nome", "Código", "Categoria", "Valor", "Ativo"];
+  const linhas = resultado.produtos.map((produto) => [
+    produto.nome,
+    produto.codigo,
+    produto.categoria,
+    produto.valorFormatado,
+    produto.ativo,
+  ]);
+
+  const larguras = colunas.map((coluna, indice) =>
+    Math.max(coluna.length, ...linhas.map((linha) => linha[indice].length))
   );
 
-  return [cabecalho, ...linhas].join("\n");
+  const formatarLinha = (celulas: string[]) =>
+    celulas.map((celula, indice) => celula.padEnd(larguras[indice])).join(" | ");
+
+  const tabela = [formatarLinha(colunas), ...linhas.map(formatarLinha)];
+
+  return [infoData, "", ...tabela].join("\n");
 }
 
 async function main() {
