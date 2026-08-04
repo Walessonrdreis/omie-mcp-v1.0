@@ -34,11 +34,11 @@ export function translateProdutos(db: Database.Database): number {
 
     upsert.run({
       codigo_produto: produto.codigo_produto,
-      codigo: produto.codigo,
-      nome: produto.descricao,
+      codigo: produto.codigo ?? String(produto.codigo_produto),
+      nome: produto.descricao ?? "(sem nome)",
       categoria: produto.descricao_familia ?? "Sem categoria",
-      unidade: produto.unidade,
-      valor_formatado: formatarMoeda(produto.valor_unitario),
+      unidade: produto.unidade ?? "-",
+      valor_formatado: formatarMoeda(produto.valor_unitario ?? 0),
       ativo: produto.inativo === "N" ? "Sim" : "Não",
       gerado_em: agora,
     });
