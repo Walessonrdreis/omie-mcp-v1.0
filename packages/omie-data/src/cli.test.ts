@@ -21,4 +21,11 @@ describe("parseArgv", () => {
     expect(parseArgv([])).toEqual({ tipo: "desconhecido" });
     expect(parseArgv(["outra-coisa"])).toEqual({ tipo: "desconhecido" });
   });
+
+  it("retorna 'desconhecido' quando --app-key ou --app-secret vêm vazios ou faltando", () => {
+    expect(parseArgv(["configurar", "--app-key", "--app-secret", "meu-secret"])).toEqual({ tipo: "desconhecido" });
+    expect(parseArgv(["configurar", "--app-key", "minha-key"])).toEqual({ tipo: "desconhecido" });
+    expect(parseArgv(["configurar", "--app-key", "", "--app-secret", "meu-secret"])).toEqual({ tipo: "desconhecido" });
+    expect(parseArgv(["configurar", "--app-key", "minha-key", "--app-secret"])).toEqual({ tipo: "desconhecido" });
+  });
 });
