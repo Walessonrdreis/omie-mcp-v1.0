@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { abrirBanco } from "../infrastructure/database.js";
 import { FakeOmieHttpClient } from "../infrastructure/fake-omie-http-client.js";
-import { rodarAjudaInterativa, IPromptsInterativos } from "./rodar-ajuda-interativo.js";
+import { rodarAjudaInterativa, IPromptsInterativos, valoresBusca } from "./rodar-ajuda-interativo.js";
 
 function fakePrompts(overrides: Partial<IPromptsInterativos>): IPromptsInterativos {
   return {
@@ -105,6 +105,37 @@ describe("rodarAjudaInterativa", () => {
     expect(resultado.status).toBe("dado_disponivel");
     expect(resultado.produtos).toHaveLength(1);
     expect(resultado.produtos[0].nome).toBe("Arroz Branco");
+
+    db.close();
+  });
+});
+
+describe("valoresBusca", () => {
+  it("retorna valores distintos casando por nome OU por código", () => {
+    const db = abrirBanco(":memory:");
+    const gerado = new Date().toISOString();
+    db.prepare(`
+      INSERT INTO view_produtos (codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em)
+      VALUES (1, '42bm', 'Arroz Branco', 'Grãos', 'UN', 'R$ 10,00', 'Sim', ?),
+             (2, 'B99', 'Feijão Preto', 'Grãos', 'UN', 'R$ 8,00', 'Sim', ?)
+    `).run(gerado, gerado);
+
+    expect(valoresBusca(db, "arroz")).toEqual(["Arroz Branco"]);
+    expect(valoresBusca(db, "42bm")).toEqual(["42bm"]);
+    expect(valoresBusca(db, "")).toEqual([]);
+
+    db.close();
+  });
+
+  it("não duplica quando o mesmo valor bate em nome e código", () => {
+    const db = abrirBanco(":memory:");
+    const gerado = new Date().toISOString();
+    db.prepare(`
+      INSERT INTO view_produtos (codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em)
+      VALUES (1, 'abc', 'ABC Produto', 'Cat', 'UN', 'R$ 10,00', 'Sim', ?)
+    `).run(gerado);
+
+    expect(valoresBusca(db, "abc")).toEqual(["ABC Produto", "abc"]);
 
     db.close();
   });

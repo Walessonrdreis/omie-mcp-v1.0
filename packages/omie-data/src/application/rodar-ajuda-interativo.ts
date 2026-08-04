@@ -44,12 +44,27 @@ export function criarPromptsReais(): IPromptsInterativos {
   };
 }
 
-function valoresDistintos(db: Database.Database, coluna: "nome" | "categoria", termo: string): string[] {
+function valoresDistintos(db: Database.Database, coluna: "categoria", termo: string): string[] {
   if (!termo) return [];
   const linhas = db
     .prepare(`SELECT DISTINCT ${coluna} AS valor FROM view_produtos WHERE LOWER(${coluna}) LIKE ? ORDER BY ${coluna} LIMIT 20`)
     .all(`%${termo.toLowerCase()}%`) as Array<{ valor: string }>;
   return linhas.map((linha) => linha.valor);
+}
+
+export function valoresBusca(db: Database.Database, termo: string): string[] {
+  if (!termo) return [];
+  const termoLike = `%${termo.toLowerCase()}%`;
+
+  const porNome = db
+    .prepare("SELECT DISTINCT nome AS valor FROM view_produtos WHERE LOWER(nome) LIKE ? ORDER BY nome LIMIT 20")
+    .all(termoLike) as Array<{ valor: string }>;
+  const porCodigo = db
+    .prepare("SELECT DISTINCT codigo AS valor FROM view_produtos WHERE LOWER(codigo) LIKE ? ORDER BY codigo LIMIT 20")
+    .all(termoLike) as Array<{ valor: string }>;
+
+  const combinados = [...porNome.map((linha) => linha.valor), ...porCodigo.map((linha) => linha.valor)];
+  return Array.from(new Set(combinados)).slice(0, 20);
 }
 
 export async function rodarAjudaInterativa(
@@ -67,7 +82,7 @@ export async function rodarAjudaInterativa(
   const filtroPrompt: FiltrosProdutos = {};
 
   if (filtroEscolhido === "busca") {
-    filtroPrompt.busca = await prompts.buscarTermo((termo) => valoresDistintos(db, "nome", termo));
+    filtroPrompt.busca = await prompts.buscarTermo((termo) => valoresBusca(db, termo));
   } else if (filtroEscolhido === "categoria") {
     filtroPrompt.categoria = await prompts.buscarTermo((termo) => valoresDistintos(db, "categoria", termo));
   } else if (filtroEscolhido === "ativo") {
