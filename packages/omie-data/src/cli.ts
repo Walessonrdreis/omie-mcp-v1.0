@@ -6,10 +6,11 @@ import { diretorioDados } from "./infrastructure/caminhos.js";
 import { OmieHttpClientReal } from "./infrastructure/omie-http-client-real.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
 import { rodarProdutos } from "./application/rodar-produtos.js";
+import { FiltrosProdutos } from "./application/consultar-produtos.js";
 
 export type ComandoCli =
   | { tipo: "configurar"; appKey: string; appSecret: string }
-  | { tipo: "produtos"; atualizar: boolean }
+  | { tipo: "produtos"; atualizar: boolean; ajuda: boolean; filtros: FiltrosProdutos }
   | { tipo: "desconhecido" };
 
 function valorDaFlag(resto: string[], flag: string): string | undefined {
@@ -31,7 +32,28 @@ export function parseArgv(argv: string[]): ComandoCli {
   }
 
   if (sub === "produtos") {
-    return { tipo: "produtos", atualizar: resto.includes("--atualizar") };
+    const filtros: FiltrosProdutos = {};
+
+    const busca = valorDaFlag(resto, "--busca");
+    if (busca) filtros.busca = busca;
+
+    const categoria = valorDaFlag(resto, "--categoria");
+    if (categoria) filtros.categoria = categoria;
+
+    const ativoBruto = valorDaFlag(resto, "--ativo");
+    if (ativoBruto !== undefined) {
+      const normalizado = ativoBruto.toLowerCase();
+      if (normalizado === "sim") filtros.ativo = "Sim";
+      else if (normalizado === "nao" || normalizado === "não") filtros.ativo = "Não";
+      else return { tipo: "desconhecido" };
+    }
+
+    return {
+      tipo: "produtos",
+      atualizar: resto.includes("--atualizar"),
+      ajuda: resto.includes("--ajuda"),
+      filtros,
+    };
   }
 
   return { tipo: "desconhecido" };
