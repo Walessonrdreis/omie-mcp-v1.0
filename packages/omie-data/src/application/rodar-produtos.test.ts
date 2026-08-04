@@ -29,4 +29,20 @@ describe("rodarProdutos", () => {
 
     db.close();
   });
+
+  it("repassa filtros pra consultarProdutos", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Arroz Branco", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
+      { codigo_produto: 2, codigo: "B", descricao: "Feijão Preto", unidade: "UN", valor_unitario: 8, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
+    ]);
+
+    const resultado = await rodarProdutos(db, client, true, { busca: "arroz" });
+
+    expect(resultado.status).toBe("dado_disponivel");
+    expect(resultado.produtos).toHaveLength(1);
+    expect(resultado.produtos[0].nome).toBe("Arroz Branco");
+
+    db.close();
+  });
 });
