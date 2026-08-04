@@ -39,4 +39,24 @@ describe("collectProdutos", () => {
 
     db.close();
   });
+
+  it("aguarda entre páginas quando há mais de uma", async () => {
+    const db = abrirBanco(":memory:");
+    const produtos = Array.from({ length: 150 }, (_, i) => ({
+      codigo_produto: i + 1,
+      codigo: `P${i + 1}`,
+      descricao: `Produto ${i + 1}`,
+      unidade: "UN",
+      valor_unitario: 10,
+      inativo: "N" as const,
+      codigo_familia: 1,
+    }));
+    const client = new FakeOmieHttpClient(produtos);
+
+    const total = await collectProdutos(db, client, 0);
+
+    expect(total).toBe(150);
+
+    db.close();
+  });
 });
