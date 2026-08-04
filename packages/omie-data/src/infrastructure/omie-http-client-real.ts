@@ -28,7 +28,14 @@ export class OmieHttpClientReal implements IOmieHttpClient {
           call: "ListarProdutos",
           app_key: this.appKey,
           app_secret: this.appSecret,
-          param: [{ pagina, registros_por_pagina: registrosPorPagina, apenas_importado_api: "N" }],
+          param: [
+            {
+              pagina,
+              registros_por_pagina: registrosPorPagina,
+              apenas_importado_api: "N",
+              filtrar_apenas_omiepdv: "N",
+            },
+          ],
         }),
       });
 

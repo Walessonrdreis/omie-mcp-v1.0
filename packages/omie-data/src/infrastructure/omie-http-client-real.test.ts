@@ -30,7 +30,9 @@ describe("OmieHttpClientReal", () => {
     expect(corpo.call).toBe("ListarProdutos");
     expect(corpo.app_key).toBe("minha-key");
     expect(corpo.app_secret).toBe("meu-secret");
-    expect(corpo.param).toEqual([{ pagina: 1, registros_por_pagina: 50, apenas_importado_api: "N" }]);
+    expect(corpo.param).toEqual([
+      { pagina: 1, registros_por_pagina: 50, apenas_importado_api: "N", filtrar_apenas_omiepdv: "N" },
+    ]);
 
     expect(resultado).toEqual(respostaFake);
   });
