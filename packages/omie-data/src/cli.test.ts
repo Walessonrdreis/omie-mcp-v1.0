@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseArgv, textoAjudaProdutos } from "./cli.js";
+import { parseArgv, textoAjudaProdutos, formatarResultadoProdutos } from "./cli.js";
 
 describe("parseArgv", () => {
   it("reconhece 'configurar --app-key X --app-secret Y'", () => {
@@ -80,5 +80,38 @@ describe("textoAjudaProdutos", () => {
     expect(texto).toContain("produtos --categoria bebida");
     expect(texto).toContain("--ativo <sim|nao>");
     expect(texto).toContain("produtos --ativo sim");
+  });
+});
+
+describe("formatarResultadoProdutos", () => {
+  it("retorna mensagem amigável quando não há produtos", () => {
+    const texto = formatarResultadoProdutos({ status: "sem_dado", produtos: [], geradoEm: null, idadeMs: null });
+    expect(texto).toBe("Nenhum produto encontrado.");
+  });
+
+  it("formata os produtos como tabela legível, sem JSON cru", () => {
+    const texto = formatarResultadoProdutos({
+      status: "dado_disponivel",
+      geradoEm: "2026-08-04T18:27:19.191Z",
+      idadeMs: 1000,
+      produtos: [
+        {
+          codigoProduto: 9116172034,
+          codigo: "42bm",
+          nome: "42% cacau - Ao Leite 80g",
+          categoria: "Barra Media",
+          unidade: "UND",
+          valorFormatado: "R$ 38,00",
+          ativo: "Sim",
+        },
+      ],
+    });
+
+    expect(texto).not.toContain("{");
+    expect(texto).toContain("42% cacau - Ao Leite 80g");
+    expect(texto).toContain("42bm");
+    expect(texto).toContain("Barra Media");
+    expect(texto).toContain("R$ 38,00");
+    expect(texto).toContain("Sim");
   });
 });

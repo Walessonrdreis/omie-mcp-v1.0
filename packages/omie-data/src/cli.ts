@@ -7,7 +7,7 @@ import { OmieHttpClientReal } from "./infrastructure/omie-http-client-real.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
 import { rodarProdutos } from "./application/rodar-produtos.js";
 import { rodarAjudaInterativa } from "./application/rodar-ajuda-interativo.js";
-import { FiltrosProdutos } from "./application/consultar-produtos.js";
+import { FiltrosProdutos, ResultadoConsultaProdutos } from "./application/consultar-produtos.js";
 
 export type ComandoCli =
   | { tipo: "configurar"; appKey: string; appSecret: string }
@@ -69,6 +69,19 @@ export function textoAjudaProdutos(): string {
   ].join("\n");
 }
 
+export function formatarResultadoProdutos(resultado: ResultadoConsultaProdutos): string {
+  if (resultado.status === "sem_dado") {
+    return "Nenhum produto encontrado.";
+  }
+
+  const cabecalho = ["Nome", "Código", "Categoria", "Valor", "Ativo"].join(" | ");
+  const linhas = resultado.produtos.map((produto) =>
+    [produto.nome, produto.codigo, produto.categoria, produto.valorFormatado, produto.ativo].join(" | ")
+  );
+
+  return [cabecalho, ...linhas].join("\n");
+}
+
 async function main() {
   const comando = parseArgv(process.argv.slice(2));
 
@@ -106,7 +119,7 @@ async function main() {
 
       if (comando.ajuda) {
         const resultado = await rodarAjudaInterativa(db, client, comando.atualizar, comando.filtros);
-        console.log(JSON.stringify(resultado));
+        console.log(formatarResultadoProdutos(resultado));
         process.exitCode = 0;
         return;
       }
