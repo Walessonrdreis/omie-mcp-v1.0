@@ -4,9 +4,14 @@ import { IOmieHttpClient } from "../domain/omie-http-client.js";
 import { rodarProdutos } from "./rodar-produtos.js";
 import { FiltrosProdutos, ResultadoConsultaProdutos } from "./consultar-produtos.js";
 
+export interface OpcaoBusca {
+  rotulo: string;
+  valor: string;
+}
+
 export interface IPromptsInterativos {
   selecionarFiltro(): Promise<"busca" | "categoria" | "ativo" | "nenhum">;
-  buscarTermo(fonte: (input: string) => string[]): Promise<string>;
+  buscarTermo(fonte: (input: string) => OpcaoBusca[]): Promise<string>;
   selecionarAtivo(): Promise<"Sim" | "Não">;
 }
 
@@ -28,7 +33,7 @@ export function criarPromptsReais(): IPromptsInterativos {
         message: "Digite pra filtrar (setinha + Enter pra escolher):",
         source: async (input) => {
           const termo = input ?? "";
-          return fonte(termo).map((valor) => ({ name: valor, value: valor }));
+          return fonte(termo).map((opcao) => ({ name: opcao.rotulo, value: opcao.valor }));
         },
       });
     },
@@ -44,15 +49,15 @@ export function criarPromptsReais(): IPromptsInterativos {
   };
 }
 
-function valoresDistintos(db: Database.Database, coluna: "categoria", termo: string): string[] {
+function valoresDistintos(db: Database.Database, coluna: "categoria", termo: string): OpcaoBusca[] {
   if (!termo) return [];
   const linhas = db
     .prepare(`SELECT DISTINCT ${coluna} AS valor FROM view_produtos WHERE LOWER(${coluna}) LIKE ? ORDER BY ${coluna} LIMIT 20`)
     .all(`%${termo.toLowerCase()}%`) as Array<{ valor: string }>;
-  return linhas.map((linha) => linha.valor);
+  return linhas.map((linha) => ({ rotulo: linha.valor, valor: linha.valor }));
 }
 
-export function valoresBusca(db: Database.Database, termo: string): string[] {
+export function valoresBusca(db: Database.Database, termo: string): OpcaoBusca[] {
   if (!termo) return [];
   const termoLike = `%${termo.toLowerCase()}%`;
 
@@ -60,11 +65,25 @@ export function valoresBusca(db: Database.Database, termo: string): string[] {
     .prepare("SELECT DISTINCT nome AS valor FROM view_produtos WHERE LOWER(nome) LIKE ? ORDER BY nome LIMIT 20")
     .all(termoLike) as Array<{ valor: string }>;
   const porCodigo = db
-    .prepare("SELECT DISTINCT codigo AS valor FROM view_produtos WHERE LOWER(codigo) LIKE ? ORDER BY codigo LIMIT 20")
-    .all(termoLike) as Array<{ valor: string }>;
+    .prepare("SELECT DISTINCT codigo, nome FROM view_produtos WHERE LOWER(codigo) LIKE ? ORDER BY codigo LIMIT 20")
+    .all(termoLike) as Array<{ codigo: string; nome: string }>;
 
-  const combinados = [...porNome.map((linha) => linha.valor), ...porCodigo.map((linha) => linha.valor)];
-  return Array.from(new Set(combinados)).slice(0, 20);
+  const itensNome: OpcaoBusca[] = porNome.map((linha) => ({ rotulo: linha.valor, valor: linha.valor }));
+  const itensCodigo: OpcaoBusca[] = porCodigo.map((linha) => ({
+    rotulo: `${linha.codigo} - ${linha.nome}`,
+    valor: linha.codigo,
+  }));
+
+  const vistos = new Set<string>();
+  const combinados: OpcaoBusca[] = [];
+  for (const opcao of [...itensNome, ...itensCodigo]) {
+    if (!vistos.has(opcao.valor)) {
+      vistos.add(opcao.valor);
+      combinados.push(opcao);
+    }
+  }
+
+  return combinados.slice(0, 20);
 }
 
 export async function rodarAjudaInterativa(

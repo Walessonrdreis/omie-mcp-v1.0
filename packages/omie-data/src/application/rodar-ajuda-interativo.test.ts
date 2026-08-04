@@ -120,8 +120,8 @@ describe("valoresBusca", () => {
              (2, 'B99', 'Feijão Preto', 'Grãos', 'UN', 'R$ 8,00', 'Sim', ?)
     `).run(gerado, gerado);
 
-    expect(valoresBusca(db, "arroz")).toEqual(["Arroz Branco"]);
-    expect(valoresBusca(db, "42bm")).toEqual(["42bm"]);
+    expect(valoresBusca(db, "arroz")).toEqual([{ rotulo: "Arroz Branco", valor: "Arroz Branco" }]);
+    expect(valoresBusca(db, "42bm")).toEqual([{ rotulo: "42bm - Arroz Branco", valor: "42bm" }]);
     expect(valoresBusca(db, "")).toEqual([]);
 
     db.close();
@@ -135,7 +135,10 @@ describe("valoresBusca", () => {
       VALUES (1, 'abc', 'ABC Produto', 'Cat', 'UN', 'R$ 10,00', 'Sim', ?)
     `).run(gerado);
 
-    expect(valoresBusca(db, "abc")).toEqual(["ABC Produto", "abc"]);
+    expect(valoresBusca(db, "abc")).toEqual([
+      { rotulo: "ABC Produto", valor: "ABC Produto" },
+      { rotulo: "abc - ABC Produto", valor: "abc" },
+    ]);
 
     db.close();
   });
