@@ -11,7 +11,7 @@ export interface ResultadoConsultaProdutos {
 export function consultarProdutos(db: Database.Database): ResultadoConsultaProdutos {
   const linhas = db
     .prepare(
-      "SELECT codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em FROM view_produtos"
+      "SELECT codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em FROM view_produtos ORDER BY gerado_em DESC"
     )
     .all() as Array<{
       codigo_produto: number;

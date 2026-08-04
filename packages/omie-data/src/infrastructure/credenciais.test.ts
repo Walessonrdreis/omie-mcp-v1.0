@@ -40,4 +40,14 @@ describe("credenciais", () => {
     expect(credencial!.appKey).toBe("minha-app-key");
     expect(credencial!.appSecret).toBe("meu-app-secret");
   });
+
+  it("ao salvar uma segunda credencial, ela passa a ser a ativa", () => {
+    salvarCredencial("app-key-antiga", "secret-antigo");
+    const hashNova = salvarCredencial("app-key-nova", "secret-novo");
+
+    const credencial = carregarCredencialAtiva();
+
+    expect(credencial!.hash).toBe(hashNova);
+    expect(credencial!.appKey).toBe("app-key-nova");
+  });
 });
