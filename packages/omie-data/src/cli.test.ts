@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseArgv } from "./cli.js";
+import { parseArgv, textoAjudaProdutos } from "./cli.js";
 
 describe("parseArgv", () => {
   it("reconhece 'configurar --app-key X --app-secret Y'", () => {
@@ -68,5 +68,17 @@ describe("parseArgv", () => {
     expect(parseArgv(["configurar", "--app-key", "minha-key"])).toEqual({ tipo: "desconhecido" });
     expect(parseArgv(["configurar", "--app-key", "", "--app-secret", "meu-secret"])).toEqual({ tipo: "desconhecido" });
     expect(parseArgv(["configurar", "--app-key", "minha-key", "--app-secret"])).toEqual({ tipo: "desconhecido" });
+  });
+});
+
+describe("textoAjudaProdutos", () => {
+  it("lista cada filtro disponível com um exemplo de uso", () => {
+    const texto = textoAjudaProdutos();
+    expect(texto).toContain("--busca <texto>");
+    expect(texto).toContain("produtos --busca arroz");
+    expect(texto).toContain("--categoria <texto>");
+    expect(texto).toContain("produtos --categoria bebida");
+    expect(texto).toContain("--ativo <sim|nao>");
+    expect(texto).toContain("produtos --ativo sim");
   });
 });

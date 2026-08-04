@@ -59,6 +59,15 @@ export function parseArgv(argv: string[]): ComandoCli {
   return { tipo: "desconhecido" };
 }
 
+export function textoAjudaProdutos(): string {
+  return [
+    "Filtros disponíveis em 'produtos':",
+    "  --busca <texto>      ex: produtos --busca arroz",
+    "  --categoria <texto>  ex: produtos --categoria bebida",
+    "  --ativo <sim|nao>    ex: produtos --ativo sim",
+  ].join("\n");
+}
+
 async function main() {
   const comando = parseArgv(process.argv.slice(2));
 
@@ -83,11 +92,27 @@ async function main() {
       return;
     }
 
+    if (comando.ajuda && !process.stdout.isTTY) {
+      console.log(textoAjudaProdutos());
+      process.exitCode = 0;
+      return;
+    }
+
     let db;
     try {
       db = abrirBanco(path.join(diretorioDados(), `${credencial.hash}.db`));
       const client = new OmieHttpClientReal(credencial.appKey, credencial.appSecret);
-      const resultado = await rodarProdutos(db, client, comando.atualizar);
+
+      // TODO Task 5: quando comando.ajuda for true, chamar rodarAjudaInterativa(db, client, comando.atualizar)
+      // em vez de rodarProdutos. rodarAjudaInterativa ainda não existe (Task 5).
+      // if (comando.ajuda) {
+      //   const resultado = await rodarAjudaInterativa(db, client, comando.atualizar);
+      //   console.log(JSON.stringify(resultado));
+      //   process.exitCode = 0;
+      //   return;
+      // }
+
+      const resultado = await rodarProdutos(db, client, comando.atualizar, comando.filtros);
       console.log(JSON.stringify(resultado));
       process.exitCode = 0;
     } catch (erro) {
