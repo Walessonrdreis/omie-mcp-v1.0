@@ -6,6 +6,7 @@ import { diretorioDados } from "./infrastructure/caminhos.js";
 import { OmieHttpClientReal } from "./infrastructure/omie-http-client-real.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
 import { rodarProdutos } from "./application/rodar-produtos.js";
+import { rodarAjudaInterativa } from "./application/rodar-ajuda-interativo.js";
 import { FiltrosProdutos } from "./application/consultar-produtos.js";
 
 export type ComandoCli =
@@ -103,14 +104,12 @@ async function main() {
       db = abrirBanco(path.join(diretorioDados(), `${credencial.hash}.db`));
       const client = new OmieHttpClientReal(credencial.appKey, credencial.appSecret);
 
-      // TODO Task 5: quando comando.ajuda for true, chamar rodarAjudaInterativa(db, client, comando.atualizar)
-      // em vez de rodarProdutos. rodarAjudaInterativa ainda não existe (Task 5).
-      // if (comando.ajuda) {
-      //   const resultado = await rodarAjudaInterativa(db, client, comando.atualizar);
-      //   console.log(JSON.stringify(resultado));
-      //   process.exitCode = 0;
-      //   return;
-      // }
+      if (comando.ajuda) {
+        const resultado = await rodarAjudaInterativa(db, client, comando.atualizar);
+        console.log(JSON.stringify(resultado));
+        process.exitCode = 0;
+        return;
+      }
 
       const resultado = await rodarProdutos(db, client, comando.atualizar, comando.filtros);
       console.log(JSON.stringify(resultado));

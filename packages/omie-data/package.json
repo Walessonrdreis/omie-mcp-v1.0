@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.2.1",
     "better-sqlite3": "^11.3.0"
   },
   "devDependencies": {
