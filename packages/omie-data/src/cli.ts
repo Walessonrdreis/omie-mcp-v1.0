@@ -1,4 +1,5 @@
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { abrirBanco } from "./infrastructure/database.js";
 import { carregarCredencialAtiva } from "./infrastructure/credenciais.js";
 import { diretorioDados } from "./infrastructure/caminhos.js";
@@ -61,6 +62,6 @@ async function main() {
   process.exit(1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }
