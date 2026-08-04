@@ -14,6 +14,8 @@ describe("OmieHttpClientReal", () => {
     };
 
     const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
       text: async () => JSON.stringify(respostaFake),
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -35,6 +37,8 @@ describe("OmieHttpClientReal", () => {
 
   it("rejeita com mensagem legível quando a Omie devolve faultstring", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
       text: async () => JSON.stringify({ faultstring: "Erro de autenticação", faultcode: "SOAP-ENV:Client-101" }),
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -42,5 +46,47 @@ describe("OmieHttpClientReal", () => {
     const client = new OmieHttpClientReal("key-invalida", "secret-invalido");
 
     await expect(client.listarProdutosPagina(1, 50)).rejects.toThrow("Erro de autenticação");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejeita com mensagem legível quando o corpo da resposta não é JSON", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => "<html>não é json</html>",
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+
+    await expect(client.listarProdutosPagina(1, 50)).rejects.toThrow(/resposta inválida/i);
+  });
+
+  it("tenta de novo em erro 5xx e desiste depois de 3 tentativas", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      text: async () => "Service Unavailable",
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+
+    await expect(client.listarProdutosPagina(1, 50)).rejects.toThrow(/503/);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("não tenta de novo em erro 4xx", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      text: async () => "Unauthorized",
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+
+    await expect(client.listarProdutosPagina(1, 50)).rejects.toThrow(/401/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
