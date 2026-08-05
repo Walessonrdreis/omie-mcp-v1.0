@@ -217,7 +217,7 @@ async function main() {
           const db = abrirBanco(path.join(diretorioDados(), `${credencial!.hash}.db`));
           try {
             const client = new OmieHttpClientReal(credencial!.appKey, credencial!.appSecret);
-            return await rodarAjudaInterativaEmLoop(db, client, false, {}, (resultado) =>
+            return await rodarAjudaInterativaEmLoop(db, client, "perguntar", {}, (resultado) =>
               console.log(formatarResultadoProdutos(resultado))
             );
           } finally {

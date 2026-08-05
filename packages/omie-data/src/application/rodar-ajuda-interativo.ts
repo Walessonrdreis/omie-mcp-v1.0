@@ -14,6 +14,7 @@ export interface IPromptsInterativos {
   buscarTermo(fonte: (input: string) => OpcaoBusca[]): Promise<string>;
   selecionarAtivo(): Promise<"Sim" | "Não">;
   perguntarProximaAcao(): Promise<"continuar" | "menu" | "sair">;
+  perguntarAtualizar(): Promise<boolean>;
 }
 
 export function criarPromptsReais(): IPromptsInterativos {
@@ -58,6 +59,16 @@ export function criarPromptsReais(): IPromptsInterativos {
           { name: "Sair", value: "sair" as const },
         ],
       });
+    },
+    async perguntarAtualizar() {
+      const resposta = await select({
+        message: "Buscar dado atualizado na Omie antes de continuar? (pode levar alguns segundos)",
+        choices: [
+          { name: "Não, usar o cache local", value: false },
+          { name: "Sim, atualizar agora", value: true },
+        ],
+      });
+      return resposta;
     },
   };
 }
@@ -143,12 +154,12 @@ export async function rodarAjudaInterativa(
 export async function rodarAjudaInterativaEmLoop(
   db: Database.Database,
   client: IOmieHttpClient,
-  atualizar: boolean,
+  atualizar: boolean | "perguntar",
   filtrosBase: FiltrosProdutos,
   mostrarResultado: (resultado: ResultadoConsultaProdutos) => void,
   prompts: IPromptsInterativos = criarPromptsReais()
 ): Promise<"voltar" | "sair"> {
-  let atualizarAgora = atualizar;
+  let atualizarAgora = atualizar === "perguntar" ? await prompts.perguntarAtualizar() : atualizar;
 
   for (;;) {
     const resultado = await rodarAjudaInterativa(db, client, atualizarAgora, filtrosBase, prompts);

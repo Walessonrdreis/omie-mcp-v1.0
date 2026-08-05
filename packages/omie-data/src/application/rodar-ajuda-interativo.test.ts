@@ -14,6 +14,7 @@ function fakePrompts(overrides: Partial<IPromptsInterativos>): IPromptsInterativ
     buscarTermo: async () => "",
     selecionarAtivo: async () => "Sim",
     perguntarProximaAcao: async () => "sair",
+    perguntarAtualizar: async () => false,
     ...overrides,
   };
 }
@@ -329,6 +330,65 @@ describe("rodarAjudaInterativaEmLoop", () => {
     );
 
     expect(chamadasListar).toBe(1);
+
+    db.close();
+  });
+
+  it("atualizar: 'perguntar' pergunta uma vez e coleta se a resposta for sim", async () => {
+    const db = abrirBanco(":memory:");
+    let chamadasListar = 0;
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
+    ]);
+    const listarOriginal = client.listarProdutosPagina.bind(client);
+    client.listarProdutosPagina = async (...args) => {
+      chamadasListar++;
+      return listarOriginal(...args);
+    };
+
+    let chamadasPergunta = 0;
+    const saida = await rodarAjudaInterativaEmLoop(
+      db,
+      client,
+      "perguntar",
+      {},
+      () => {},
+      fakePrompts({
+        selecionarFiltro: async () => "nenhum",
+        perguntarAtualizar: async () => {
+          chamadasPergunta++;
+          return true;
+        },
+      })
+    );
+
+    expect(saida).toBe("sair");
+    expect(chamadasPergunta).toBe(1);
+    expect(chamadasListar).toBe(1);
+
+    db.close();
+  });
+
+  it("atualizar: 'perguntar' não coleta se a resposta for não", async () => {
+    const db = abrirBanco(":memory:");
+    let chamadasListar = 0;
+    const client = new FakeOmieHttpClient([]);
+    const listarOriginal = client.listarProdutosPagina.bind(client);
+    client.listarProdutosPagina = async (...args) => {
+      chamadasListar++;
+      return listarOriginal(...args);
+    };
+
+    await rodarAjudaInterativaEmLoop(
+      db,
+      client,
+      "perguntar",
+      {},
+      () => {},
+      fakePrompts({ selecionarFiltro: async () => "nenhum", perguntarAtualizar: async () => false })
+    );
+
+    expect(chamadasListar).toBe(0);
 
     db.close();
   });
