@@ -32,6 +32,7 @@ contexto** — as regras de protocolo são **copiadas** para o transporte Omie
 | 8 | **Separação do submit** — um submit → use-cases do módulo recebem TUDO → grava tudo no store → módulo `mapeamentos` extrai subconjunto obrigatório da Omie → gateway Omie faz POST → `codigoOmie` gravado de volta. Postgres e Omie **não** são uma transação única; falha é marcada para reprocessamento. Real na Fase 3. |
 | 9 | **MVP 2.0 no SPA** — rotas novas consomem a nova API; rotas legadas continuam no GAS intactas. |
 | 10 | **Estrutura da API em módulos** — `src/modules/<modulo>/{application,domain,infrastructure,presentation}` + `src/integrations/` + `src/shared/` (mesmo padrão do omie-mcp, a estrutura preferida para as APIs do usuário). |
+| 11 | **Produção v2 = sub-projeto futuro** — a visão de seletor de produto **por setor** (filtra o catálogo geral da Omie pelas categorias do setor) e **estoque v2 por tipo de produto** fica registrada nesta spec, fora do escopo de F0–F3. O espelho `produtos` já nasce com categoria/setor para o v2 não exigir migração. |
 
 ## Arquitetura
 
@@ -103,7 +104,9 @@ por `correlationId` ficam intactos.
 
 ### 2.3 Entidades Postgres iniciais
 
-- `produtos` — espelho do catálogo Omie (projeção, não fonte).
+- `produtos` — espelho do catálogo Omie (projeção, não fonte). Já nasce com a
+  dimensão **categoria/setor** (código de categoria Omie + setor Labarr) — base
+  que o sub-projeto "Produção v2" reutiliza sem exigir migração.
 - `mapeamento_nome_codigo` — ligação nome ↔ `codigo_omie` (necessária na Fase 3).
 - `listas` — listas que hoje vivem na planilha (TipoCacau, TipoMovimento, etc.).
 - `usuarios` / `sessoes` — auth MVP migrada do SPA.
@@ -133,7 +136,9 @@ quando a rota nova correspondente estiver estável.
   1.0 em modo aditivo.
 - Fases do SPA acopladas às fases do backend (F1 → rota de catálogo, F2 → rota
   de estoque, F3 → rota de produção com submit separado). A rota antiga fica de
-  pé até a decisão de desligar o GAS para aquele módulo.
+  pé até a decisão de desligar o GAS para aquele módulo. O seletor por setor e o
+  estoque v2 por tipo (sub-projeto "Produção v2") nascem em rotas novas, sem
+  tocar nas atuais.
 
 ## Fluxo de dados
 
@@ -148,6 +153,8 @@ Sheets ⇏ fluxos                            (não participa da leitura — só 
 - **Catálogo comercial:** use-cases do módulo `catalogo` → gateway
   `catalogo-omie-gateway.ts` (`geral/produtos`, Listar/Consultar). A resposta
   alimenta o espelho `produtos` no Postgres e o `mapeamento_nome_codigo`.
+  O gateway expõe o filtro por família da Omie (`filtrar_apenas_familia`) —
+  base que o v2 reutiliza para o seletor de produto por setor.
 - **Saldo comercial:** módulo `estoque` agrega `estoque/movestoque` via gateway
   Omie. Regra conhecida: `quantidade_estoque` vem **sempre 0** nessa conta —
   nunca usar.
@@ -224,7 +231,8 @@ As camadas de domínio e integração são testáveis sem rede:
 - **F0 — Fundação:** repo, server, auth MVP, Postgres + migrations, contrato de
   actions, deploy, health. **Decide o ADR de hospedagem.**
 - **F1 — Catálogo:** leitura do catálogo Omie → espelho `produtos` +
-  `mapeamento_nome_codigo`; rota nova `/catalogo-omie` no SPA.
+  `mapeamento_nome_codigo`; rota nova `/catalogo-omie` no SPA. O espelho grava
+  categoria/setor desde o início (2.3).
 - **F2 — Estoque:** leitura (ListarProdutos + `estoque/movestoque` agregado);
   rota nova `/estoque-omie`.
 - **F3 — OPs:** produção → Omie/OPs com a separação de submit; rota nova
@@ -233,8 +241,15 @@ As camadas de domínio e integração são testáveis sem rede:
 ## Fora de escopo
 
 - Port dos módulos de produção (torra, refino, temperagem, descasque,
-  embalagem, confeitaria) — só o caminho de leitura de catálogo/estoque e o
-  submit de OPs.
+  embalagem, confeitaria) — **Produção v2**, sub-projeto futuro com o próprio
+  ciclo (brainstorm → spec → plano). Nesta spec, só o caminho de leitura de
+  catálogo/estoque e o submit de OPs.
+- Visão do v2 registrada para o próximo brainstorm: na Omie existe **um catálogo
+  geral** — o seletor de produto de cada setor filtra esse catálogo pelas
+  **categorias Omie** do setor (por baixo é o geral da Omie; o usuário vê só o
+  que corresponde ao setor dele), e o **estoque v2** lista **por tipo de
+  produto** (cada tela de estoque mostra o correspondente). O espelho `produtos`
+  já carrega categoria/setor (2.3) para isso não exigir migração.
 - Migração do histórico operacional das abas para o Postgres.
 - Segurança servidor/CORS robusta — "vou montar com calma" (não implementar
   agora; `app_key`/`app_secret` **nunca** vão para o browser, vivem em env do
