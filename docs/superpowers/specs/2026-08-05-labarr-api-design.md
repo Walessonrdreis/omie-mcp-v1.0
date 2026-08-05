@@ -15,22 +15,23 @@ produção continua funcionando. A evolução acontece por **rotas novas no SPA*
 (MVP 2.0), convivendo com o MVP 1.0 em modo aditivo.
 
 Referência de protocolo Omie: o repositório `omie-mcp` continua sendo **apenas
-contexto** — as regras de protocolo são **copiadas** para o novo módulo
-`integracao`, nunca importadas.
+contexto** — as regras de protocolo são **copiadas** para o transporte Omie
+(`integrations/omie/`) e os gateways dos módulos, nunca importadas.
 
 ## Decisões travadas (confirmadas)
 
 | # | Decisão |
 |---|---|
-| 1 | **API nova, monólito separado do SPA** — repo novo com `apps/api`, pastas `integracao` e `dominio` rodando no mesmo processo/deploy. Sem hop HTTP entre as duas. |
-| 2 | **API de domínio ≠ Sheets** — a camada `dominio` é um código distinto e agnóstico de fonte. O Sheets fica só na ponta de export. |
+| 1 | **API nova, monólito separado do SPA** — repo novo com `apps/api` (estrutura modular, decisão 10); integração e domínio rodam no mesmo processo/deploy. Sem hop HTTP entre eles. |
+| 2 | **API de domínio ≠ Sheets** — a camada de domínio (use-cases/domain dos módulos) é um código distinto e agnóstico de fonte. O Sheets fica só na ponta de export. |
 | 3 | **Store = Postgres**. |
 | 4 | **Hospedagem = ADR em aberto** (Render gerenciado vs VPS+Supabase), decidir em F0. |
 | 5 | **omie-mcp = contexto/referência apenas** — protocolo copiado, não importado. |
-| 6 | **Escopo** = catálogo + estoque + OPs (em fases), com `dominio` e `integracao` obrigatoriamente presentes. |
+| 6 | **Escopo** = catálogo + estoque + OPs (em fases), com camada de domínio e camada de integração obrigatoriamente presentes (módulos + gateways). |
 | 7 | **Caminho de leitura MVP** = Omie direto; híbrido com espelho organizado fica para quando existir DB organizado (opção "C" no futuro). |
-| 8 | **Separação do submit** — um submit → `dominio` recebe TUDO → grava tudo no store → `mapeamento` extrai subconjunto obrigatório da Omie → `integracao` POST → `codigoOmie` gravado de volta. Postgres e Omie **não** são uma transação única; falha é marcada para reprocessamento. Real na Fase 3. |
+| 8 | **Separação do submit** — um submit → use-cases do módulo recebem TUDO → grava tudo no store → módulo `mapeamentos` extrai subconjunto obrigatório da Omie → gateway Omie faz POST → `codigoOmie` gravado de volta. Postgres e Omie **não** são uma transação única; falha é marcada para reprocessamento. Real na Fase 3. |
 | 9 | **MVP 2.0 no SPA** — rotas novas consomem a nova API; rotas legadas continuam no GAS intactas. |
+| 10 | **Estrutura da API em módulos** — `src/modules/<modulo>/{application,domain,infrastructure,presentation}` + `src/integrations/` + `src/shared/` (mesmo padrão do omie-mcp, a estrutura preferida para as APIs do usuário). |
 
 ## Arquitetura
 
@@ -38,35 +39,55 @@ contexto** — as regras de protocolo são **copiadas** para o novo módulo
 SPA (Vercel — rotas legadas: GAS atual; rotas novas: nova API)
  │
  └──► apps/api (monólito, 1 deploy — Render ou VPS conforme ADR F0)
-        ├── server/         roteia action → handler; valida sessão; envelope {success, data}
-        ├── dominio/        regras de negócio: catalogo, saldos, auth, mapeamentos, ledger
-        ├── integracao/     cliente Omie fino: client, catalogo, saldos, OPs, mapeamento
-        ├── store/          Postgres (migrations)
-        └── sheets-export/  job → abas de leitura UX (espelho PRODUTOS_OMIE, relatórios)
+        ├── modules/         cada módulo de negócio com application/domain/
+        │                    infrastructure/presentation (ver 2.1)
+        ├── integrations/    transporte Omie compartilhado (omieClient)
+        ├── shared/          utilitários transversais (concurrency, erros, envelope)
+        ├── store/           Postgres (client + migrations)
+        └── sheets-export/   job → abas de leitura UX (espelho PRODUTOS_OMIE, relatórios)
 
-Omie API ─── integracao ─── dominio ─── Postgres ─── sheets-export ───► Sheets (destino)
+Omie API ─── gateways dos módulos ─── modules ─── store (Postgres) ─── sheets-export ───► Sheets (destino)
 ```
 
-O monólito é **um serviço**: `dominio` chama `integracao` por função/interface no
-mesmo processo — não há chamada HTTP entre eles.
+O monólito é **um serviço**: `application/use-cases` chama `infrastructure/gateways`
+por interface no mesmo processo — não há chamada HTTP entre eles.
 
 ## Componentes
 
-### 2.1 `apps/api/src/`
+### 2.1 `apps/api/src/` — estrutura modular (padrão do omie-mcp)
 
-- **`server/`** — HTTP (Express — mesmo stack já usado e testado no omie-mcp),
-  roteia `action → handler`,
-  valida sessão, responde envelope `{success: true, data}` / `{success: false,
-  error}`.
-- **`dominio/`** — `catalogo.ts`, `saldos.ts`, `auth.ts`, `mapeamentos.ts` (+
-  ledger/lotes quando chegarem). Regras de negócio puras, sem saber se a fonte é
-  Omie, Postgres ou Sheets.
-- **`integracao/`** — `omie-client.ts` (throttle 300ms, retry "Aguarde N
-  segundos", máx. 5 conc.), `catalogo.ts`, `saldos.ts`, `ops.ts`,
-  `mapeamento.ts`. Cliente fino e específico para este app — nada de "MCP para
-  tudo".
-- **`store/`** — migrations Postgres.
-- **`sheets-export/`** — job que empurra projeções limpas para as abas.
+```
+src/
+├── modules/
+│   ├── catalogo/            application/  dto + use-cases
+│   │                        domain/       interfaces
+│   │                        infrastructure/ gateways (catalogo-omie-gateway.ts)
+│   │                        presentation/ http (handlers por action)
+│   ├── estoque/             idem (ListarProdutos + estoque/movestoque agregado)
+│   ├── ops/                 idem (produção → Omie/OPs, submit separado — Fase 3)
+│   ├── auth/                idem (sessão/token, login)
+│   └── mapeamentos/         idem (nome ↔ codigo_omie)
+├── integrations/
+│   └── omie/omieClient.ts   transporte Omie compartilhado (throttle 300ms,
+│                            retry "Aguarde N segundos", máx. 5 conc.)
+├── shared/                  transversais: concurrency (mapWithConcurrency),
+│                            erros, envelope, logging — testes colocados
+├── store/                   Postgres: client + migrations
+└── sheets-export/           job → abas de leitura UX
+
+entry: server.ts (ou httpServer.ts) — Express, roteia action → handler do
+módulo, valida sessão, responde envelope {success, data}/{success, error}.
+```
+
+Cada módulo segue a mesma anatomia do omie-mcp: `application/dto` +
+`application/use-cases` (regras de negócio), `domain/interfaces` (contratos),
+`infrastructure/gateways` (acesso à fonte — para a Omie, um gateway por módulo
+tipo `produtos-omie-gateway.ts`), `presentation/http` (handler de cada action
+do contrato). O transporte HTTP Omie é único e compartilhado em
+`integrations/omie/omieClient.ts`; o que muda por módulo é o gateway. Utilitários
+transversais (concorrência, erros, envelope) ficam em `shared/`.
+
+O cliente Omie é **fino e específico para este app** — nada de "MCP para tudo".
 
 ### 2.2 Contrato preservado
 
@@ -119,21 +140,22 @@ quando a rota nova correspondente estiver estável.
 ### Leitura
 
 ```
-SPA → dominio → integracao → Omie    (catálogo comercial + saldo comercial)
-SPA → dominio → Postgres             (estado operacional: ledger, lotes, saldos setoriais)
-Sheets ⇏ fluxos                      (não participa da leitura — só recebe export)
+SPA → use-cases do módulo → gateway Omie   (catálogo + saldo comercial)
+SPA → use-cases do módulo → store (Postgres) (estado operacional: ledger, lotes, saldos setoriais)
+Sheets ⇏ fluxos                            (não participa da leitura — só recebe export)
 ```
 
-- **Catálogo comercial:** `dominio/catalogo` → `integracao/catalogo`
-  (`geral/produtos`, Listar/Consultar). A resposta alimenta o espelho `produtos`
-  no Postgres e o `mapeamento_nome_codigo`.
-- **Saldo comercial:** `integracao/saldos` agrega `estoque/movestoque`. Regra
-  conhecida: `quantidade_estoque` vem **sempre 0** nessa conta — nunca usar.
-- **Operacional:** continua sendo estado do `dominio`, agora no Postgres.
-  Inclui saldos que só existem no SPA (por setor/lote, sem-embalagem/embalado,
-  perdas/reprocesso) — a Omie não tem isso.
+- **Catálogo comercial:** use-cases do módulo `catalogo` → gateway
+  `catalogo-omie-gateway.ts` (`geral/produtos`, Listar/Consultar). A resposta
+  alimenta o espelho `produtos` no Postgres e o `mapeamento_nome_codigo`.
+- **Saldo comercial:** módulo `estoque` agrega `estoque/movestoque` via gateway
+  Omie. Regra conhecida: `quantidade_estoque` vem **sempre 0** nessa conta —
+  nunca usar.
+- **Operacional:** continua sendo estado do domínio (módulos), agora no
+  Postgres. Inclui saldos que só existem no SPA (por setor/lote,
+  sem-embalagem/embalado, perdas/reprocesso) — a Omie não tem isso.
 - **Resolvedor por feature** decide a fonte. O "futuro C com DB organizado" é só
-  trocar o resolvedor; a API de domínio não muda.
+  trocar o resolvedor; os use-cases do domínio não mudam.
 
 ### Submit (Fase 3)
 
@@ -141,13 +163,13 @@ Sheets ⇏ fluxos                      (não participa da leitura — só recebe
 1 submit (todos os campos)
   │
   ▼
-dominio recebe TUDO → grava tudo no Postgres
+use-cases do módulo recebem TUDO → grava tudo no store (Postgres)
   │
   ▼
-mapeamento.ts extrai o subconjunto obrigatório da Omie
+módulo mapeamentos extrai o subconjunto obrigatório da Omie
   │
   ▼
-integracao POST → Omie devolve código → codigo_omie gravado de volta no registro
+gateway Omie faz POST → Omie devolve código → codigo_omie gravado de volta no registro
 ```
 
 - **Não é transação única:** Postgres e Omie são duas escritas independentes.
@@ -161,7 +183,7 @@ integracao POST → Omie devolve código → codigo_omie gravado de volta no reg
 
 ## Erros e consistência
 
-Regras do `integracao` (copiadas do omie-mcp):
+Regras do transporte/gateways Omie (copiadas do omie-mcp):
 
 - **Throttle:** 300ms entre chamadas consecutivas na mesma instância.
 - **Rate-limit:** a Omie responde `Aguarde N segundos` — o cliente extrai o N e
@@ -183,13 +205,13 @@ Consistência entre fontes:
 
 ## Testes
 
-`dominio` e `integracao` são testáveis sem rede:
+As camadas de domínio e integração são testáveis sem rede:
 
-- **`integracao`:** testes de contrato com a Omie via mock HTTP (transport
-  injetável no `OmieClient`). Cobre throttle, retry "aguarde N", máx. 5 conc.,
-  falhou-vs-não-encontrado.
-- **`dominio`:** testes puros de regra (ledger, saldos, mapeamento nome↔código)
-  sem depender de Omie nem Postgres.
+- **`integrations/omie` + gateways:** testes de contrato com a Omie via mock
+  HTTP (transport injetável no `OmieClient`). Cobre throttle, retry "aguarde N",
+  máx. 5 conc., falhou-vs-não-encontrado.
+- **`application`/`domain` dos módulos:** testes puros de regra (ledger, saldos,
+  mapeamento nome↔código) sem depender de Omie nem Postgres.
 - **`store`:** migrations testadas subindo num Postgres de teste (local/Docker),
   não no de produção.
 - **`server`:** teste do roteador action→handler (mesma ferramenta do omie-mcp:
