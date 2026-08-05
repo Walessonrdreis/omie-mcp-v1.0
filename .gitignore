@@ -37,3 +37,4 @@ graphify-out/cache/
 
 # dados locais do omie-data (contém credenciais em texto plano — nunca commitar)
 data/
+gerenciadorGoogleSheetsLabarr-feat-mvp-estoque-lotes-embalagem-confeitaria-expedicao.zip
