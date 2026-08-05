@@ -104,22 +104,17 @@ describe("rodarMenuPrincipal", () => {
     expect(resultado).toEqual({ tipo: "produtos_sem_credencial" });
   });
 
-  it("comando 'produtos' com credencial abre produtos e retorna o resultado", async () => {
-    const resultadoProdutos = {
-      tipo: "resultado" as const,
-      resultado: { status: "sem_dado" as const, produtos: [], geradoEm: null, idadeMs: null },
-    };
-
+  it("comando 'produtos' com credencial abre produtos e repassa a saída ('voltar' ou 'sair')", async () => {
     const resultado = await rodarMenuPrincipal(
       () => true,
       () => {
         throw new Error("não deveria criar client de configurar");
       },
-      async () => resultadoProdutos,
+      async () => "voltar",
       fakePrompts({ selecionarComando: async () => "produtos" })
     );
 
-    expect(resultado).toEqual({ tipo: "produtos", resultado: resultadoProdutos });
+    expect(resultado).toEqual({ tipo: "produtos", saida: "voltar" });
   });
 
   it("comando 'sair' retorna tipo sair, sem chamar credencial ou produtos", async () => {

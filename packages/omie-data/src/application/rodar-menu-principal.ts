@@ -1,7 +1,6 @@
 import { input, password, select } from "@inquirer/prompts";
 import { rodarConfigurar, ResultadoConfigurar } from "./rodar-configurar.js";
 import { IOmieHttpClient } from "../domain/omie-http-client.js";
-import { ResultadoAjudaInterativa } from "./rodar-ajuda-interativo.js";
 
 export interface IPromptsMenu {
   selecionarComando(): Promise<"produtos" | "ajuda" | "configurar" | "sair">;
@@ -36,12 +35,12 @@ export type ResultadoMenu =
   | { tipo: "ajuda" }
   | { tipo: "configurar"; resultado: ResultadoConfigurar }
   | { tipo: "produtos_sem_credencial" }
-  | { tipo: "produtos"; resultado: ResultadoAjudaInterativa };
+  | { tipo: "produtos"; saida: "voltar" | "sair" };
 
 export async function rodarMenuPrincipal(
   temCredencial: () => boolean,
   criarClienteConfigurar: (appKey: string, appSecret: string) => IOmieHttpClient,
-  abrirProdutos: () => Promise<ResultadoAjudaInterativa>,
+  abrirProdutos: () => Promise<"voltar" | "sair">,
   prompts: IPromptsMenu = criarPromptsMenuReais()
 ): Promise<ResultadoMenu> {
   const comando = await prompts.selecionarComando();
@@ -66,6 +65,6 @@ export async function rodarMenuPrincipal(
     return { tipo: "produtos_sem_credencial" };
   }
 
-  const resultado = await abrirProdutos();
-  return { tipo: "produtos", resultado };
+  const saida = await abrirProdutos();
+  return { tipo: "produtos", saida };
 }

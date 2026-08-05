@@ -1,13 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { abrirBanco } from "../infrastructure/database.js";
 import { FakeOmieHttpClient } from "../infrastructure/fake-omie-http-client.js";
-import { rodarAjudaInterativa, IPromptsInterativos, valoresBusca } from "./rodar-ajuda-interativo.js";
+import {
+  rodarAjudaInterativa,
+  rodarAjudaInterativaEmLoop,
+  IPromptsInterativos,
+  valoresBusca,
+} from "./rodar-ajuda-interativo.js";
 
 function fakePrompts(overrides: Partial<IPromptsInterativos>): IPromptsInterativos {
   return {
     selecionarFiltro: async () => "nenhum",
     buscarTermo: async () => "",
     selecionarAtivo: async () => "Sim",
+    perguntarProximaAcao: async () => "sair",
     ...overrides,
   };
 }
@@ -197,6 +203,132 @@ describe("valoresBusca", () => {
       { rotulo: "ABC Produto", valor: "ABC Produto" },
       { rotulo: "abc - ABC Produto", valor: "abc" },
     ]);
+
+    db.close();
+  });
+});
+
+describe("rodarAjudaInterativaEmLoop", () => {
+  it("'sair' na seleção de filtro encerra o loop sem mostrar nada", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([]);
+    const mostrados: unknown[] = [];
+
+    const saida = await rodarAjudaInterativaEmLoop(
+      db,
+      client,
+      false,
+      {},
+      (r) => mostrados.push(r),
+      fakePrompts({ selecionarFiltro: async () => "sair" })
+    );
+
+    expect(saida).toBe("sair");
+    expect(mostrados).toHaveLength(0);
+
+    db.close();
+  });
+
+  it("'voltar' na seleção de filtro retorna 'voltar' sem mostrar nada", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([]);
+    const mostrados: unknown[] = [];
+
+    const saida = await rodarAjudaInterativaEmLoop(
+      db,
+      client,
+      false,
+      {},
+      (r) => mostrados.push(r),
+      fakePrompts({ selecionarFiltro: async () => "voltar" })
+    );
+
+    expect(saida).toBe("voltar");
+    expect(mostrados).toHaveLength(0);
+
+    db.close();
+  });
+
+  it("mostra resultado e, ao escolher 'menu', retorna 'voltar'", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
+    ]);
+    const mostrados: unknown[] = [];
+
+    const saida = await rodarAjudaInterativaEmLoop(
+      db,
+      client,
+      true,
+      {},
+      (r) => mostrados.push(r),
+      fakePrompts({ selecionarFiltro: async () => "nenhum", perguntarProximaAcao: async () => "menu" })
+    );
+
+    expect(saida).toBe("voltar");
+    expect(mostrados).toHaveLength(1);
+
+    db.close();
+  });
+
+  it("'continuar' repete o loop e mostra resultado de novo", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
+    ]);
+    const mostrados: unknown[] = [];
+    let chamadas = 0;
+
+    const saida = await rodarAjudaInterativaEmLoop(
+      db,
+      client,
+      true,
+      {},
+      (r) => mostrados.push(r),
+      fakePrompts({
+        selecionarFiltro: async () => "nenhum",
+        perguntarProximaAcao: async () => {
+          chamadas++;
+          return chamadas === 1 ? "continuar" : "sair";
+        },
+      })
+    );
+
+    expect(saida).toBe("sair");
+    expect(mostrados).toHaveLength(2);
+
+    db.close();
+  });
+
+  it("só atualiza (coleta) na primeira iteração do loop, não nas seguintes", async () => {
+    const db = abrirBanco(":memory:");
+    let chamadasListar = 0;
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
+    ]);
+    const listarOriginal = client.listarProdutosPagina.bind(client);
+    client.listarProdutosPagina = async (...args) => {
+      chamadasListar++;
+      return listarOriginal(...args);
+    };
+
+    let chamadasProxima = 0;
+    await rodarAjudaInterativaEmLoop(
+      db,
+      client,
+      true,
+      {},
+      () => {},
+      fakePrompts({
+        selecionarFiltro: async () => "nenhum",
+        perguntarProximaAcao: async () => {
+          chamadasProxima++;
+          return chamadasProxima === 1 ? "continuar" : "sair";
+        },
+      })
+    );
+
+    expect(chamadasListar).toBe(1);
 
     db.close();
   });

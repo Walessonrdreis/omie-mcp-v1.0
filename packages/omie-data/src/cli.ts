@@ -8,7 +8,7 @@ import { diretorioDados } from "./infrastructure/caminhos.js";
 import { OmieHttpClientReal } from "./infrastructure/omie-http-client-real.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
 import { rodarProdutos } from "./application/rodar-produtos.js";
-import { rodarAjudaInterativa } from "./application/rodar-ajuda-interativo.js";
+import { rodarAjudaInterativaEmLoop } from "./application/rodar-ajuda-interativo.js";
 import { FiltrosProdutos, ResultadoConsultaProdutos } from "./application/consultar-produtos.js";
 import { rodarMenuPrincipal } from "./application/rodar-menu-principal.js";
 
@@ -181,11 +181,10 @@ async function main() {
       const abrirMenu = deveAbrirMenuInterativo(!!process.stdout.isTTY, comando);
 
       if (abrirMenu) {
-        const resultadoFiltro = await rodarAjudaInterativa(db, client, comando.atualizar, comando.filtros);
-        if (resultadoFiltro.tipo === "resultado") {
-          console.log(formatarResultadoProdutos(resultadoFiltro.resultado));
-        }
-        // "voltar" e "sair" não têm pra onde voltar aqui (invocação direta) — só encerra silenciosamente.
+        await rodarAjudaInterativaEmLoop(db, client, comando.atualizar, comando.filtros, (resultado) =>
+          console.log(formatarResultadoProdutos(resultado))
+        );
+        // "voltar" e "sair" não têm pra onde voltar aqui (invocação direta) — só encerra depois do loop.
       } else {
         const resultado = await rodarProdutos(db, client, comando.atualizar, comando.filtros);
         console.log(process.stdout.isTTY ? formatarResultadoProdutos(resultado) : JSON.stringify(resultado));
@@ -218,7 +217,9 @@ async function main() {
           const db = abrirBanco(path.join(diretorioDados(), `${credencial!.hash}.db`));
           try {
             const client = new OmieHttpClientReal(credencial!.appKey, credencial!.appSecret);
-            return await rodarAjudaInterativa(db, client, false, {});
+            return await rodarAjudaInterativaEmLoop(db, client, false, {}, (resultado) =>
+              console.log(formatarResultadoProdutos(resultado))
+            );
           } finally {
             db.close();
           }
@@ -239,16 +240,11 @@ async function main() {
         );
       } else if (resultadoMenu.tipo === "produtos_sem_credencial") {
         console.log("Nenhuma credencial configurada. Escolha \"Configurar\" primeiro.");
-      } else if (resultadoMenu.tipo === "produtos") {
-        const resultadoProdutos = resultadoMenu.resultado;
-        if (resultadoProdutos.tipo === "sair") {
-          break;
-        }
-        if (resultadoProdutos.tipo === "resultado") {
-          console.log(formatarResultadoProdutos(resultadoProdutos.resultado));
-        }
-        // "voltar" não imprime nada — só volta pro menu principal no próximo loop.
+      } else if (resultadoMenu.tipo === "produtos" && resultadoMenu.saida === "sair") {
+        break;
       }
+      // "produtos" com saida "voltar" não imprime nada — já foi tudo mostrado dentro do
+      // loop; só volta pro menu principal na próxima iteração deste loop externo.
     }
 
     process.exitCode = 0;

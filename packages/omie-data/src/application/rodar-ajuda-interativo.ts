@@ -13,6 +13,7 @@ export interface IPromptsInterativos {
   selecionarFiltro(): Promise<"busca" | "categoria" | "ativo" | "nenhum" | "voltar" | "sair">;
   buscarTermo(fonte: (input: string) => OpcaoBusca[]): Promise<string>;
   selecionarAtivo(): Promise<"Sim" | "Não">;
+  perguntarProximaAcao(): Promise<"continuar" | "menu" | "sair">;
 }
 
 export function criarPromptsReais(): IPromptsInterativos {
@@ -45,6 +46,16 @@ export function criarPromptsReais(): IPromptsInterativos {
         choices: [
           { name: "Sim", value: "Sim" as const },
           { name: "Não", value: "Não" as const },
+        ],
+      });
+    },
+    async perguntarProximaAcao() {
+      return select({
+        message: "O que você quer fazer agora?",
+        choices: [
+          { name: "Continuar em Produtos (nova busca)", value: "continuar" as const },
+          { name: "Menu principal", value: "menu" as const },
+          { name: "Sair", value: "sair" as const },
         ],
       });
     },
@@ -127,4 +138,30 @@ export async function rodarAjudaInterativa(
 
   const resultado = await rodarProdutos(db, client, false, filtros);
   return { tipo: "resultado", resultado };
+}
+
+export async function rodarAjudaInterativaEmLoop(
+  db: Database.Database,
+  client: IOmieHttpClient,
+  atualizar: boolean,
+  filtrosBase: FiltrosProdutos,
+  mostrarResultado: (resultado: ResultadoConsultaProdutos) => void,
+  prompts: IPromptsInterativos = criarPromptsReais()
+): Promise<"voltar" | "sair"> {
+  let atualizarAgora = atualizar;
+
+  for (;;) {
+    const resultado = await rodarAjudaInterativa(db, client, atualizarAgora, filtrosBase, prompts);
+    atualizarAgora = false;
+
+    if (resultado.tipo === "voltar") return "voltar";
+    if (resultado.tipo === "sair") return "sair";
+
+    mostrarResultado(resultado.resultado);
+
+    const proxima = await prompts.perguntarProximaAcao();
+    if (proxima === "sair") return "sair";
+    if (proxima === "menu") return "voltar";
+    // "continuar" → o loop recomeça, pedindo outro filtro
+  }
 }
