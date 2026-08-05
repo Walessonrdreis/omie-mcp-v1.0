@@ -1,10 +1,10 @@
 import { input, password, select } from "@inquirer/prompts";
 import { rodarConfigurar, ResultadoConfigurar } from "./rodar-configurar.js";
 import { IOmieHttpClient } from "../domain/omie-http-client.js";
-import { ResultadoConsultaProdutos } from "./consultar-produtos.js";
+import { ResultadoAjudaInterativa } from "./rodar-ajuda-interativo.js";
 
 export interface IPromptsMenu {
-  selecionarComando(): Promise<"produtos" | "ajuda" | "configurar">;
+  selecionarComando(): Promise<"produtos" | "ajuda" | "configurar" | "sair">;
   perguntarAppKey(): Promise<string>;
   perguntarAppSecret(): Promise<string>;
 }
@@ -18,6 +18,7 @@ export function criarPromptsMenuReais(): IPromptsMenu {
           { name: "Produtos", value: "produtos" as const },
           { name: "Ajuda", value: "ajuda" as const },
           { name: "Configurar", value: "configurar" as const },
+          { name: "Sair", value: "sair" as const },
         ],
       });
     },
@@ -31,18 +32,23 @@ export function criarPromptsMenuReais(): IPromptsMenu {
 }
 
 export type ResultadoMenu =
+  | { tipo: "sair" }
   | { tipo: "ajuda" }
   | { tipo: "configurar"; resultado: ResultadoConfigurar }
   | { tipo: "produtos_sem_credencial" }
-  | { tipo: "produtos"; resultado: ResultadoConsultaProdutos };
+  | { tipo: "produtos"; resultado: ResultadoAjudaInterativa };
 
 export async function rodarMenuPrincipal(
   temCredencial: () => boolean,
   criarClienteConfigurar: (appKey: string, appSecret: string) => IOmieHttpClient,
-  abrirProdutos: () => Promise<ResultadoConsultaProdutos>,
+  abrirProdutos: () => Promise<ResultadoAjudaInterativa>,
   prompts: IPromptsMenu = criarPromptsMenuReais()
 ): Promise<ResultadoMenu> {
   const comando = await prompts.selecionarComando();
+
+  if (comando === "sair") {
+    return { tipo: "sair" };
+  }
 
   if (comando === "ajuda") {
     return { tipo: "ajuda" };

@@ -21,8 +21,11 @@ describe("rodarAjudaInterativa", () => {
 
     const resultado = await rodarAjudaInterativa(db, client, true, {}, fakePrompts({}));
 
-    expect(resultado.status).toBe("dado_disponivel");
-    expect(resultado.produtos).toHaveLength(1);
+    expect(resultado.tipo).toBe("resultado");
+    if (resultado.tipo === "resultado") {
+      expect(resultado.resultado.status).toBe("dado_disponivel");
+      expect(resultado.resultado.produtos).toHaveLength(1);
+    }
 
     db.close();
   });
@@ -42,9 +45,12 @@ describe("rodarAjudaInterativa", () => {
       fakePrompts({ selecionarFiltro: async () => "busca", buscarTermo: async () => "Arroz Branco" })
     );
 
-    expect(resultado.status).toBe("dado_disponivel");
-    expect(resultado.produtos).toHaveLength(1);
-    expect(resultado.produtos[0].nome).toBe("Arroz Branco");
+    expect(resultado.tipo).toBe("resultado");
+    if (resultado.tipo === "resultado") {
+      expect(resultado.resultado.status).toBe("dado_disponivel");
+      expect(resultado.resultado.produtos).toHaveLength(1);
+      expect(resultado.resultado.produtos[0].nome).toBe("Arroz Branco");
+    }
 
     db.close();
   });
@@ -64,9 +70,12 @@ describe("rodarAjudaInterativa", () => {
       fakePrompts({ selecionarFiltro: async () => "ativo", selecionarAtivo: async () => "Não" })
     );
 
-    expect(resultado.status).toBe("dado_disponivel");
-    expect(resultado.produtos).toHaveLength(1);
-    expect(resultado.produtos[0].nome).toBe("Produto B");
+    expect(resultado.tipo).toBe("resultado");
+    if (resultado.tipo === "resultado") {
+      expect(resultado.resultado.status).toBe("dado_disponivel");
+      expect(resultado.resultado.produtos).toHaveLength(1);
+      expect(resultado.resultado.produtos[0].nome).toBe("Produto B");
+    }
 
     db.close();
   });
@@ -80,9 +89,12 @@ describe("rodarAjudaInterativa", () => {
 
     const resultado = await rodarAjudaInterativa(db, client, true, { busca: "Arroz Branco" }, fakePrompts({}));
 
-    expect(resultado.status).toBe("dado_disponivel");
-    expect(resultado.produtos).toHaveLength(1);
-    expect(resultado.produtos[0].nome).toBe("Arroz Branco");
+    expect(resultado.tipo).toBe("resultado");
+    if (resultado.tipo === "resultado") {
+      expect(resultado.resultado.status).toBe("dado_disponivel");
+      expect(resultado.resultado.produtos).toHaveLength(1);
+      expect(resultado.resultado.produtos[0].nome).toBe("Arroz Branco");
+    }
 
     db.close();
   });
@@ -102,9 +114,55 @@ describe("rodarAjudaInterativa", () => {
       fakePrompts({ selecionarFiltro: async () => "ativo", selecionarAtivo: async () => "Sim" })
     );
 
-    expect(resultado.status).toBe("dado_disponivel");
-    expect(resultado.produtos).toHaveLength(1);
-    expect(resultado.produtos[0].nome).toBe("Arroz Branco");
+    expect(resultado.tipo).toBe("resultado");
+    if (resultado.tipo === "resultado") {
+      expect(resultado.resultado.status).toBe("dado_disponivel");
+      expect(resultado.resultado.produtos).toHaveLength(1);
+      expect(resultado.resultado.produtos[0].nome).toBe("Arroz Branco");
+    }
+
+    db.close();
+  });
+
+  it("'voltar' não roda consulta nenhuma e retorna tipo 'voltar'", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
+    ]);
+
+    const resultado = await rodarAjudaInterativa(
+      db,
+      client,
+      false,
+      {},
+      fakePrompts({
+        selecionarFiltro: async () => "voltar",
+        buscarTermo: async () => {
+          throw new Error("não deveria pedir termo ao voltar");
+        },
+      })
+    );
+
+    expect(resultado).toEqual({ tipo: "voltar" });
+
+    db.close();
+  });
+
+  it("'sair' não roda consulta nenhuma e retorna tipo 'sair'", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeOmieHttpClient([
+      { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
+    ]);
+
+    const resultado = await rodarAjudaInterativa(
+      db,
+      client,
+      false,
+      {},
+      fakePrompts({ selecionarFiltro: async () => "sair" })
+    );
+
+    expect(resultado).toEqual({ tipo: "sair" });
 
     db.close();
   });

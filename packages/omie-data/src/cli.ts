@@ -180,11 +180,16 @@ async function main() {
 
       const abrirMenu = deveAbrirMenuInterativo(!!process.stdout.isTTY, comando);
 
-      const resultado = abrirMenu
-        ? await rodarAjudaInterativa(db, client, comando.atualizar, comando.filtros)
-        : await rodarProdutos(db, client, comando.atualizar, comando.filtros);
-
-      console.log(process.stdout.isTTY ? formatarResultadoProdutos(resultado) : JSON.stringify(resultado));
+      if (abrirMenu) {
+        const resultadoFiltro = await rodarAjudaInterativa(db, client, comando.atualizar, comando.filtros);
+        if (resultadoFiltro.tipo === "resultado") {
+          console.log(formatarResultadoProdutos(resultadoFiltro.resultado));
+        }
+        // "voltar" e "sair" não têm pra onde voltar aqui (invocação direta) — só encerra silenciosamente.
+      } else {
+        const resultado = await rodarProdutos(db, client, comando.atualizar, comando.filtros);
+        console.log(process.stdout.isTTY ? formatarResultadoProdutos(resultado) : JSON.stringify(resultado));
+      }
       process.exitCode = 0;
     } catch (erro) {
       console.log(JSON.stringify({ status: "erro", erro: erro instanceof Error ? erro.message : String(erro) }));
@@ -204,33 +209,46 @@ async function main() {
       return;
     }
 
-    const resultadoMenu = await rodarMenuPrincipal(
-      () => carregarCredencialAtiva() !== null,
-      (appKey, appSecret) => new OmieHttpClientReal(appKey, appSecret),
-      async () => {
-        const credencial = carregarCredencialAtiva();
-        const db = abrirBanco(path.join(diretorioDados(), `${credencial!.hash}.db`));
-        try {
-          const client = new OmieHttpClientReal(credencial!.appKey, credencial!.appSecret);
-          return await rodarAjudaInterativa(db, client, false, {});
-        } finally {
-          db.close();
+    for (;;) {
+      const resultadoMenu = await rodarMenuPrincipal(
+        () => carregarCredencialAtiva() !== null,
+        (appKey, appSecret) => new OmieHttpClientReal(appKey, appSecret),
+        async () => {
+          const credencial = carregarCredencialAtiva();
+          const db = abrirBanco(path.join(diretorioDados(), `${credencial!.hash}.db`));
+          try {
+            const client = new OmieHttpClientReal(credencial!.appKey, credencial!.appSecret);
+            return await rodarAjudaInterativa(db, client, false, {});
+          } finally {
+            db.close();
+          }
         }
-      }
-    );
-
-    if (resultadoMenu.tipo === "ajuda") {
-      console.log(textoAjudaProdutos());
-    } else if (resultadoMenu.tipo === "configurar") {
-      console.log(
-        resultadoMenu.resultado.status === "ok"
-          ? "Credencial validada e salva com sucesso."
-          : `Credencial inválida: ${resultadoMenu.resultado.erro}`
       );
-    } else if (resultadoMenu.tipo === "produtos_sem_credencial") {
-      console.log("Nenhuma credencial configurada. Escolha \"Configurar\" primeiro (rode omie-data de novo).");
-    } else {
-      console.log(formatarResultadoProdutos(resultadoMenu.resultado));
+
+      if (resultadoMenu.tipo === "sair") {
+        break;
+      }
+
+      if (resultadoMenu.tipo === "ajuda") {
+        console.log(textoAjudaProdutos());
+      } else if (resultadoMenu.tipo === "configurar") {
+        console.log(
+          resultadoMenu.resultado.status === "ok"
+            ? "Credencial validada e salva com sucesso."
+            : `Credencial inválida: ${resultadoMenu.resultado.erro}`
+        );
+      } else if (resultadoMenu.tipo === "produtos_sem_credencial") {
+        console.log("Nenhuma credencial configurada. Escolha \"Configurar\" primeiro.");
+      } else if (resultadoMenu.tipo === "produtos") {
+        const resultadoProdutos = resultadoMenu.resultado;
+        if (resultadoProdutos.tipo === "sair") {
+          break;
+        }
+        if (resultadoProdutos.tipo === "resultado") {
+          console.log(formatarResultadoProdutos(resultadoProdutos.resultado));
+        }
+        // "voltar" não imprime nada — só volta pro menu principal no próximo loop.
+      }
     }
 
     process.exitCode = 0;

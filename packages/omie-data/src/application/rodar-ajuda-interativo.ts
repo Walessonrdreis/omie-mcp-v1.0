@@ -10,7 +10,7 @@ export interface OpcaoBusca {
 }
 
 export interface IPromptsInterativos {
-  selecionarFiltro(): Promise<"busca" | "categoria" | "ativo" | "nenhum">;
+  selecionarFiltro(): Promise<"busca" | "categoria" | "ativo" | "nenhum" | "voltar" | "sair">;
   buscarTermo(fonte: (input: string) => OpcaoBusca[]): Promise<string>;
   selecionarAtivo(): Promise<"Sim" | "Não">;
 }
@@ -25,6 +25,8 @@ export function criarPromptsReais(): IPromptsInterativos {
           { name: "Categoria", value: "categoria" as const },
           { name: "Ativo", value: "ativo" as const },
           { name: "Sem filtro (listar tudo)", value: "nenhum" as const },
+          { name: "Voltar", value: "voltar" as const },
+          { name: "Sair", value: "sair" as const },
         ],
       });
     },
@@ -86,18 +88,31 @@ export function valoresBusca(db: Database.Database, termo: string): OpcaoBusca[]
   return combinados.slice(0, 20);
 }
 
+export type ResultadoAjudaInterativa =
+  | { tipo: "voltar" }
+  | { tipo: "sair" }
+  | { tipo: "resultado"; resultado: ResultadoConsultaProdutos };
+
 export async function rodarAjudaInterativa(
   db: Database.Database,
   client: IOmieHttpClient,
   atualizar: boolean,
   filtrosBase: FiltrosProdutos = {},
   prompts: IPromptsInterativos = criarPromptsReais()
-): Promise<ResultadoConsultaProdutos> {
+): Promise<ResultadoAjudaInterativa> {
+  const filtroEscolhido = await prompts.selecionarFiltro();
+
+  if (filtroEscolhido === "voltar") {
+    return { tipo: "voltar" };
+  }
+  if (filtroEscolhido === "sair") {
+    return { tipo: "sair" };
+  }
+
   if (atualizar) {
     await rodarProdutos(db, client, true);
   }
 
-  const filtroEscolhido = await prompts.selecionarFiltro();
   const filtroPrompt: FiltrosProdutos = {};
 
   if (filtroEscolhido === "busca") {
@@ -110,5 +125,6 @@ export async function rodarAjudaInterativa(
 
   const filtros: FiltrosProdutos = { ...filtrosBase, ...filtroPrompt };
 
-  return rodarProdutos(db, client, false, filtros);
+  const resultado = await rodarProdutos(db, client, false, filtros);
+  return { tipo: "resultado", resultado };
 }
