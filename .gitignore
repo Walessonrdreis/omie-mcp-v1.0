@@ -34,3 +34,6 @@ graphify-out/cache/
 
 # worktrees isolados (subagent-driven-development)
 .worktrees/
+
+# dados locais do omie-data (contém credenciais em texto plano — nunca commitar)
+data/

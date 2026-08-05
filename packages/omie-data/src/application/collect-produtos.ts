@@ -2,10 +2,17 @@ import type Database from "better-sqlite3";
 import { IOmieHttpClient } from "../domain/omie-http-client.js";
 
 const REGISTROS_POR_PAGINA = 100;
+const TETO_PAGINAS = 1000;
+const ESPERA_ENTRE_PAGINAS_MS = 200;
+
+function aguardar(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export async function collectProdutos(
   db: Database.Database,
-  client: IOmieHttpClient
+  client: IOmieHttpClient,
+  esperaEntrePaginasMs: number = ESPERA_ENTRE_PAGINAS_MS
 ): Promise<number> {
   const upsert = db.prepare(`
     INSERT INTO raw_produtos (codigo_produto, payload_json, coletado_em)
@@ -21,8 +28,12 @@ export async function collectProdutos(
   const agora = new Date().toISOString();
 
   do {
+    if (pagina > 1) {
+      await aguardar(esperaEntrePaginasMs);
+    }
+
     const resposta = await client.listarProdutosPagina(pagina, REGISTROS_POR_PAGINA);
-    totalPaginas = resposta.total_de_paginas;
+    totalPaginas = Math.min(resposta.total_de_paginas, TETO_PAGINAS);
 
     for (const produto of resposta.produto_servico_cadastro) {
       upsert.run({

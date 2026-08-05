@@ -68,4 +68,32 @@ describe("translateProdutos", () => {
 
     db.close();
   });
+
+  it("usa valores padrão quando campos vêm ausentes (não quebra a tradução)", () => {
+    const db = abrirBanco(":memory:");
+
+    db.prepare(
+      "INSERT INTO raw_produtos (codigo_produto, payload_json, coletado_em) VALUES (?, ?, ?)"
+    ).run(
+      3,
+      JSON.stringify({
+        codigo_produto: 3,
+        inativo: "N",
+        codigo_familia: 0,
+      }),
+      new Date().toISOString()
+    );
+
+    const total = translateProdutos(db);
+
+    expect(total).toBe(1);
+
+    const view = db.prepare("SELECT * FROM view_produtos WHERE codigo_produto = 3").get() as any;
+    expect(view.codigo).toBe("3");
+    expect(view.nome).toBe("(sem nome)");
+    expect(view.unidade).toBe("-");
+    expect(view.valor_formatado).toBe("R$ 0,00");
+
+    db.close();
+  });
 });

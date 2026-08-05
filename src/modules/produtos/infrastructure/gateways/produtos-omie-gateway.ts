@@ -35,6 +35,7 @@ export class ProdutosOmieGateway implements IProdutosGateway {
         pagina,
         registros_por_pagina: registrosPorPagina,
         apenas_importado_api: "N",
+        filtrar_apenas_omiepdv: "N",
         ...(codigoFamilia ? { filtrar_apenas_familia: codigoFamilia } : {}),
       },
     });

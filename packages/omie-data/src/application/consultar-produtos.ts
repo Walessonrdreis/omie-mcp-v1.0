@@ -8,12 +8,42 @@ export interface ResultadoConsultaProdutos {
   idadeMs: number | null;
 }
 
-export function consultarProdutos(db: Database.Database): ResultadoConsultaProdutos {
+export interface FiltrosProdutos {
+  busca?: string;
+  categoria?: string;
+  ativo?: "Sim" | "Não";
+}
+
+export function consultarProdutos(
+  db: Database.Database,
+  filtros?: FiltrosProdutos
+): ResultadoConsultaProdutos {
+  const condicoes: string[] = [];
+  const parametros: unknown[] = [];
+
+  if (filtros?.busca) {
+    condicoes.push("(LOWER(nome) LIKE ? OR LOWER(codigo) LIKE ?)");
+    const termo = `%${filtros.busca.toLowerCase()}%`;
+    parametros.push(termo, termo);
+  }
+
+  if (filtros?.categoria) {
+    condicoes.push("LOWER(categoria) LIKE ?");
+    parametros.push(`%${filtros.categoria.toLowerCase()}%`);
+  }
+
+  if (filtros?.ativo) {
+    condicoes.push("ativo = ?");
+    parametros.push(filtros.ativo);
+  }
+
+  const where = condicoes.length > 0 ? `WHERE ${condicoes.join(" AND ")}` : "";
+
   const linhas = db
     .prepare(
-      "SELECT codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em FROM view_produtos"
+      `SELECT codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em FROM view_produtos ${where} ORDER BY gerado_em DESC`
     )
-    .all() as Array<{
+    .all(...parametros) as Array<{
       codigo_produto: number;
       codigo: string;
       nome: string;
