@@ -58,8 +58,11 @@ describe("parseArgv", () => {
     expect(comando).toEqual({ tipo: "produtos", atualizar: false, ajuda: true, filtros: {} });
   });
 
-  it("retorna 'desconhecido' pra qualquer outra entrada", () => {
-    expect(parseArgv([])).toEqual({ tipo: "desconhecido" });
+  it("retorna 'menu' quando não há subcomando nenhum", () => {
+    expect(parseArgv([])).toEqual({ tipo: "menu" });
+  });
+
+  it("retorna 'desconhecido' pra subcomando não reconhecido", () => {
     expect(parseArgv(["outra-coisa"])).toEqual({ tipo: "desconhecido" });
   });
 

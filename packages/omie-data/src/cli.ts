@@ -10,10 +10,12 @@ import { rodarConfigurar } from "./application/rodar-configurar.js";
 import { rodarProdutos } from "./application/rodar-produtos.js";
 import { rodarAjudaInterativa } from "./application/rodar-ajuda-interativo.js";
 import { FiltrosProdutos, ResultadoConsultaProdutos } from "./application/consultar-produtos.js";
+import { rodarMenuPrincipal } from "./application/rodar-menu-principal.js";
 
 export type ComandoCli =
   | { tipo: "configurar"; appKey: string; appSecret: string }
   | { tipo: "produtos"; atualizar: boolean; ajuda: boolean; filtros: FiltrosProdutos }
+  | { tipo: "menu" }
   | { tipo: "desconhecido" };
 
 function valorDaFlag(resto: string[], flag: string): string | undefined {
@@ -26,6 +28,10 @@ function valorDaFlag(resto: string[], flag: string): string | undefined {
 
 export function parseArgv(argv: string[]): ComandoCli {
   const [sub, ...resto] = argv;
+
+  if (sub === undefined) {
+    return { tipo: "menu" };
+  }
 
   if (sub === "configurar") {
     const appKey = valorDaFlag(resto, "--app-key");
@@ -158,7 +164,11 @@ async function main() {
 
     const credencial = carregarCredencialAtiva();
     if (!credencial) {
-      console.log(JSON.stringify({ status: "sem_credencial" }));
+      if (process.stdout.isTTY) {
+        console.log("Nenhuma credencial configurada. Rode 'omie-data configurar' primeiro.");
+      } else {
+        console.log(JSON.stringify({ status: "sem_credencial" }));
+      }
       process.exitCode = 1;
       return;
     }
@@ -182,6 +192,48 @@ async function main() {
     } finally {
       db?.close();
     }
+    return;
+  }
+
+  if (comando.tipo === "menu") {
+    if (!process.stdout.isTTY) {
+      console.error(
+        "Comando desconhecido. Uso: cli.js configurar --app-key X --app-secret Y | cli.js produtos [--atualizar] [--busca X] [--categoria X] [--ativo sim|nao] [--ajuda]"
+      );
+      process.exitCode = 1;
+      return;
+    }
+
+    const resultadoMenu = await rodarMenuPrincipal(
+      () => carregarCredencialAtiva() !== null,
+      (appKey, appSecret) => new OmieHttpClientReal(appKey, appSecret),
+      async () => {
+        const credencial = carregarCredencialAtiva();
+        const db = abrirBanco(path.join(diretorioDados(), `${credencial!.hash}.db`));
+        try {
+          const client = new OmieHttpClientReal(credencial!.appKey, credencial!.appSecret);
+          return await rodarAjudaInterativa(db, client, false, {});
+        } finally {
+          db.close();
+        }
+      }
+    );
+
+    if (resultadoMenu.tipo === "ajuda") {
+      console.log(textoAjudaProdutos());
+    } else if (resultadoMenu.tipo === "configurar") {
+      console.log(
+        resultadoMenu.resultado.status === "ok"
+          ? "Credencial validada e salva com sucesso."
+          : `Credencial inválida: ${resultadoMenu.resultado.erro}`
+      );
+    } else if (resultadoMenu.tipo === "produtos_sem_credencial") {
+      console.log("Nenhuma credencial configurada. Escolha \"Configurar\" primeiro (rode omie-data de novo).");
+    } else {
+      console.log(formatarResultadoProdutos(resultadoMenu.resultado));
+    }
+
+    process.exitCode = 0;
     return;
   }
 
