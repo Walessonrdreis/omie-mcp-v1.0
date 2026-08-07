@@ -17,6 +17,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      omie-data:
+        specifier: workspace:*
+        version: link:packages/omie-data
       zod:
         specifier: ^3.23.8
         version: 3.25.76
