@@ -17,7 +17,8 @@
     "doc-ferramentas": "npm run build && node scripts/gerar-doc-ferramentas.mjs",
     "skill-cache": "npm run build && node scripts/gerar-skill-cache.mjs",
     "skill-cache:check": "npm run build && node scripts/gerar-skill-cache.mjs --check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "omie-data": "node packages/omie-data/dist/cli.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
