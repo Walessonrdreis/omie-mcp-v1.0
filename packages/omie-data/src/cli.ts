@@ -5,11 +5,11 @@ import { realpathSync } from "node:fs";
 import { abrirBanco } from "./infrastructure/database.js";
 import { carregarCredencialAtiva } from "./infrastructure/credenciais.js";
 import { diretorioDados } from "./infrastructure/caminhos.js";
-import { OmieHttpClientReal } from "./infrastructure/omie-http-client-real.js";
+import { OmieHttpClientReal } from "./infrastructure/http-client-real.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
-import { rodarProdutos } from "./application/rodar-produtos.js";
-import { rodarAjudaInterativaEmLoop } from "./application/rodar-ajuda-interativo.js";
-import { FiltrosProdutos, ResultadoConsultaProdutos } from "./application/consultar-produtos.js";
+import { rodarProdutos } from "./modules/produtos/application/rodar-produtos.js";
+import { rodarAjudaInterativaEmLoop } from "./modules/produtos/application/rodar-ajuda-interativo.js";
+import { FiltrosProdutos, ResultadoConsultaProdutos } from "./modules/produtos/application/consultar-produtos.js";
 import { rodarMenuPrincipal } from "./application/rodar-menu-principal.js";
 
 export type ComandoCli =
@@ -118,12 +118,13 @@ export function formatarResultadoProdutos(resultado: ResultadoConsultaProdutos):
 
   const infoData = `Dado coletado em ${formatarDataHoraBrasilia(resultado.geradoEm as string)} (horário de Brasília) — há ${formatarDuracaoHms(resultado.idadeMs as number)}`;
 
-  const colunas = ["Nome", "Código", "Categoria", "Valor", "Ativo"];
+  const colunas = ["Nome", "Código", "Categoria", "Valor", "Estoque", "Ativo"];
   const linhas = resultado.produtos.map((produto) => [
     produto.nome,
     produto.codigo,
     produto.categoria,
     produto.valorFormatado,
+    `${produto.quantidadeEmEstoque.toFixed(2).replace(".", ",")} ${produto.unidade}`,
     produto.ativo,
   ]);
 

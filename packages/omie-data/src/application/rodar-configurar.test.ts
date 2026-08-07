@@ -2,10 +2,10 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { FakeOmieHttpClient } from "../infrastructure/fake-omie-http-client.js";
+import { FakeHttpClient } from "../infrastructure/fake-http-client.js";
 import { carregarCredencialAtiva, hashCredencial } from "../infrastructure/credenciais.js";
 import { rodarConfigurar } from "./rodar-configurar.js";
-import { IOmieHttpClient } from "../domain/omie-http-client.js";
+import { IProdutosHttpClient } from "../domain/produtos-http-client.js";
 
 describe("rodarConfigurar", () => {
   let dirTemp: string;
@@ -21,7 +21,7 @@ describe("rodarConfigurar", () => {
   });
 
   it("salva a credencial quando a validação funciona", async () => {
-    const client = new FakeOmieHttpClient([]);
+    const client = new FakeHttpClient([]);
 
     const resultado = await rodarConfigurar("app-key-valida", "app-secret-valido", client);
 
@@ -30,7 +30,7 @@ describe("rodarConfigurar", () => {
   });
 
   it("não salva nada quando a validação falha", async () => {
-    const clientInvalido: IOmieHttpClient = {
+    const clientInvalido: IProdutosHttpClient = {
       listarProdutosPagina: async () => {
         throw new Error("Erro de autenticação");
       },

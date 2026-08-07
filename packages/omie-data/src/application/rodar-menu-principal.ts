@@ -1,6 +1,6 @@
 import { input, password, select } from "@inquirer/prompts";
 import { rodarConfigurar, ResultadoConfigurar } from "./rodar-configurar.js";
-import { IOmieHttpClient } from "../domain/omie-http-client.js";
+import { IProdutosHttpClient } from "../domain/produtos-http-client.js";
 
 export interface IPromptsMenu {
   selecionarComando(): Promise<"produtos" | "ajuda" | "configurar" | "sair">;
@@ -39,7 +39,7 @@ export type ResultadoMenu =
 
 export async function rodarMenuPrincipal(
   temCredencial: () => boolean,
-  criarClienteConfigurar: (appKey: string, appSecret: string) => IOmieHttpClient,
+  criarClienteConfigurar: (appKey: string, appSecret: string) => IProdutosHttpClient,
   abrirProdutos: () => Promise<"voltar" | "sair">,
   prompts: IPromptsMenu = criarPromptsMenuReais()
 ): Promise<ResultadoMenu> {

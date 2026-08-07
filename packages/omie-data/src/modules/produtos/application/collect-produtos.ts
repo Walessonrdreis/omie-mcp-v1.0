@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { IOmieHttpClient } from "../domain/omie-http-client.js";
+import { IProdutosHttpClient } from "../../../domain/produtos-http-client.js";
 
 const REGISTROS_POR_PAGINA = 100;
 const TETO_PAGINAS = 1000;
@@ -11,7 +11,7 @@ function aguardar(ms: number): Promise<void> {
 
 export async function collectProdutos(
   db: Database.Database,
-  client: IOmieHttpClient,
+  client: IProdutosHttpClient,
   esperaEntrePaginasMs: number = ESPERA_ENTRE_PAGINAS_MS
 ): Promise<number> {
   const upsert = db.prepare(`

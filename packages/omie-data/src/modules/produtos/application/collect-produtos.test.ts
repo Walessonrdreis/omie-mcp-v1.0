@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { abrirBanco } from "../infrastructure/database.js";
-import { FakeOmieHttpClient } from "../infrastructure/fake-omie-http-client.js";
+import { abrirBanco } from "../../../infrastructure/database.js";
+import { FakeHttpClient } from "../../../infrastructure/fake-http-client.js";
 import { collectProdutos } from "./collect-produtos.js";
 
 describe("collectProdutos", () => {
   it("grava cada produto em raw_produtos com payload bruto e timestamp", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Fam 1" },
     ]);
 
@@ -27,7 +27,7 @@ describe("collectProdutos", () => {
 
   it("faz upsert: rodar duas vezes não duplica linha", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1 },
     ]);
 
@@ -51,7 +51,7 @@ describe("collectProdutos", () => {
       inativo: "N" as const,
       codigo_familia: 1,
     }));
-    const client = new FakeOmieHttpClient(produtos);
+    const client = new FakeHttpClient(produtos);
 
     const total = await collectProdutos(db, client, 0);
 

@@ -35,6 +35,9 @@ graphify-out/cache/
 # worktrees isolados (subagent-driven-development)
 .worktrees/
 
+# workspace de scratch do subagent-driven-development (ledger, briefs, reports, diffs)
+.superpowers/sdd/
+
 # dados locais do omie-data (contém credenciais em texto plano — nunca commitar)
 data/
 gerenciadorGoogleSheetsLabarr-feat-mvp-estoque-lotes-embalagem-confeitaria-expedicao.zip

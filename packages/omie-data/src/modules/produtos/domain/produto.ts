@@ -19,4 +19,7 @@ export interface ProdutoView {
   unidade: string;
   valorFormatado: string;
   ativo: "Sim" | "Não";
+  quantidadeEmEstoque: number;
+  valorEmEstoqueCusto: number;
+  valorEmEstoqueVenda: number;
 }

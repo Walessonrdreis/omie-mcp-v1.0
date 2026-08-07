@@ -1,4 +1,4 @@
-import { IOmieHttpClient } from "../domain/omie-http-client.js";
+import { IProdutosHttpClient } from "../domain/produtos-http-client.js";
 import { salvarCredencial } from "../infrastructure/credenciais.js";
 
 export type ResultadoConfigurar =
@@ -8,7 +8,7 @@ export type ResultadoConfigurar =
 export async function rodarConfigurar(
   appKey: string,
   appSecret: string,
-  client: IOmieHttpClient
+  client: IProdutosHttpClient
 ): Promise<ResultadoConfigurar> {
   try {
     await client.listarProdutosPagina(1, 1);
