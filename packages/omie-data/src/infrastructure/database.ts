@@ -34,7 +34,10 @@ export function abrirBanco(caminho: string): Database.Database {
   for (const col of ["quantidade_em_estoque", "valor_em_estoque_custo", "valor_em_estoque_venda"]) {
     try {
       db.exec(`ALTER TABLE view_produtos ADD COLUMN ${col} REAL NOT NULL DEFAULT 0`);
-    } catch {
+    } catch (error) {
+      if (!(error as Error).message.includes("duplicate column name")) {
+        throw error;
+      }
       // coluna já existe — ignora
     }
   }
