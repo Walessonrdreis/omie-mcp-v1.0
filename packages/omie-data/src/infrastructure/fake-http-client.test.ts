@@ -61,5 +61,21 @@ describe("FakeHttpClient", () => {
     expect(pagina1.total_de_registros).toBe(2);
     expect(pagina1.cadastros).toHaveLength(1);
     expect(pagina1.cadastros[0].identificacao.nCodOP).toBe(100);
+
+    const pagina2 = await client.listarOrdensProducaoPagina(2, 1);
+    expect(pagina2.cadastros).toHaveLength(1);
+    expect(pagina2.cadastros[0].identificacao.nCodOP).toBe(200);
+  });
+
+  it("devolve página vazia coerente quando não há ordens de produção", async () => {
+    const client = new FakeHttpClient();
+
+    const pagina1 = await client.listarOrdensProducaoPagina(1, 50);
+
+    expect(pagina1.pagina).toBe(1);
+    expect(pagina1.total_de_paginas).toBe(1);
+    expect(pagina1.registros).toBe(0);
+    expect(pagina1.total_de_registros).toBe(0);
+    expect(pagina1.cadastros).toEqual([]);
   });
 });
