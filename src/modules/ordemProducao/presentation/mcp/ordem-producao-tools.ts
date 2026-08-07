@@ -1,19 +1,28 @@
 import { z } from "zod";
-import { collectOrdemProducao, translateOrdemProducao, OmieHttpClientReal } from "omie-data";
+import {
+  collectOrdemProducao,
+  translateOrdemProducao,
+  OmieHttpClientReal,
+  consultarOrdensProducao,
+  type FiltrosOrdensProducao,
+} from "omie-data";
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
+import { aplicarFiltros } from "../../../../shared/filtro.js";
 import { abrirBancoAtivo, credenciaisOmieOuFalha } from "../../infrastructure/cache/op-cache.js";
-import { listarOpsComProdutoParamSchema } from "../../application/dto/listar-ops-com-produto.dto.js";
+import {
+  listarOpsComProdutoParamSchema,
+  type OrdemProducaoComProduto,
+} from "../../application/dto/listar-ops-com-produto.dto.js";
 import {
   alterarOPParamSchema,
   chaveOPParamSchema,
   incluirOPParamSchema,
 } from "../../application/dto/op-crud.dto.js";
-import { ListarOpsComProdutoUseCase } from "../../application/use-cases/listar-ops-com-produto.js";
 import { IncluirOPUseCase } from "../../application/use-cases/incluir-op.js";
 import { AlterarOPUseCase } from "../../application/use-cases/alterar-op.js";
 import { ExcluirOPUseCase } from "../../application/use-cases/excluir-op.js";
 import { ConsultarOPUseCase } from "../../application/use-cases/consultar-op.js";
-import { criarOpGateway, criarProdutosGateway } from "../../infrastructure/gateways/op-gateway-factory.js";
+import { criarOpGateway } from "../../infrastructure/gateways/op-gateway-factory.js";
 
 export const ordemProducaoTools: ToolDef[] = [
   defineTool({
@@ -86,24 +95,73 @@ export const ordemProducaoTools: ToolDef[] = [
   defineTool({
     name: "omie_op_listar_com_produto",
     description:
-      "Lista Ordens de Produção JÁ com a descrição/SKU do produto de cada OP (a Omie só devolve o " +
-      "código do produto na listagem crua, sem descrição — esta ferramenta busca o cadastro de " +
-      "cada produto envolvido e junta). Também expõe 'concluida' (true/false, campo confiável) " +
-      "além do 'etapaCodigo' cru (a etapa do kanban é configurável por conta — de 3 a 6 fases com " +
-      "nomes próprios — e a API não tem endpoint pra traduzir o código pro nome; se você souber o " +
-      "significado das etapas dessa conta, pode interpretar etapaCodigo). Suporta paginação " +
-      "(pagina/registros_por_pagina), o filtro apenas_nao_concluidas e o parâmetro genérico " +
+      "Lista Ordens de Produção JÁ com a descrição/SKU do produto de cada OP, lendo de um CACHE " +
+      "LOCAL (não bate na Omie a cada chamada — chame omie_op_atualizar_cache antes se precisar de " +
+      "dado mais recente que o cache atual). A resposta inclui geradoEm/idadeMs informando a idade " +
+      "do dado. Também expõe 'concluida' (true/false, campo confiável) além do 'etapaCodigo' cru " +
+      "(a etapa do kanban é configurável por conta — de 3 a 6 fases com nomes próprios — e a API " +
+      "não tem endpoint pra traduzir o código pro nome; se você souber o significado das etapas " +
+      "dessa conta, pode interpretar etapaCodigo). Suporta paginação (pagina/registros_por_pagina, " +
+      "agora aplicada sobre o cache local), o filtro apenas_nao_concluidas e o parâmetro genérico " +
       "'filtros' — lista de critérios (campo/operador/valor) aplicados sobre QUALQUER campo do " +
       "resultado já enriquecido (ex: descricaoProduto, codigoSku, quantidade), com operadores " +
       "igual/diferente/contem/maior_que/menor_que/entre. Ex: filtros: [{ campo: " +
       "'descricaoProduto', operador: 'contem', valor: '100kg' }].",
     inputSchema: { param: listarOpsComProdutoParamSchema },
-    execute: async (client, param) => {
+    execute: async (_client, param) => {
       const parsed = listarOpsComProdutoParamSchema.parse(param);
-      const opGateway = criarOpGateway(client);
-      const produtosGateway = criarProdutosGateway(client);
-      const useCase = new ListarOpsComProdutoUseCase(opGateway, produtosGateway);
-      return useCase.execute(parsed);
+      const { appKey } = credenciaisOmieOuFalha();
+      const db = abrirBancoAtivo(appKey);
+      try {
+        const filtros: FiltrosOrdensProducao = { apenasNaoConcluidas: parsed.apenas_nao_concluidas };
+        const resultado = consultarOrdensProducao(db, filtros);
+
+        if (resultado.status === "sem_dado") {
+          return {
+            pagina: 1,
+            totalPaginas: 0,
+            totalRegistros: 0,
+            itens: [],
+            geradoEm: null,
+            idadeMs: null,
+            aviso: "Nenhuma OP no cache ainda — rode omie_op_atualizar_cache primeiro.",
+          };
+        }
+
+        let itens: OrdemProducaoComProduto[] = resultado.ordens.map((ordem) => ({
+          numeroOP: ordem.numeroOp,
+          codigoOP: ordem.codigoOp,
+          codigoProduto: ordem.codigoProduto,
+          codigoSku: ordem.codigoSku,
+          descricaoProduto: ordem.descricaoProduto,
+          quantidade: ordem.quantidade,
+          dataPrevisao: ordem.dataPrevisao,
+          dataInicio: ordem.dataInicio,
+          dataConclusao: ordem.dataConclusao,
+          concluida: ordem.concluida,
+          etapaCodigo: ordem.etapaCodigo,
+        }));
+
+        itens = aplicarFiltros(itens, parsed.filtros);
+
+        const pagina = parsed.pagina ?? 1;
+        const registrosPorPagina = parsed.registros_por_pagina ?? 20;
+        const totalRegistros = itens.length;
+        const totalPaginas = Math.max(1, Math.ceil(totalRegistros / registrosPorPagina));
+        const inicio = (pagina - 1) * registrosPorPagina;
+        const paginaItens = itens.slice(inicio, inicio + registrosPorPagina);
+
+        return {
+          pagina,
+          totalPaginas,
+          totalRegistros,
+          itens: paginaItens,
+          geradoEm: resultado.geradoEm,
+          idadeMs: resultado.idadeMs,
+        };
+      } finally {
+        db.close();
+      }
     },
   }),
   defineTool({

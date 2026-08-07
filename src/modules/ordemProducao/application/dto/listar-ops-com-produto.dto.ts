@@ -40,4 +40,6 @@ export interface ListarOpsComProdutoResult {
   totalPaginas: number;
   totalRegistros: number;
   itens: OrdemProducaoComProduto[];
+  geradoEm: string | null;
+  idadeMs: number | null;
 }
