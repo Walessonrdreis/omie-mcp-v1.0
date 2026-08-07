@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { abrirBanco } from "../infrastructure/database.js";
+import { abrirBanco } from "../../../infrastructure/database.js";
 import { translateProdutos } from "./translate-produtos.js";
 
 describe("translateProdutos", () => {

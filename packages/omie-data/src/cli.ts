@@ -7,9 +7,9 @@ import { carregarCredencialAtiva } from "./infrastructure/credenciais.js";
 import { diretorioDados } from "./infrastructure/caminhos.js";
 import { OmieHttpClientReal } from "./infrastructure/http-client-real.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
-import { rodarProdutos } from "./application/rodar-produtos.js";
-import { rodarAjudaInterativaEmLoop } from "./application/rodar-ajuda-interativo.js";
-import { FiltrosProdutos, ResultadoConsultaProdutos } from "./application/consultar-produtos.js";
+import { rodarProdutos } from "./modules/produtos/application/rodar-produtos.js";
+import { rodarAjudaInterativaEmLoop } from "./modules/produtos/application/rodar-ajuda-interativo.js";
+import { FiltrosProdutos, ResultadoConsultaProdutos } from "./modules/produtos/application/consultar-produtos.js";
 import { rodarMenuPrincipal } from "./application/rodar-menu-principal.js";
 
 export type ComandoCli =

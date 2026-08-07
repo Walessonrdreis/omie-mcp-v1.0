@@ -1,6 +1,6 @@
 import type Database from "better-sqlite3";
 import { select, search } from "@inquirer/prompts";
-import { IProdutosHttpClient } from "../domain/produtos-http-client.js";
+import { IProdutosHttpClient } from "../../../domain/produtos-http-client.js";
 import { rodarProdutos } from "./rodar-produtos.js";
 import { FiltrosProdutos, ResultadoConsultaProdutos } from "./consultar-produtos.js";
 

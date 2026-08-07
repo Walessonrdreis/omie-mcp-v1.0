@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { IProdutosHttpClient } from "../domain/produtos-http-client.js";
+import { IProdutosHttpClient } from "../../../domain/produtos-http-client.js";
 
 const REGISTROS_POR_PAGINA = 100;
 const TETO_PAGINAS = 1000;

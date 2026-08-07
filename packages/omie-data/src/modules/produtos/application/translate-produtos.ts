@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { ProdutoOmieBruto } from "../modules/produtos/domain/produto.js";
+import { ProdutoOmieBruto } from "../domain/produto.js";
 
 function formatarMoeda(valor: number): string {
   const fixo = valor.toFixed(2);

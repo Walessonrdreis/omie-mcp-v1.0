@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { IProdutosHttpClient } from "../domain/produtos-http-client.js";
+import { IProdutosHttpClient } from "../../../domain/produtos-http-client.js";
 import { collectProdutos } from "./collect-produtos.js";
 import { translateProdutos } from "./translate-produtos.js";
 import { consultarProdutos, FiltrosProdutos, ResultadoConsultaProdutos } from "./consultar-produtos.js";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { abrirBanco } from "../infrastructure/database.js";
-import { FakeHttpClient } from "../infrastructure/fake-http-client.js";
+import { abrirBanco } from "../../../infrastructure/database.js";
+import { FakeHttpClient } from "../../../infrastructure/fake-http-client.js";
 import { rodarProdutos } from "./rodar-produtos.js";
 
 describe("rodarProdutos", () => {
