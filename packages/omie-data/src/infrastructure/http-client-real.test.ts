@@ -172,3 +172,108 @@ describe("OmieHttpClientReal — listarPosicoesEstoquePagina", () => {
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 });
+
+describe("OmieHttpClientReal — listarOrdensProducaoPagina", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("monta a URL e o payload corretos e devolve o JSON da resposta", async () => {
+    const respostaFake = {
+      pagina: 1,
+      total_de_paginas: 1,
+      registros: 1,
+      total_de_registros: 1,
+      cadastros: [
+        {
+          identificacao: {
+            cCodIntOP: "", cNumOP: "2024/00100", codigo_local_estoque: 1,
+            dDtPrevisao: "01/01/2024", nCodOP: 100, nCodProduto: 1, nQtde: 10,
+          },
+          infAdicionais: { cEtapa: "80", dDtConclusao: "01/01/2024", dDtInicio: "01/01/2024", nCodProjeto: 0 },
+          outrasInf: { cConcluida: "S", dConclusao: "01/01/2024", dInclusao: "01/01/2024" },
+        },
+      ],
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify(respostaFake),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const resultado = await client.listarOrdensProducaoPagina(1, 50);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, opcoes] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://app.omie.com.br/api/v1/produtos/op/");
+    const corpo = JSON.parse(opcoes.body);
+    expect(corpo.call).toBe("ListarOrdemProducao");
+    expect(corpo.app_key).toBe("minha-key");
+    expect(corpo.app_secret).toBe("meu-secret");
+    expect(corpo.param).toEqual([{ pagina: 1, registros_por_pagina: 50 }]);
+
+    expect(resultado).toEqual(respostaFake);
+  });
+
+  it("rejeita com mensagem legível quando a Omie devolve faultstring", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ faultstring: "Erro de autenticação", faultcode: "SOAP-ENV:Client-101" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("key-invalida", "secret-invalido");
+
+    await expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow("Erro de autenticação");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("tenta de novo em erro 5xx e desiste depois de 3 tentativas", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      text: async () => "Service Unavailable",
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+
+    await expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(/503/);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("não tenta de novo em erro 4xx", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      text: async () => "Bad Request",
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+
+    await expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(/400/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("repassa a página e o tamanho de página recebidos", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({
+        pagina: 3, total_de_paginas: 5, registros: 0, total_de_registros: 0, cadastros: [],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    await client.listarOrdensProducaoPagina(3, 200);
+
+    const corpo = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(corpo.param).toEqual([{ pagina: 3, registros_por_pagina: 200 }]);
+  });
+});
