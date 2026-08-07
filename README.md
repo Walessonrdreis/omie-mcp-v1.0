@@ -8,7 +8,7 @@ Permite que o Claude consulte e execute operações no ERP Omie via ferramentas 
 
 1. Instale as dependências:
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Copie `.env.example` para `.env` e preencha com sua App Key e App Secret da Omie (obtidas em https://developer.omie.com.br/my-apps/):
