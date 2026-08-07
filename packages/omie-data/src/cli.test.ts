@@ -120,7 +120,7 @@ describe("formatarResultadoProdutos", () => {
     expect(texto).toContain("R$ 38,00");
     expect(texto).toContain("Sim");
     expect(texto).toContain("Estoque");
-    expect(texto).toContain("12");
+    expect(texto).toContain("12,00 UND");
   });
 
   it("formata geradoEm em horário de Brasília e idadeMs como HH:MM:SS", () => {

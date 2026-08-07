@@ -124,7 +124,7 @@ export function formatarResultadoProdutos(resultado: ResultadoConsultaProdutos):
     produto.codigo,
     produto.categoria,
     produto.valorFormatado,
-    String(produto.quantidadeEmEstoque),
+    `${produto.quantidadeEmEstoque.toFixed(2).replace(".", ",")} ${produto.unidade}`,
     produto.ativo,
   ]);
 
