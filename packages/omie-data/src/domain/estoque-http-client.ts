@@ -1,7 +1,14 @@
-/**
- * Interface do cliente HTTP de estoque.
- * Placeholder — os métodos reais entram no Commit 2 (Task 5).
- */
+import { PosicaoEstoqueOmieBruta } from "../modules/estoque/domain/estoque.js";
+
+export interface ListarPosEstoqueResponseBruto {
+  pagina: number;
+  total_de_paginas: number;
+  pos_estoque: PosicaoEstoqueOmieBruta[];
+}
+
 export interface IEstoqueHttpClient {
-  // métodos virão no commit 2
+  listarPosicoesEstoquePagina(
+    pagina: number,
+    registrosPorPagina: number
+  ): Promise<ListarPosEstoqueResponseBruto>;
 }
