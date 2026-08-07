@@ -3,6 +3,21 @@ import Database from "better-sqlite3";
 export function abrirBanco(caminho: string): Database.Database {
   const db = new Database(caminho);
 
+  // O MESMO arquivo de cache é usado pelo CLI/skill e pelo servidor MCP, que
+  // escreve as ~1600 OPs por dezenas de segundos (upserts intercalados com
+  // espera de rede). Com o journal de rollback padrão, leitor e escritor se
+  // excluem e uma coleta concorrente estoura SQLITE_BUSY.
+  //
+  // WAL permite leitura durante a escrita; busy_timeout faz quem esbarrar num
+  // lock esperar 5s em vez de falhar na hora. Ambos são idempotentes e não
+  // mexem em schema nem em dado — valem pros três módulos (produtos, estoque,
+  // ordens de produção).
+  //
+  // Em banco `:memory:` (dezenas de testes) o SQLite simplesmente MANTÉM
+  // journal_mode = memory, sem erro — por isso não precisa de branch por caminho.
+  db.pragma("journal_mode = WAL");
+  db.pragma("busy_timeout = 5000");
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS raw_produtos (
       codigo_produto INTEGER PRIMARY KEY,

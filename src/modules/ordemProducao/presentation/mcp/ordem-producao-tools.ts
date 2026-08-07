@@ -9,6 +9,7 @@ import {
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
 import { aplicarFiltros } from "../../../../shared/filtro.js";
 import { abrirBancoAtivo, credenciaisOmieOuFalha } from "../../infrastructure/cache/op-cache.js";
+import { modoMock, prepararBancoOpMock } from "../../infrastructure/cache/op-cache-mock.js";
 import {
   listarOpsComProdutoParamSchema,
   type OrdemProducaoComProduto,
@@ -113,8 +114,12 @@ export const ordemProducaoTools: ToolDef[] = [
     inputSchema: { param: listarOpsComProdutoParamSchema },
     execute: async (_client, param): Promise<ListarOpsComProdutoResult> => {
       const parsed = listarOpsComProdutoParamSchema.parse(param);
-      const { appKey } = credenciaisOmieOuFalha();
-      const db = abrirBancoAtivo(appKey);
+      // Mesma convenção Fake/Real das fábricas de gateway do repo: em
+      // OMIE_MOCK=true a ferramenta lê um cache fake em memória, em vez de exigir
+      // credencial e devolver "cache vazio" pra quem só quer dado fake.
+      const db = modoMock()
+        ? (await prepararBancoOpMock()).db
+        : abrirBancoAtivo(credenciaisOmieOuFalha().appKey);
       try {
         const filtros: FiltrosOrdensProducao = { apenasNaoConcluidas: parsed.apenas_nao_concluidas };
         const resultado = consultarOrdensProducao(db, filtros);
@@ -180,6 +185,16 @@ export const ordemProducaoTools: ToolDef[] = [
       "'geradoEm' pelas consultas ao cache.",
     inputSchema: { param: z.object({}).optional() },
     execute: async () => {
+      // Em OMIE_MOCK=true a coleta roda inteira contra o FakeHttpClient, num banco
+      // em memória: nenhuma chamada de rede, nenhuma credencial exigida (antes esta
+      // ferramenta batia na Omie REAL mesmo em modo mock, e falhava na autenticação
+      // com credencial dummy) e nada escrito no cache real que o CLI/skill compartilha.
+      if (modoMock()) {
+        const { db, totalColetado, geradoEm } = await prepararBancoOpMock();
+        db.close();
+        return { totalColetado, atualizadoEm: geradoEm };
+      }
+
       const { appKey, appSecret } = credenciaisOmieOuFalha();
       const db = abrirBancoAtivo(appKey);
       try {
