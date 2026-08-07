@@ -1,4 +1,7 @@
+import { z } from "zod";
+import { collectOrdemProducao, translateOrdemProducao, OmieHttpClientReal } from "omie-data";
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
+import { abrirBancoAtivo, credenciaisOmieOuFalha } from "../../infrastructure/cache/op-cache.js";
 import { listarOpsComProdutoParamSchema } from "../../application/dto/listar-ops-com-produto.dto.js";
 import {
   alterarOPParamSchema,
@@ -101,6 +104,28 @@ export const ordemProducaoTools: ToolDef[] = [
       const produtosGateway = criarProdutosGateway(client);
       const useCase = new ListarOpsComProdutoUseCase(opGateway, produtosGateway);
       return useCase.execute(parsed);
+    },
+  }),
+  defineTool({
+    name: "omie_op_atualizar_cache",
+    description:
+      "Atualiza o cache local de Ordens de Produção, buscando TODAS as OPs na Omie " +
+      "(ListarOrdemProducao, paginado) e regravando o cache que omie_op_listar_com_produto lê. " +
+      "Sem parâmetro. Chame antes de omie_op_listar_com_produto se precisar de dado mais recente " +
+      "que o cache atual — a resposta de omie_op_listar_com_produto sempre informa a idade do dado " +
+      "(geradoEm/idadeMs), então normalmente não é preciso chamar isto a cada pergunta.",
+    inputSchema: { param: z.object({}).optional() },
+    execute: async () => {
+      const { appKey, appSecret } = credenciaisOmieOuFalha();
+      const db = abrirBancoAtivo(appKey);
+      try {
+        const client = new OmieHttpClientReal(appKey, appSecret);
+        const totalColetado = await collectOrdemProducao(db, client);
+        translateOrdemProducao(db);
+        return { totalColetado, atualizadoEm: new Date().toISOString() };
+      } finally {
+        db.close();
+      }
     },
   }),
 ];
