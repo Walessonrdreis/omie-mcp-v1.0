@@ -1,12 +1,32 @@
 import { z } from "zod";
 import { filtrosParamSchema } from "../../../../shared/filtro.js";
 
+/**
+ * Teto de itens por página. A leitura é local (SQLite), então o limite não é
+ * sobre custo de rede: a resposta é consumida por um modelo, e cada OP é um
+ * objeto de 11 campos (~250 bytes de JSON). 200 itens já são ~50 KB de
+ * contexto — passar disso troca paginação/filtro por despejo de tabela.
+ */
+export const REGISTROS_POR_PAGINA_MAX = 200;
+
 export const listarOpsComProdutoParamSchema = z.object({
-  pagina: z.number().optional().describe("Página da listagem de OPs (padrão 1)."),
+  pagina: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Página da listagem de OPs (padrão 1). Inteiro >= 1."),
   registros_por_pagina: z
     .number()
+    .int()
+    .positive()
+    .max(REGISTROS_POR_PAGINA_MAX)
     .optional()
-    .describe("Quantidade de OPs por página (padrão 20 — cada OP dispara uma busca de produto)."),
+    .describe(
+      `Quantidade de OPs por página (padrão 20, máximo ${REGISTROS_POR_PAGINA_MAX}). A leitura vem ` +
+        "do cache local, então o custo não é de rede: o limite existe porque a resposta inteira vai " +
+        "pro contexto — prefira paginar ou usar 'filtros' a pedir páginas gigantes."
+    ),
   apenas_nao_concluidas: z
     .boolean()
     .optional()
@@ -42,4 +62,6 @@ export interface ListarOpsComProdutoResult {
   itens: OrdemProducaoComProduto[];
   geradoEm: string | null;
   idadeMs: number | null;
+  /** Presente só quando o cache ainda não foi populado (`status: "sem_dado"`). */
+  aviso?: string;
 }

@@ -12,6 +12,7 @@ import { abrirBancoAtivo, credenciaisOmieOuFalha } from "../../infrastructure/ca
 import {
   listarOpsComProdutoParamSchema,
   type OrdemProducaoComProduto,
+  type ListarOpsComProdutoResult,
 } from "../../application/dto/listar-ops-com-produto.dto.js";
 import {
   alterarOPParamSchema,
@@ -102,13 +103,15 @@ export const ordemProducaoTools: ToolDef[] = [
       "(a etapa do kanban é configurável por conta — de 3 a 6 fases com nomes próprios — e a API " +
       "não tem endpoint pra traduzir o código pro nome; se você souber o significado das etapas " +
       "dessa conta, pode interpretar etapaCodigo). Suporta paginação (pagina/registros_por_pagina, " +
-      "agora aplicada sobre o cache local), o filtro apenas_nao_concluidas e o parâmetro genérico " +
+      "agora aplicada sobre o cache local): atenção, totalRegistros/totalPaginas refletem o total " +
+      "JÁ FILTRADO do cache inteiro (antes refletiam só a página crua devolvida pela Omie). " +
+      "Também aceita o filtro apenas_nao_concluidas e o parâmetro genérico " +
       "'filtros' — lista de critérios (campo/operador/valor) aplicados sobre QUALQUER campo do " +
       "resultado já enriquecido (ex: descricaoProduto, codigoSku, quantidade), com operadores " +
       "igual/diferente/contem/maior_que/menor_que/entre. Ex: filtros: [{ campo: " +
       "'descricaoProduto', operador: 'contem', valor: '100kg' }].",
     inputSchema: { param: listarOpsComProdutoParamSchema },
-    execute: async (_client, param) => {
+    execute: async (_client, param): Promise<ListarOpsComProdutoResult> => {
       const parsed = listarOpsComProdutoParamSchema.parse(param);
       const { appKey } = credenciaisOmieOuFalha();
       const db = abrirBancoAtivo(appKey);
