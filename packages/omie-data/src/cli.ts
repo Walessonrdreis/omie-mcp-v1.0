@@ -118,12 +118,13 @@ export function formatarResultadoProdutos(resultado: ResultadoConsultaProdutos):
 
   const infoData = `Dado coletado em ${formatarDataHoraBrasilia(resultado.geradoEm as string)} (horário de Brasília) — há ${formatarDuracaoHms(resultado.idadeMs as number)}`;
 
-  const colunas = ["Nome", "Código", "Categoria", "Valor", "Ativo"];
+  const colunas = ["Nome", "Código", "Categoria", "Valor", "Estoque", "Ativo"];
   const linhas = resultado.produtos.map((produto) => [
     produto.nome,
     produto.codigo,
     produto.categoria,
     produto.valorFormatado,
+    String(produto.quantidadeEmEstoque),
     produto.ativo,
   ]);
 

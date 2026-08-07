@@ -92,3 +92,77 @@ describe("OmieHttpClientReal", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("OmieHttpClientReal — listarPosicoesEstoquePagina", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("monta a URL e o payload corretos e devolve o JSON da resposta", async () => {
+    const respostaFake = {
+      pagina: 1,
+      total_de_paginas: 1,
+      pos_estoque: [
+        {
+          cCodigo: "A",
+          cDescricao: "Produto A",
+          codigo_local_estoque: 1,
+          fisico: 10,
+          nCodProd: 1,
+          nSaldo: 10,
+          reservado: 0,
+          nPendente: 0,
+          nCMC: 5,
+        },
+      ],
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify(respostaFake),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const resultado = await client.listarPosicoesEstoquePagina(1, 50);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, opcoes] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://app.omie.com.br/api/v1/estoque/consulta/");
+    const corpo = JSON.parse(opcoes.body);
+    expect(corpo.call).toBe("ListarPosEstoque");
+    expect(corpo.app_key).toBe("minha-key");
+    expect(corpo.app_secret).toBe("meu-secret");
+
+    expect(resultado).toEqual(respostaFake);
+  });
+
+  it("rejeita com mensagem legível quando a Omie devolve faultstring", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ faultstring: "Erro de autenticação", faultcode: "SOAP-ENV:Client-101" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("key-invalida", "secret-invalido");
+
+    await expect(client.listarPosicoesEstoquePagina(1, 50)).rejects.toThrow("Erro de autenticação");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("tenta de novo em erro 5xx e desiste depois de 3 tentativas", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      text: async () => "Service Unavailable",
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+
+    await expect(client.listarPosicoesEstoquePagina(1, 50)).rejects.toThrow(/503/);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+});

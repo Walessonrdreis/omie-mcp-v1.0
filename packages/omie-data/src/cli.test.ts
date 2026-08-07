@@ -106,6 +106,9 @@ describe("formatarResultadoProdutos", () => {
           unidade: "UND",
           valorFormatado: "R$ 38,00",
           ativo: "Sim",
+          quantidadeEmEstoque: 12,
+          valorEmEstoqueCusto: 100,
+          valorEmEstoqueVenda: 456,
         },
       ],
     });
@@ -116,6 +119,8 @@ describe("formatarResultadoProdutos", () => {
     expect(texto).toContain("Barra Media");
     expect(texto).toContain("R$ 38,00");
     expect(texto).toContain("Sim");
+    expect(texto).toContain("Estoque");
+    expect(texto).toContain("12");
   });
 
   it("formata geradoEm em horário de Brasília e idadeMs como HH:MM:SS", () => {
@@ -132,6 +137,9 @@ describe("formatarResultadoProdutos", () => {
           unidade: "UN",
           valorFormatado: "R$ 1,00",
           ativo: "Sim",
+          quantidadeEmEstoque: 5,
+          valorEmEstoqueCusto: 10,
+          valorEmEstoqueVenda: 20,
         },
       ],
     });
@@ -148,7 +156,7 @@ describe("formatarResultadoProdutos", () => {
       geradoEm: "2026-08-04T18:27:19.191Z",
       idadeMs: 1000,
       produtos: [
-        { codigoProduto: 1, codigo: "A", nome: "Curto", categoria: "Cat", unidade: "UN", valorFormatado: "R$ 1,00", ativo: "Sim" },
+        { codigoProduto: 1, codigo: "A", nome: "Curto", categoria: "Cat", unidade: "UN", valorFormatado: "R$ 1,00", ativo: "Sim", quantidadeEmEstoque: 1, valorEmEstoqueCusto: 1, valorEmEstoqueVenda: 1 },
         {
           codigoProduto: 2,
           codigo: "BBBBBB",
@@ -157,6 +165,9 @@ describe("formatarResultadoProdutos", () => {
           unidade: "UN",
           valorFormatado: "R$ 100,00",
           ativo: "Não",
+          quantidadeEmEstoque: 250,
+          valorEmEstoqueCusto: 500,
+          valorEmEstoqueVenda: 1000,
         },
       ],
     });
