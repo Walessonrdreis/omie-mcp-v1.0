@@ -233,6 +233,8 @@ describe("OmieHttpClientReal — listarOrdensProducaoPagina", () => {
   });
 
   it("tenta de novo em erro 5xx e desiste depois de 3 tentativas", async () => {
+    // Timers falsos: sem eles este teste espera ~2s de verdade.
+    vi.useFakeTimers();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
       status: 503,
@@ -242,8 +244,11 @@ describe("OmieHttpClientReal — listarOrdensProducaoPagina", () => {
 
     const client = new OmieHttpClientReal("minha-key", "meu-secret");
 
-    await expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(/503/);
+    const assercao = expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(/503/);
+    await vi.runAllTimersAsync();
+    await assercao;
     expect(fetchMock).toHaveBeenCalledTimes(3);
+    vi.useRealTimers();
   });
 
   it("não tenta de novo em erro 4xx", async () => {
@@ -405,6 +410,56 @@ describe("OmieHttpClientReal — listarOrdensProducaoPagina, rate limit via faul
     const assercao = expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(
       /consumo indevido/i
     );
+    await vi.runAllTimersAsync();
+    await assercao;
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  // A Omie também sinaliza rate limit por status HTTP em alguns casos — ver o
+  // comentário em src/integrations/omie/omieClient.ts:129-130 e os status
+  // 425/429 reconhecidos por calcularEsperaRetry lá. Aqui o ramo !response.ok
+  // vem antes da leitura do corpo, então precisa distinguir sozinho.
+  it("tenta de novo em HTTP 429 e devolve o sucesso seguinte", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 429, text: async () => "Too Many Requests" })
+      .mockResolvedValueOnce(respostaOk(paginaVazia));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const promessa = client.listarOrdensProducaoPagina(1, 50);
+    await vi.runAllTimersAsync();
+
+    await expect(promessa).resolves.toEqual(paginaVazia);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("tenta de novo em HTTP 425 e devolve o sucesso seguinte", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 425, text: async () => "Too Early" })
+      .mockResolvedValueOnce(respostaOk(paginaVazia));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const promessa = client.listarOrdensProducaoPagina(1, 50);
+    await vi.runAllTimersAsync();
+
+    await expect(promessa).resolves.toEqual(paginaVazia);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("desiste depois de 3 tentativas quando o HTTP 429 persiste", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: false, status: 429, text: async () => "Too Many Requests" });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const assercao = expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(/429/);
     await vi.runAllTimersAsync();
     await assercao;
     expect(fetchMock).toHaveBeenCalledTimes(3);

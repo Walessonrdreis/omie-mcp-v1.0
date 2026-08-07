@@ -189,8 +189,13 @@ export class OmieHttpClientReal
 
       if (!response.ok) {
         ultimoErro = new Error(`API Omie respondeu HTTP ${response.status}`);
-        if (response.status >= 500 && tentativa < MAX_TENTATIVAS) {
-          await aguardar(ESPERA_ENTRE_TENTATIVAS_MS);
+        // Além dos 5xx, a Omie também sinaliza rate limit por status HTTP em
+        // alguns casos — 425/429, os mesmos que `calcularEsperaRetry` em
+        // src/integrations/omie/omieClient.ts reconhece. Os demais 4xx (400,
+        // 401, ...) continuam sendo erro real, sem retry inútil.
+        const ehRateLimitHttp = response.status === 425 || response.status === 429;
+        if ((response.status >= 500 || ehRateLimitHttp) && tentativa < MAX_TENTATIVAS) {
+          await aguardar(ehRateLimitHttp ? ESPERA_RATE_LIMIT_PADRAO_MS : ESPERA_ENTRE_TENTATIVAS_MS);
           continue;
         }
         throw ultimoErro;
