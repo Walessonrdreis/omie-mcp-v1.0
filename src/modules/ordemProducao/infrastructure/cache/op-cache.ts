@@ -27,9 +27,14 @@ export interface CredenciaisOmie {
 export function credenciaisOmieOuFalha(): CredenciaisOmie {
   const appKey = process.env.OMIE_APP_KEY;
   const appSecret = process.env.OMIE_APP_SECRET;
+  // Só o NOME da variável entra na mensagem — nunca o valor, que é segredo.
+  const ausentes: string[] = [];
+  if (!appKey) ausentes.push("OMIE_APP_KEY");
+  if (!appSecret) ausentes.push("OMIE_APP_SECRET");
   if (!appKey || !appSecret) {
     throw new Error(
-      "Credenciais da Omie não configuradas. Defina OMIE_APP_KEY e OMIE_APP_SECRET no .env."
+      `Credenciais da Omie não configuradas: ${ausentes.join(", ")} ausente(s). ` +
+        "Defina OMIE_APP_KEY e OMIE_APP_SECRET no .env."
     );
   }
   return { appKey, appSecret };
