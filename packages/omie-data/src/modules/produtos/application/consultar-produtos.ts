@@ -41,7 +41,7 @@ export function consultarProdutos(
 
   const linhas = db
     .prepare(
-      `SELECT codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em FROM view_produtos ${where} ORDER BY gerado_em DESC`
+      `SELECT codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em, quantidade_em_estoque, valor_em_estoque_custo, valor_em_estoque_venda FROM view_produtos ${where} ORDER BY gerado_em DESC`
     )
     .all(...parametros) as Array<{
       codigo_produto: number;
@@ -52,6 +52,9 @@ export function consultarProdutos(
       valor_formatado: string;
       ativo: "Sim" | "Não";
       gerado_em: string;
+      quantidade_em_estoque: number;
+      valor_em_estoque_custo: number;
+      valor_em_estoque_venda: number;
     }>;
 
   if (linhas.length === 0) {
@@ -66,6 +69,9 @@ export function consultarProdutos(
     unidade: linha.unidade,
     valorFormatado: linha.valor_formatado,
     ativo: linha.ativo,
+    quantidadeEmEstoque: linha.quantidade_em_estoque,
+    valorEmEstoqueCusto: linha.valor_em_estoque_custo,
+    valorEmEstoqueVenda: linha.valor_em_estoque_venda,
   }));
 
   const geradoEm = linhas[0].gerado_em;

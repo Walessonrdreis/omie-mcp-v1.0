@@ -20,8 +20,8 @@ describe("consultarProdutos", () => {
     const geradoEm = new Date(Date.now() - 60_000).toISOString(); // 1 min atrás
 
     db.prepare(`
-      INSERT INTO view_produtos (codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em)
-      VALUES (1, 'A', 'Produto A', 'Cat X', 'UN', 'R$ 10,00', 'Sim', ?)
+      INSERT INTO view_produtos (codigo_produto, codigo, nome, categoria, unidade, valor_formatado, ativo, gerado_em, quantidade_em_estoque, valor_em_estoque_custo, valor_em_estoque_venda)
+      VALUES (1, 'A', 'Produto A', 'Cat X', 'UN', 'R$ 10,00', 'Sim', ?, 30, 115, 300)
     `).run(geradoEm);
 
     const resultado = consultarProdutos(db);
@@ -29,6 +29,9 @@ describe("consultarProdutos", () => {
     expect(resultado.status).toBe("dado_disponivel");
     expect(resultado.produtos).toHaveLength(1);
     expect(resultado.produtos[0].nome).toBe("Produto A");
+    expect(resultado.produtos[0].quantidadeEmEstoque).toBe(30);
+    expect(resultado.produtos[0].valorEmEstoqueCusto).toBe(115);
+    expect(resultado.produtos[0].valorEmEstoqueVenda).toBe(300);
     expect(resultado.geradoEm).toBe(geradoEm);
     expect(resultado.idadeMs).toBeGreaterThanOrEqual(60_000);
 
