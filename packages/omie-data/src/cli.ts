@@ -6,6 +6,7 @@ import { abrirBanco } from "./infrastructure/database.js";
 import { carregarCredencialAtiva } from "./infrastructure/credenciais.js";
 import { diretorioDados } from "./infrastructure/caminhos.js";
 import { OmieHttpClientReal } from "./infrastructure/http-client-real.js";
+import { Spinner } from "./infrastructure/spinner.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
 import { rodarProdutos } from "./modules/produtos/application/rodar-produtos.js";
 import { rodarAjudaInterativaEmLoop } from "./modules/produtos/application/rodar-ajuda-interativo.js";
@@ -187,7 +188,10 @@ async function main() {
         );
         // "voltar" e "sair" não têm pra onde voltar aqui (invocação direta) — só encerra depois do loop.
       } else {
+        const spinner = comando.atualizar ? new Spinner("Atualizando dados da Omie...") : undefined;
+        spinner?.start();
         const resultado = await rodarProdutos(db, client, comando.atualizar, comando.filtros);
+        spinner?.stop();
         console.log(process.stdout.isTTY ? formatarResultadoProdutos(resultado) : JSON.stringify(resultado));
       }
       process.exitCode = 0;

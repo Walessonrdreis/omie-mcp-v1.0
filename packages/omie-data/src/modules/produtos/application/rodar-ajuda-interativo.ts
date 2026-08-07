@@ -3,6 +3,7 @@ import { select, search } from "@inquirer/prompts";
 import { IProdutosHttpClient } from "../../../domain/produtos-http-client.js";
 import { IEstoqueHttpClient } from "../../../domain/estoque-http-client.js";
 import { rodarProdutos } from "./rodar-produtos.js";
+import { Spinner } from "../../../infrastructure/spinner.js";
 import { FiltrosProdutos, ResultadoConsultaProdutos } from "./consultar-produtos.js";
 
 export interface OpcaoBusca {
@@ -133,7 +134,10 @@ export async function rodarAjudaInterativa(
   }
 
   if (atualizar) {
+    const spinner = new Spinner("Atualizando dados da Omie...");
+    spinner.start();
     await rodarProdutos(db, client, true);
+    spinner.stop();
   }
 
   const filtroPrompt: FiltrosProdutos = {};
