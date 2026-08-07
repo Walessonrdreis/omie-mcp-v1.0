@@ -35,10 +35,13 @@ class ClienteEspiao implements IOrdemProducaoHttpClient {
 }
 
 describe("collectOrdemProducao", () => {
-  let db: ReturnType<typeof abrirBanco>;
+  let db: ReturnType<typeof abrirBanco> | undefined;
 
   afterEach(() => {
     db?.close();
+    // zera pra não fechar duas vezes a mesma conexão caso abrirBanco lance no
+    // teste seguinte — o erro real ficaria escondido atrás de um TypeError.
+    db = undefined;
   });
 
   it("grava cada OP em raw_ordens_producao com payload bruto", async () => {
