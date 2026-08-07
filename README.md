@@ -8,8 +8,18 @@ Permite que o Claude consulte e execute operações no ERP Omie via ferramentas 
 
 1. Instale as dependências:
    ```bash
-   npm install
+   pnpm install
    ```
+
+   > O gerenciador deste repo é o **pnpm** (workspace). Não rode `npm install`
+   > nem `npm run` na raiz. A única exceção intencional é rodar `npm test` /
+   > `npm run build` de dentro de `packages/omie-data`.
+   >
+   > A devDependency **`vite`** da raiz não é usada por código nenhum — ela existe
+   > só pra fixar a resolução da peer dependency do `vitest`. Sem ela o pnpm
+   > resolvia `vite@5`, incompatível com `vitest@4` (que exige `vite ^6 || ^7 || ^8`),
+   > e a suíte inteira quebrava na inicialização. **Não remova como "dependência
+   > órfã"** — nenhum teste pega essa remoção.
 
 2. Copie `.env.example` para `.env` e preencha com sua App Key e App Secret da Omie (obtidas em https://developer.omie.com.br/my-apps/):
    ```bash
@@ -18,7 +28,7 @@ Permite que o Claude consulte e execute operações no ERP Omie via ferramentas 
 
 3. Compile:
    ```bash
-   npm run build
+   pnpm run build
    ```
 
 4. Registre o servidor no seu cliente MCP (ex: Claude Desktop / Claude Code), apontando para `dist/index.js`, com as variáveis de ambiente `OMIE_APP_KEY` e `OMIE_APP_SECRET`.
@@ -47,7 +57,7 @@ Além do servidor MCP (stdio, pro Claude), existe um segundo transporte —
 quem quiser montar um frontend ou outro backend consumindo essa lógica sem
 falar o protocolo MCP.
 
-Exige uma API key: gere uma com `npm run gerar-api-key`, coloque em
+Exige uma API key: gere uma com `pnpm run gerar-api-key`, coloque em
 `HTTP_API_KEY` no `.env` — o servidor recusa subir sem ela. Toda rota exige o
 header `Authorization: Bearer <HTTP_API_KEY>` (retorna 401 sem isso). Ainda só
 escuta em `127.0.0.1`; API key é o mínimo pra este estágio (local,
@@ -65,9 +75,9 @@ Duas camadas extra de proteção:
   destrutiva acidental (script com bug, loop, etc.).
 
 ```bash
-npm run gerar-api-key  # gera a chave e mostra a linha pra colar no .env
-npm run dev:http    # desenvolvimento (tsx)
-npm run start:http  # produção (build + node dist/httpServer.js)
+pnpm run gerar-api-key  # gera a chave e mostra a linha pra colar no .env
+pnpm run dev:http    # desenvolvimento (tsx)
+pnpm run start:http  # produção (build + node dist/httpServer.js)
 ```
 
 - `GET /tools` — lista todas as ferramentas disponíveis (nome + descrição). Passe
@@ -234,13 +244,13 @@ src/
 
 > **Referência técnica completa** (nome de cada ferramenta, parâmetros um a um, quais são
 > destrutivas e limitações gerais): [`docs/FERRAMENTAS.md`](docs/FERRAMENTAS.md), gerado
-> automaticamente do código via `npm run doc-ferramentas`. As seções abaixo focam no contexto
+> automaticamente do código via `pnpm run doc-ferramentas`. As seções abaixo focam no contexto
 > de negócio e nas descobertas de cada módulo (o "porquê"); o gerado foca no "o quê" (schema).
 
 > **Skill do Claude Code** (`.claude/skills/omie-skill/`): a mesma referência técnica, mas
 > quebrada em um cache por módulo (`cache/*.md` + `cache/_index.md`) pra o Claude consultar só
 > o módulo relevante em vez do `FERRAMENTAS.md` inteiro — economiza tokens de contexto ao usar
-> as ferramentas `omie_*`. O cache é gerado por comando (`npm run skill-cache`, ou
+> as ferramentas `omie_*`. O cache é gerado por comando (`pnpm run skill-cache`, ou
 > `/omie-skill:atualizar-cache` no chat), não automaticamente; ver
 > `.claude/skills/omie-skill/SKILL.md` para detalhes e `.claude/commands/omie-skill/` para os
 > comandos de terminal (`/omie-skill:guia`, `/omie-skill:atualizar-cache`, `/omie-skill:verificar-cache`).

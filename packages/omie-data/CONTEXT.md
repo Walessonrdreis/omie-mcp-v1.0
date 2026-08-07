@@ -29,3 +29,17 @@ _Avoid_: query, busca
 - **Uma View por pergunta do usuário, não uma View por recurso da Omie.** Se responder "quais produtos tenho" exige nome + preço + estoque, esses três vêm de uma `view_produtos` só (mesmo que estoque venha de um Dado Bruto separado), não de três Views que o usuário/CLI precisaria cruzar na mão.
 - **O join acontece na Tradução, nunca na Consulta.** A Consulta é sempre um `SELECT` simples numa única View.
 - `quantidade_estoque` do payload de `ListarProdutos`/`ConsultarProduto` da Omie sempre vem `0` nesta conta — não é fonte confiável de estoque. Precisa vir de um Dado Bruto de estoque separado (recurso próprio da Omie), nunca de coluna dentro do payload de produto.
+
+## Instalação de dependências
+
+Este pacote é um workspace do pnpm da raiz do repo. Instale/atualize
+dependências sempre rodando `pnpm install` **na raiz** do repo — nunca
+`npm install` dentro desta pasta (o antigo workaround de `cd
+packages/omie-data && npm install` ficou obsoleto depois que o pacote
+virou dependência real do workspace pnpm; ver
+`docs/superpowers/plans/2026-08-07-pnpm-workspace-cleanup.md`).
+
+O script `prepare` deste pacote compila o `omie-data` automaticamente como
+parte da instalação do workspace — quando você roda `pnpm install` na raiz,
+o build TypeScript já acontece junto (via `tsc`). Não é preciso rodar 
+`npm run build` separadamente dentro da pasta.
