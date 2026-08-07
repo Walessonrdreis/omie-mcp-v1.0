@@ -2,6 +2,19 @@ import type Database from "better-sqlite3";
 import { OrdemProducaoOmieBruta } from "../domain/ordem-producao.js";
 import { ProdutoOmieBruto } from "../../produtos/domain/produto.js";
 
+export interface ResultadoTraducaoOrdemProducao {
+  /** Quantidade de OPs escritas na view. */
+  total: number;
+  /**
+   * O MESMO `gerado_em` (ISO 8601) gravado em todas as linhas desta passada.
+   * Devolvido em vez de deixar o chamador carimbar um relógio próprio: quem
+   * consome a view lê este valor (via `geradoEm`/`idadeMs`), então um segundo
+   * timestamp gerado depois divergiria por construção e anunciaria o dado como
+   * mais fresco do que ele é.
+   */
+  geradoEm: string;
+}
+
 /**
  * Traduz o Dado Bruto de Ordens de Produção para a View legível, enriquecendo
  * cada OP com o SKU/descrição do produto acabado a partir de `raw_produtos`.
@@ -9,7 +22,7 @@ import { ProdutoOmieBruto } from "../../produtos/domain/produto.js";
  * Não faz rede: só lê Dado Bruto e escreve a View, então pode ser refeita a
  * qualquer momento sem custo de API. O upsert por `codigo_op` a torna idempotente.
  */
-export function translateOrdemProducao(db: Database.Database): number {
+export function translateOrdemProducao(db: Database.Database): ResultadoTraducaoOrdemProducao {
   const produtosBrutos = db
     .prepare("SELECT payload_json FROM raw_produtos")
     .all() as { payload_json: string }[];
@@ -76,5 +89,5 @@ export function translateOrdemProducao(db: Database.Database): number {
     total++;
   }
 
-  return total;
+  return { total, geradoEm: agora };
 }

@@ -111,18 +111,37 @@ export const ordemProducaoTools: ToolDef[] = [
     description:
       "Atualiza o cache local de Ordens de Produção, buscando TODAS as OPs na Omie " +
       "(ListarOrdemProducao, paginado) e regravando o cache que omie_op_listar_com_produto lê. " +
-      "Sem parâmetro. Chame antes de omie_op_listar_com_produto se precisar de dado mais recente " +
-      "que o cache atual — a resposta de omie_op_listar_com_produto sempre informa a idade do dado " +
-      "(geradoEm/idadeMs), então normalmente não é preciso chamar isto a cada pergunta.",
+      "Sem parâmetro. CARA: são dezenas de chamadas reais à Omie (~16 páginas com 300ms de espera " +
+      "entre elas, vários segundos por execução) — NÃO chame a cada pergunta. Chame antes de " +
+      "omie_op_listar_com_produto só se precisar de dado mais recente que o cache atual; a resposta " +
+      "de omie_op_listar_com_produto sempre informa a idade do dado (geradoEm/idadeMs), que é o " +
+      "critério pra decidir. Devolve 'atualizadoEm', o mesmo carimbo que passa a ser lido como " +
+      "'geradoEm' pelas consultas ao cache.",
     inputSchema: { param: z.object({}).optional() },
     execute: async () => {
       const { appKey, appSecret } = credenciaisOmieOuFalha();
       const db = abrirBancoAtivo(appKey);
       try {
         const client = new OmieHttpClientReal(appKey, appSecret);
-        const totalColetado = await collectOrdemProducao(db, client);
-        translateOrdemProducao(db);
-        return { totalColetado, atualizadoEm: new Date().toISOString() };
+        let totalColetado: number;
+        try {
+          totalColetado = await collectOrdemProducao(db, client);
+        } catch (erro) {
+          // A coleta grava página a página, sem transação: uma falha no meio deixa
+          // as páginas já baixadas no cache, misturadas com o dado da coleta
+          // anterior. Sem este contexto o chamador recebe só o erro de rede e não
+          // tem como saber que o cache ficou parcialmente sobrescrito.
+          const motivo = erro instanceof Error ? erro.message : String(erro);
+          throw new Error(
+            `Coleta de Ordens de Produção interrompida: ${motivo}. O cache pode estar ` +
+              "PARCIALMENTE atualizado (as páginas já baixadas foram gravadas). Rode " +
+              "omie_op_atualizar_cache de novo antes de confiar no dado."
+          );
+        }
+        // O carimbo vem de quem escreveu a view — gerar um relógio novo aqui
+        // divergiria do `geradoEm` que o consumidor efetivamente lê.
+        const { geradoEm } = translateOrdemProducao(db);
+        return { totalColetado, atualizadoEm: geradoEm };
       } finally {
         db.close();
       }

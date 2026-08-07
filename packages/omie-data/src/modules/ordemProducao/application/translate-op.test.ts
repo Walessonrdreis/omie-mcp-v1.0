@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { abrirBanco } from "../../../infrastructure/database.js";
 import { translateOrdemProducao } from "./translate-op.js";
 
@@ -84,14 +84,56 @@ describe("translateOrdemProducao", () => {
     db.close();
   });
 
+  it("devolve o mesmo geradoEm que gravou em todas as linhas da view", () => {
+    const db = abrirBanco(":memory:");
+    inserirProduto(db, 1, "SKU-A", "Produto A");
+    inserirOpBruta(db, 600, 1, "S");
+    inserirOpBruta(db, 601, 1, "N");
+
+    const resultado = translateOrdemProducao(db);
+
+    expect(resultado.total).toBe(2);
+    // ISO 8601 UTC, o mesmo formato que a view guarda.
+    expect(resultado.geradoEm).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+
+    const linhas = db
+      .prepare("SELECT DISTINCT gerado_em FROM view_ordens_producao")
+      .all() as { gerado_em: string }[];
+    expect(linhas).toEqual([{ gerado_em: resultado.geradoEm }]);
+
+    db.close();
+  });
+
+  it("devolve um geradoEm novo a cada execução, acompanhando o que regrava na view", () => {
+    const db = abrirBanco(":memory:");
+    inserirProduto(db, 1, "SKU-A", "Produto A");
+    inserirOpBruta(db, 610, 1, "N");
+
+    const primeira = translateOrdemProducao(db);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-07T12:00:00.000Z"));
+    const segunda = translateOrdemProducao(db);
+
+    expect(segunda.geradoEm).toBe("2026-08-07T12:00:00.000Z");
+    expect(segunda.geradoEm).not.toBe(primeira.geradoEm);
+
+    const view = db
+      .prepare("SELECT gerado_em FROM view_ordens_producao WHERE codigo_op = 610")
+      .get() as { gerado_em: string };
+    expect(view.gerado_em).toBe(segunda.geradoEm);
+
+    vi.useRealTimers();
+    db.close();
+  });
+
   it("é idempotente: rodar duas vezes não duplica nem corrompe a view", () => {
     const db = abrirBanco(":memory:");
     inserirProduto(db, 1, "SKU-A", "Produto A");
     inserirOpBruta(db, 400, 1, "S");
     inserirOpBruta(db, 401, 1, "N");
 
-    expect(translateOrdemProducao(db)).toBe(2);
-    expect(translateOrdemProducao(db)).toBe(2);
+    expect(translateOrdemProducao(db).total).toBe(2);
+    expect(translateOrdemProducao(db).total).toBe(2);
 
     const total = db.prepare("SELECT COUNT(*) AS n FROM view_ordens_producao").get() as any;
     expect(total.n).toBe(2);
