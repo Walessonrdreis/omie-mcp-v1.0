@@ -1,6 +1,7 @@
 import type Database from "better-sqlite3";
 import { select, search } from "@inquirer/prompts";
 import { IProdutosHttpClient } from "../../../domain/produtos-http-client.js";
+import { IEstoqueHttpClient } from "../../../domain/estoque-http-client.js";
 import { rodarProdutos } from "./rodar-produtos.js";
 import { FiltrosProdutos, ResultadoConsultaProdutos } from "./consultar-produtos.js";
 
@@ -117,7 +118,7 @@ export type ResultadoAjudaInterativa =
 
 export async function rodarAjudaInterativa(
   db: Database.Database,
-  client: IProdutosHttpClient,
+  client: IProdutosHttpClient & IEstoqueHttpClient,
   atualizar: boolean,
   filtrosBase: FiltrosProdutos = {},
   prompts: IPromptsInterativos = criarPromptsReais()
@@ -153,7 +154,7 @@ export async function rodarAjudaInterativa(
 
 export async function rodarAjudaInterativaEmLoop(
   db: Database.Database,
-  client: IProdutosHttpClient,
+  client: IProdutosHttpClient & IEstoqueHttpClient,
   atualizar: boolean | "perguntar",
   filtrosBase: FiltrosProdutos,
   mostrarResultado: (resultado: ResultadoConsultaProdutos) => void,
