@@ -45,4 +45,23 @@ describe("rodarProdutos", () => {
 
     db.close();
   });
+
+  it("com atualizar=true, coleta estoque e reflete na quantidade em estoque", async () => {
+    const db = abrirBanco(":memory:");
+    const client = new FakeHttpClient(
+      [
+        { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Fam 1" },
+      ],
+      [
+        { cCodigo: "A", cDescricao: "Produto A", codigo_local_estoque: 0, fisico: 5, nCodProd: 1, nSaldo: 5, reservado: 0, nPendente: 0, nCMC: 0 },
+      ]
+    );
+
+    const resultado = await rodarProdutos(db, client, true);
+
+    expect(resultado.status).toBe("dado_disponivel");
+    expect(resultado.produtos[0].quantidadeEmEstoque).toBe(5);
+
+    db.close();
+  });
 });
