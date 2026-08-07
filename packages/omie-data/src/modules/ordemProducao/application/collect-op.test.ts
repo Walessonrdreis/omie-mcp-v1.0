@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { abrirBanco } from "../../../infrastructure/database.js";
 import { FakeHttpClient } from "../../../infrastructure/fake-http-client.js";
 import {
@@ -35,8 +35,14 @@ class ClienteEspiao implements IOrdemProducaoHttpClient {
 }
 
 describe("collectOrdemProducao", () => {
+  let db: ReturnType<typeof abrirBanco>;
+
+  afterEach(() => {
+    db?.close();
+  });
+
   it("grava cada OP em raw_ordens_producao com payload bruto", async () => {
-    const db = abrirBanco(":memory:");
+    db = abrirBanco(":memory:");
     const client = new FakeHttpClient([], [], [criarOp(100)]);
 
     const total = await collectOrdemProducao(db, client);
@@ -51,11 +57,10 @@ describe("collectOrdemProducao", () => {
     expect(JSON.parse(linha.payload_json).identificacao.nQtde).toBe(10);
     expect(linha.coletado_em).toBeTruthy();
 
-    db.close();
   });
 
   it("faz upsert: mesma OP rodada duas vezes não duplica", async () => {
-    const db = abrirBanco(":memory:");
+    db = abrirBanco(":memory:");
     const client = new FakeHttpClient([], [], [criarOp(100)]);
 
     await collectOrdemProducao(db, client);
@@ -64,22 +69,20 @@ describe("collectOrdemProducao", () => {
     const linhas = db.prepare("SELECT COUNT(*) as total FROM raw_ordens_producao").get() as { total: number };
     expect(linhas.total).toBe(1);
 
-    db.close();
   });
 
-  it("aguarda entre páginas quando há mais de uma", async () => {
-    const db = abrirBanco(":memory:");
+  it("coleta todas as OPs quando há mais de uma página", async () => {
+    db = abrirBanco(":memory:");
     const ordens = Array.from({ length: 150 }, (_, i) => criarOp(i + 1));
     const client = new FakeHttpClient([], [], ordens);
 
     const total = await collectOrdemProducao(db, client, 0); // sem espera no teste
 
     expect(total).toBe(150);
-    db.close();
   });
 
   it("percorre todas as páginas sem pular nem repetir registros", async () => {
-    const db = abrirBanco(":memory:");
+    db = abrirBanco(":memory:");
     const ordens = Array.from({ length: 250 }, (_, i) => criarOp(i + 1));
     const espiao = new ClienteEspiao(new FakeHttpClient([], [], ordens));
 
@@ -98,11 +101,10 @@ describe("collectOrdemProducao", () => {
       Array.from({ length: 250 }, (_, i) => i + 1)
     );
 
-    db.close();
   });
 
   it("respeita o intervalo de espera configurado entre as páginas", async () => {
-    const db = abrirBanco(":memory:");
+    db = abrirBanco(":memory:");
     const ordens = Array.from({ length: 250 }, (_, i) => criarOp(i + 1));
     const espiao = new ClienteEspiao(new FakeHttpClient([], [], ordens));
     const esperaMs = 60;
@@ -114,11 +116,10 @@ describe("collectOrdemProducao", () => {
     expect(espiao.chamadas[1].instanteMs - espiao.chamadas[0].instanteMs).toBeGreaterThanOrEqual(esperaMs - 10);
     expect(espiao.chamadas[2].instanteMs - espiao.chamadas[1].instanteMs).toBeGreaterThanOrEqual(esperaMs - 10);
 
-    db.close();
   });
 
   it("não espera antes da primeira página quando só existe uma", async () => {
-    const db = abrirBanco(":memory:");
+    db = abrirBanco(":memory:");
     const espiao = new ClienteEspiao(new FakeHttpClient([], [], [criarOp(1)]));
 
     const inicio = Date.now();
@@ -128,6 +129,5 @@ describe("collectOrdemProducao", () => {
     expect(espiao.chamadas.length).toBe(1);
     expect(decorrido).toBeLessThan(400);
 
-    db.close();
   });
 });
