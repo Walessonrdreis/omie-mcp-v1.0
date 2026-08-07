@@ -1,5 +1,6 @@
 import type Database from "better-sqlite3";
 import { ProdutoOmieBruto } from "../domain/produto.js";
+import { PosicaoEstoqueOmieBruta } from "../../estoque/domain/estoque.js";
 
 function formatarMoeda(valor: number): string {
   const fixo = valor.toFixed(2);
@@ -24,10 +25,10 @@ export function translateProdutos(db: Database.Database): number {
 
   const estoquePorProduto = new Map<number, { quantidade: number; custoTotal: number }>();
   for (const linha of posicoesEstoque) {
-    const posicao = JSON.parse(linha.payload_json);
+    const posicao = JSON.parse(linha.payload_json) as PosicaoEstoqueOmieBruta;
     const atual = estoquePorProduto.get(posicao.nCodProd) ?? { quantidade: 0, custoTotal: 0 };
-    atual.quantidade += posicao.fisico;
-    atual.custoTotal += posicao.fisico * posicao.nCMC;
+    atual.quantidade += Number(posicao.fisico) || 0;
+    atual.custoTotal += (Number(posicao.fisico) || 0) * (Number(posicao.nCMC) || 0);
     estoquePorProduto.set(posicao.nCodProd, atual);
   }
 

@@ -160,4 +160,37 @@ describe("translateProdutos", () => {
 
     db.close();
   });
+
+  it("posição de estoque malformada (fisico/nCMC ausentes) não quebra a tradução", () => {
+    const db = abrirBanco(":memory:");
+
+    db.prepare(
+      "INSERT INTO raw_produtos (codigo_produto, payload_json, coletado_em) VALUES (?, ?, ?)"
+    ).run(
+      1,
+      JSON.stringify({
+        codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN",
+        valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat X",
+      }),
+      new Date().toISOString()
+    );
+
+    // Posição de estoque sem nCMC e sem fisico (comum em itens nunca custeados)
+    const agora = new Date().toISOString();
+    db.prepare(
+      "INSERT INTO raw_estoque (codigo_produto, codigo_local_estoque, payload_json, coletado_em) VALUES (?, ?, ?, ?)"
+    ).run(1, 1, JSON.stringify({
+      cCodigo: "P1", cDescricao: "Prod 1", codigo_local_estoque: 1,
+      nCodProd: 1, nSaldo: 0, reservado: 0, nPendente: 0,
+    }), agora);
+
+    expect(() => translateProdutos(db)).not.toThrow();
+
+    const view = db.prepare("SELECT * FROM view_produtos WHERE codigo_produto = 1").get() as any;
+    expect(view.quantidade_em_estoque).toBe(0);
+    expect(view.valor_em_estoque_custo).toBe(0);
+    expect(view.valor_em_estoque_venda).toBe(0);
+
+    db.close();
+  });
 });
