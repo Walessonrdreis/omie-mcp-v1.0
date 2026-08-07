@@ -96,4 +96,68 @@ describe("translateProdutos", () => {
 
     db.close();
   });
+
+  it("faz join com raw_estoque e calcula quantidade e valor em estoque", () => {
+    const db = abrirBanco(":memory:");
+
+    // Insere produto
+    db.prepare(
+      "INSERT INTO raw_produtos (codigo_produto, payload_json, coletado_em) VALUES (?, ?, ?)"
+    ).run(
+      1,
+      JSON.stringify({
+        codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN",
+        valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat X",
+      }),
+      new Date().toISOString()
+    );
+
+    // Insere duas posições de estoque pro mesmo produto (locais diferentes)
+    const agora = new Date().toISOString();
+    db.prepare(
+      "INSERT INTO raw_estoque (codigo_produto, codigo_local_estoque, payload_json, coletado_em) VALUES (?, ?, ?, ?)"
+    ).run(1, 1, JSON.stringify({
+      cCodigo: "P1", cDescricao: "Prod 1", codigo_local_estoque: 1,
+      fisico: 10, nCodProd: 1, nSaldo: 8, reservado: 2, nPendente: 0, nCMC: 5.5,
+    }), agora);
+    db.prepare(
+      "INSERT INTO raw_estoque (codigo_produto, codigo_local_estoque, payload_json, coletado_em) VALUES (?, ?, ?, ?)"
+    ).run(1, 2, JSON.stringify({
+      cCodigo: "P1", cDescricao: "Prod 1", codigo_local_estoque: 2,
+      fisico: 20, nCodProd: 1, nSaldo: 18, reservado: 2, nPendente: 0, nCMC: 3.0,
+    }), agora);
+
+    translateProdutos(db);
+
+    const view = db.prepare("SELECT * FROM view_produtos WHERE codigo_produto = 1").get() as any;
+    expect(view.quantidade_em_estoque).toBe(30);        // 10 + 20
+    expect(view.valor_em_estoque_custo).toBe(115);       // 10*5.5 + 20*3.0 = 55 + 60
+    expect(view.valor_em_estoque_venda).toBe(300);       // 30 * 10
+
+    db.close();
+  });
+
+  it("produto sem estoque fica com zero nas colunas de estoque", () => {
+    const db = abrirBanco(":memory:");
+
+    db.prepare(
+      "INSERT INTO raw_produtos (codigo_produto, payload_json, coletado_em) VALUES (?, ?, ?)"
+    ).run(
+      1,
+      JSON.stringify({
+        codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN",
+        valor_unitario: 10, inativo: "N", codigo_familia: 1,
+      }),
+      new Date().toISOString()
+    );
+
+    translateProdutos(db);
+
+    const view = db.prepare("SELECT * FROM view_produtos WHERE codigo_produto = 1").get() as any;
+    expect(view.quantidade_em_estoque).toBe(0);
+    expect(view.valor_em_estoque_custo).toBe(0);
+    expect(view.valor_em_estoque_venda).toBe(0);
+
+    db.close();
+  });
 });
