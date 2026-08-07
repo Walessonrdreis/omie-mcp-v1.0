@@ -98,11 +98,12 @@ describe("OmieHttpClientReal — listarPosicoesEstoquePagina", () => {
     vi.unstubAllGlobals();
   });
 
-  it("monta a URL e o payload corretos e devolve o JSON da resposta", async () => {
+  it("monta a URL e o payload corretos (nomes de campo reais da Omie) e devolve o JSON da resposta", async () => {
     const respostaFake = {
-      pagina: 1,
-      total_de_paginas: 1,
-      pos_estoque: [
+      nPagina: 1,
+      nTotPaginas: 1,
+      nTotRegistros: 1,
+      produtos: [
         {
           cCodigo: "A",
           cDescricao: "Produto A",
@@ -134,6 +135,11 @@ describe("OmieHttpClientReal — listarPosicoesEstoquePagina", () => {
     expect(corpo.call).toBe("ListarPosEstoque");
     expect(corpo.app_key).toBe("minha-key");
     expect(corpo.app_secret).toBe("meu-secret");
+    // Nomes de campo confirmados no gateway real já em produção
+    // (src/modules/estoque/infrastructure/gateways/estoque-omie-gateway.ts):
+    // a Omie espera nPagina/nRegPorPagina, não pagina/registros_por_pagina,
+    // e exige codigo_local_estoque (0 = todos os locais).
+    expect(corpo.param).toEqual([{ nPagina: 1, nRegPorPagina: 50, codigo_local_estoque: 0 }]);
 
     expect(resultado).toEqual(respostaFake);
   });

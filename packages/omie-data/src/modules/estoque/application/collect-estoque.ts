@@ -33,9 +33,9 @@ export async function collectEstoque(
     }
 
     const resposta = await client.listarPosicoesEstoquePagina(pagina, REGISTROS_POR_PAGINA);
-    totalPaginas = Math.min(resposta.total_de_paginas, TETO_PAGINAS);
+    totalPaginas = Math.min(resposta.nTotPaginas, TETO_PAGINAS);
 
-    for (const posicao of resposta.pos_estoque) {
+    for (const posicao of resposta.produtos) {
       upsert.run({
         codigo_produto: posicao.nCodProd,
         codigo_local_estoque: posicao.codigo_local_estoque,

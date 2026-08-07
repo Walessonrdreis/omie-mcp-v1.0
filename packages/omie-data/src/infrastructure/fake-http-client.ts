@@ -33,9 +33,10 @@ export class FakeHttpClient implements IProdutosHttpClient, IEstoqueHttpClient {
     const totalPaginas = Math.max(1, Math.ceil(this.posicoesEstoque.length / registrosPorPagina));
 
     return {
-      pagina,
-      total_de_paginas: totalPaginas,
-      pos_estoque: fatia,
+      nPagina: pagina,
+      nTotPaginas: totalPaginas,
+      nTotRegistros: this.posicoesEstoque.length,
+      produtos: fatia,
     };
   }
 }

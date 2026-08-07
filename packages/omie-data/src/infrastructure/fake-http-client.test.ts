@@ -26,9 +26,9 @@ describe("FakeHttpClient", () => {
 
     const pagina1 = await client.listarPosicoesEstoquePagina(1, 1);
 
-    expect(pagina1.pagina).toBe(1);
-    expect(pagina1.total_de_paginas).toBe(2);
-    expect(pagina1.pos_estoque).toHaveLength(1);
-    expect(pagina1.pos_estoque[0].cCodigo).toBe("P1");
+    expect(pagina1.nPagina).toBe(1);
+    expect(pagina1.nTotPaginas).toBe(2);
+    expect(pagina1.produtos).toHaveLength(1);
+    expect(pagina1.produtos[0].cCodigo).toBe("P1");
   });
 });

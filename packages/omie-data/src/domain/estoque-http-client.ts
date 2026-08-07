@@ -1,9 +1,10 @@
 import { PosicaoEstoqueOmieBruta } from "../modules/estoque/domain/estoque.js";
 
 export interface ListarPosEstoqueResponseBruto {
-  pagina: number;
-  total_de_paginas: number;
-  pos_estoque: PosicaoEstoqueOmieBruta[];
+  nPagina: number;
+  nTotPaginas: number;
+  nTotRegistros: number;
+  produtos: PosicaoEstoqueOmieBruta[];
 }
 
 export interface IEstoqueHttpClient {

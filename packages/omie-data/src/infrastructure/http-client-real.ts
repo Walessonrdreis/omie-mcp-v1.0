@@ -84,8 +84,9 @@ export class OmieHttpClientReal implements IProdutosHttpClient, IEstoqueHttpClie
           app_secret: this.appSecret,
           param: [
             {
-              pagina,
-              registros_por_pagina: registrosPorPagina,
+              nPagina: pagina,
+              nRegPorPagina: registrosPorPagina,
+              codigo_local_estoque: 0,
             },
           ],
         }),
