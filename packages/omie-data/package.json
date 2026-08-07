@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "omie-data": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "prepare": "npm run build",
+    "prepare": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
