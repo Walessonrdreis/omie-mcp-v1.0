@@ -28,6 +28,27 @@ export function abrirBanco(caminho: string): Database.Database {
       coletado_em TEXT NOT NULL,
       PRIMARY KEY (codigo_produto, codigo_local_estoque)
     );
+
+    CREATE TABLE IF NOT EXISTS raw_ordens_producao (
+      codigo_op INTEGER PRIMARY KEY,
+      payload_json TEXT NOT NULL,
+      coletado_em TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS view_ordens_producao (
+      codigo_op INTEGER PRIMARY KEY,
+      numero_op TEXT NOT NULL,
+      codigo_produto INTEGER NOT NULL,
+      codigo_sku TEXT NOT NULL,
+      descricao_produto TEXT NOT NULL,
+      quantidade REAL NOT NULL,
+      data_previsao TEXT NOT NULL,
+      data_inicio TEXT NOT NULL,
+      data_conclusao TEXT NOT NULL,
+      concluida INTEGER NOT NULL DEFAULT 0,
+      etapa_codigo TEXT NOT NULL,
+      gerado_em TEXT NOT NULL
+    );
   `);
 
   // Migração: adiciona colunas de estoque em view_produtos se não existirem

@@ -54,6 +54,32 @@ describe("abrirBanco", () => {
     db.close();
   });
 
+  it("cria a tabela raw_ordens_producao com PK simples", () => {
+    const db = abrirBanco(":memory:");
+    const tabelas = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((l: any) => l.name);
+    expect(tabelas).toContain("raw_ordens_producao");
+
+    const cols = db.prepare("PRAGMA table_info(raw_ordens_producao)").all() as any[];
+    const nomes = cols.map((c: any) => c.name);
+    expect(nomes).toContain("codigo_op");
+    expect(nomes).toContain("payload_json");
+    expect(nomes).toContain("coletado_em");
+
+    db.close();
+  });
+
+  it("cria a tabela view_ordens_producao com todas as colunas", () => {
+    const db = abrirBanco(":memory:");
+    const cols = db.prepare("PRAGMA table_info(view_ordens_producao)").all() as any[];
+    const nomes = cols.map((c: any) => c.name);
+    expect(nomes).toEqual([
+      "codigo_op", "numero_op", "codigo_produto", "codigo_sku", "descricao_produto",
+      "quantidade", "data_previsao", "data_inicio", "data_conclusao", "concluida",
+      "etapa_codigo", "gerado_em",
+    ]);
+    db.close();
+  });
+
   it("abrir o banco duas vezes num arquivo real não quebra (migração de colunas já existentes)", () => {
     dirTemporario = mkdtempSync(join(tmpdir(), "omie-data-db-"));
     const caminho = join(dirTemporario, "teste.sqlite");
