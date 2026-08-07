@@ -5,7 +5,7 @@ import { realpathSync } from "node:fs";
 import { abrirBanco } from "./infrastructure/database.js";
 import { carregarCredencialAtiva } from "./infrastructure/credenciais.js";
 import { diretorioDados } from "./infrastructure/caminhos.js";
-import { OmieHttpClientReal } from "./infrastructure/omie-http-client-real.js";
+import { OmieHttpClientReal } from "./infrastructure/http-client-real.js";
 import { rodarConfigurar } from "./application/rodar-configurar.js";
 import { rodarProdutos } from "./application/rodar-produtos.js";
 import { rodarAjudaInterativaEmLoop } from "./application/rodar-ajuda-interativo.js";

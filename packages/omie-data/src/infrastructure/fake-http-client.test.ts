@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { FakeOmieHttpClient } from "./fake-omie-http-client.js";
+import { FakeHttpClient } from "./fake-http-client.js";
 
-describe("FakeOmieHttpClient", () => {
+describe("FakeHttpClient", () => {
   it("devolve os produtos configurados, paginados", async () => {
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Fam 1" },
       { codigo_produto: 2, codigo: "B", descricao: "Produto B", unidade: "UN", valor_unitario: 20, inativo: "N", codigo_familia: 1, descricao_familia: "Fam 1" },
     ]);

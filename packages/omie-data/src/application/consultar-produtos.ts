@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { ProdutoView } from "../domain/produto.js";
+import { ProdutoView } from "../modules/produtos/domain/produto.js";
 
 export interface ResultadoConsultaProdutos {
   status: "sem_dado" | "dado_disponivel";

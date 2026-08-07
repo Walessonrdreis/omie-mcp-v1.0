@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { abrirBanco } from "../infrastructure/database.js";
-import { FakeOmieHttpClient } from "../infrastructure/fake-omie-http-client.js";
+import { FakeHttpClient } from "../infrastructure/fake-http-client.js";
 import {
   rodarAjudaInterativa,
   rodarAjudaInterativaEmLoop,
@@ -22,7 +22,7 @@ function fakePrompts(overrides: Partial<IPromptsInterativos>): IPromptsInterativ
 describe("rodarAjudaInterativa", () => {
   it("filtro 'nenhum' retorna todos os produtos", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
 
@@ -39,7 +39,7 @@ describe("rodarAjudaInterativa", () => {
 
   it("filtro 'busca' usa o termo escolhido no prompt e filtra o resultado", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Arroz Branco", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
       { codigo_produto: 2, codigo: "B", descricao: "Feijão Preto", unidade: "UN", valor_unitario: 8, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
     ]);
@@ -64,7 +64,7 @@ describe("rodarAjudaInterativa", () => {
 
   it("filtro 'ativo' usa o valor escolhido no prompt", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
       { codigo_produto: 2, codigo: "B", descricao: "Produto B", unidade: "UN", valor_unitario: 8, inativo: "S", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
@@ -89,7 +89,7 @@ describe("rodarAjudaInterativa", () => {
 
   it("filtrosBase com busca já setada + prompt escolhe 'nenhum' → usa só o filtro da base", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Arroz Branco", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
       { codigo_produto: 2, codigo: "B", descricao: "Feijão Preto", unidade: "UN", valor_unitario: 8, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
     ]);
@@ -108,7 +108,7 @@ describe("rodarAjudaInterativa", () => {
 
   it("filtrosBase com um filtro + prompt escolhe outro filtro diferente → combinam com AND", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Arroz Branco", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Grãos" },
       { codigo_produto: 2, codigo: "B", descricao: "Arroz Integral", unidade: "UN", valor_unitario: 12, inativo: "S", codigo_familia: 1, descricao_familia: "Grãos" },
     ]);
@@ -133,7 +133,7 @@ describe("rodarAjudaInterativa", () => {
 
   it("'voltar' não roda consulta nenhuma e retorna tipo 'voltar'", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
 
@@ -157,7 +157,7 @@ describe("rodarAjudaInterativa", () => {
 
   it("'sair' não roda consulta nenhuma e retorna tipo 'sair'", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
 
@@ -212,7 +212,7 @@ describe("valoresBusca", () => {
 describe("rodarAjudaInterativaEmLoop", () => {
   it("'sair' na seleção de filtro encerra o loop sem mostrar nada", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([]);
+    const client = new FakeHttpClient([]);
     const mostrados: unknown[] = [];
 
     const saida = await rodarAjudaInterativaEmLoop(
@@ -232,7 +232,7 @@ describe("rodarAjudaInterativaEmLoop", () => {
 
   it("'voltar' na seleção de filtro retorna 'voltar' sem mostrar nada", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([]);
+    const client = new FakeHttpClient([]);
     const mostrados: unknown[] = [];
 
     const saida = await rodarAjudaInterativaEmLoop(
@@ -252,7 +252,7 @@ describe("rodarAjudaInterativaEmLoop", () => {
 
   it("mostra resultado e, ao escolher 'menu', retorna 'voltar'", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
     const mostrados: unknown[] = [];
@@ -274,7 +274,7 @@ describe("rodarAjudaInterativaEmLoop", () => {
 
   it("'continuar' repete o loop e mostra resultado de novo", async () => {
     const db = abrirBanco(":memory:");
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
     const mostrados: unknown[] = [];
@@ -304,7 +304,7 @@ describe("rodarAjudaInterativaEmLoop", () => {
   it("só atualiza (coleta) na primeira iteração do loop, não nas seguintes", async () => {
     const db = abrirBanco(":memory:");
     let chamadasListar = 0;
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
     const listarOriginal = client.listarProdutosPagina.bind(client);
@@ -337,7 +337,7 @@ describe("rodarAjudaInterativaEmLoop", () => {
   it("atualizar: 'perguntar' pergunta uma vez e coleta se a resposta for sim", async () => {
     const db = abrirBanco(":memory:");
     let chamadasListar = 0;
-    const client = new FakeOmieHttpClient([
+    const client = new FakeHttpClient([
       { codigo_produto: 1, codigo: "A", descricao: "Produto A", unidade: "UN", valor_unitario: 10, inativo: "N", codigo_familia: 1, descricao_familia: "Cat" },
     ]);
     const listarOriginal = client.listarProdutosPagina.bind(client);
@@ -372,7 +372,7 @@ describe("rodarAjudaInterativaEmLoop", () => {
   it("atualizar: 'perguntar' não coleta se a resposta for não", async () => {
     const db = abrirBanco(":memory:");
     let chamadasListar = 0;
-    const client = new FakeOmieHttpClient([]);
+    const client = new FakeHttpClient([]);
     const listarOriginal = client.listarProdutosPagina.bind(client);
     client.listarProdutosPagina = async (...args) => {
       chamadasListar++;

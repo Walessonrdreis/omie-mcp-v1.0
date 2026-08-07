@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { OmieHttpClientReal } from "./omie-http-client-real.js";
+import { OmieHttpClientReal } from "./http-client-real.js";
 
 describe("OmieHttpClientReal", () => {
   afterEach(() => {

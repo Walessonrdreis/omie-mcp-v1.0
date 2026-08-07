@@ -1,4 +1,4 @@
-import { IOmieHttpClient, ListarProdutosResponseBruto } from "../domain/omie-http-client.js";
+import { IProdutosHttpClient, ListarProdutosResponseBruto } from "../domain/produtos-http-client.js";
 
 const OMIE_BASE_URL = "https://app.omie.com.br/api/v1";
 const MAX_TENTATIVAS = 3;
@@ -8,7 +8,7 @@ function aguardar(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export class OmieHttpClientReal implements IOmieHttpClient {
+export class OmieHttpClientReal implements IProdutosHttpClient {
   constructor(
     private readonly appKey: string,
     private readonly appSecret: string

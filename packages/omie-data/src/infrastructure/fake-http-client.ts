@@ -1,7 +1,7 @@
-import { IOmieHttpClient, ListarProdutosResponseBruto } from "../domain/omie-http-client.js";
-import { ProdutoOmieBruto } from "../domain/produto.js";
+import { IProdutosHttpClient, ListarProdutosResponseBruto } from "../domain/produtos-http-client.js";
+import { ProdutoOmieBruto } from "../modules/produtos/domain/produto.js";
 
-export class FakeOmieHttpClient implements IOmieHttpClient {
+export class FakeHttpClient implements IProdutosHttpClient {
   constructor(private readonly produtos: ProdutoOmieBruto[]) {}
 
   async listarProdutosPagina(

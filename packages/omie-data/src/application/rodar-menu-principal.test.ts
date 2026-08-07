@@ -2,8 +2,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { FakeOmieHttpClient } from "../infrastructure/fake-omie-http-client.js";
-import { IOmieHttpClient } from "../domain/omie-http-client.js";
+import { FakeHttpClient } from "../infrastructure/fake-http-client.js";
+import { IProdutosHttpClient } from "../domain/produtos-http-client.js";
 import { IPromptsMenu, rodarMenuPrincipal } from "./rodar-menu-principal.js";
 
 function fakePrompts(overrides: Partial<IPromptsMenu>): IPromptsMenu {
@@ -46,7 +46,7 @@ describe("rodarMenuPrincipal", () => {
   });
 
   it("comando 'configurar' pede app key e app secret e roda rodarConfigurar de verdade", async () => {
-    const client = new FakeOmieHttpClient([]);
+    const client = new FakeHttpClient([]);
 
     const resultado = await rodarMenuPrincipal(
       () => true,
@@ -68,7 +68,7 @@ describe("rodarMenuPrincipal", () => {
   });
 
   it("comando 'configurar' propaga falha de validação da API", async () => {
-    const clientInvalido: IOmieHttpClient = {
+    const clientInvalido: IProdutosHttpClient = {
       listarProdutosPagina: async () => {
         throw new Error("Erro de autenticação");
       },

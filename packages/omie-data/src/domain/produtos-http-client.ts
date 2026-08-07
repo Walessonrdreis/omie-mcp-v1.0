@@ -1,4 +1,4 @@
-import { ProdutoOmieBruto } from "./produto.js";
+import { ProdutoOmieBruto } from "../modules/produtos/domain/produto.js";
 
 export interface ListarProdutosResponseBruto {
   pagina: number;
@@ -6,7 +6,7 @@ export interface ListarProdutosResponseBruto {
   produto_servico_cadastro: ProdutoOmieBruto[];
 }
 
-export interface IOmieHttpClient {
+export interface IProdutosHttpClient {
   listarProdutosPagina(
     pagina: number,
     registrosPorPagina: number
