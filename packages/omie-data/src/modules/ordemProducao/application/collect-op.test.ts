@@ -6,7 +6,7 @@ import {
   ListarOrdemProducaoResponseBruto,
 } from "../../../domain/ordem-producao-http-client.js";
 import { OrdemProducaoOmieBruta } from "../domain/ordem-producao.js";
-import { collectOrdemProducao } from "./collect-op.js";
+import { collectOrdemProducao, ESPERA_ENTRE_PAGINAS_MS } from "./collect-op.js";
 
 function criarOp(nCodOP: number): OrdemProducaoOmieBruta {
   return {
@@ -132,5 +132,13 @@ describe("collectOrdemProducao", () => {
     expect(espiao.chamadas.length).toBe(1);
     expect(decorrido).toBeLessThan(400);
 
+  });
+
+  it("usa por padrão uma espera >= ao intervalo mínimo do OmieClient da raiz (300ms)", () => {
+    // src/integrations/omie/omieClient.ts impõe INTERVALO_MINIMO_MS = 300
+    // justamente pra evitar o "consumo redundante" da Omie. Se a coleta de OP
+    // pedir páginas mais rápido que isso, cai em rate limit no meio das ~16
+    // páginas da verificação ao vivo.
+    expect(ESPERA_ENTRE_PAGINAS_MS).toBeGreaterThanOrEqual(300);
   });
 });

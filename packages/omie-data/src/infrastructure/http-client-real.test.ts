@@ -277,3 +277,136 @@ describe("OmieHttpClientReal — listarOrdensProducaoPagina", () => {
     expect(corpo.param).toEqual([{ pagina: 3, registros_por_pagina: 200 }]);
   });
 });
+
+/**
+ * O rate limit da Omie NÃO chega como HTTP 429/5xx: chega como `faultstring`
+ * dentro de um HTTP 200 ("consumo indevido" / "consumo redundante"). Sem
+ * distinguir esse caso de um erro real, uma única ocorrência abortaria a
+ * coleta inteira de OPs no meio das ~16 páginas. Semântica replicada de
+ * `calcularEsperaRetry` em src/integrations/omie/omieClient.ts.
+ */
+describe("OmieHttpClientReal — listarOrdensProducaoPagina, rate limit via faultstring", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  function respostaOk(json: unknown) {
+    return { ok: true, status: 200, text: async () => JSON.stringify(json) };
+  }
+
+  const paginaVazia = {
+    pagina: 1,
+    total_de_paginas: 1,
+    registros: 0,
+    total_de_registros: 0,
+    cadastros: [],
+  };
+
+  it("tenta de novo quando a faultstring é de consumo indevido e devolve o sucesso seguinte", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        respostaOk({
+          faultcode: "SOAP-ENV:Client-500",
+          faultstring: "ERROR: Consumo indevido detectado.",
+        })
+      )
+      .mockResolvedValueOnce(respostaOk(paginaVazia));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const promessa = client.listarOrdensProducaoPagina(1, 50);
+    await vi.runAllTimersAsync();
+
+    await expect(promessa).resolves.toEqual(paginaVazia);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("tenta de novo quando a faultstring é de consumo redundante", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        respostaOk({
+          faultcode: "SOAP-ENV:Client-6",
+          faultstring: "ERROR: Consumo redundante detectado.",
+        })
+      )
+      .mockResolvedValueOnce(respostaOk(paginaVazia));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const promessa = client.listarOrdensProducaoPagina(1, 50);
+    await vi.runAllTimersAsync();
+
+    await expect(promessa).resolves.toEqual(paginaVazia);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("honra o tempo sugerido pela própria Omie ('Aguarde N segundos')", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        respostaOk({
+          faultcode: "SOAP-ENV:Client-500",
+          faultstring: "ERROR: Consumo indevido detectado. Aguarde 5 segundos.",
+        })
+      )
+      .mockResolvedValueOnce(respostaOk(paginaVazia));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const promessa = client.listarOrdensProducaoPagina(1, 50);
+
+    // (5 + 1) * 1000 = 6000ms: em 5000ms ainda não pode ter tentado de novo.
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await expect(promessa).resolves.toEqual(paginaVazia);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("NÃO tenta de novo quando a faultstring é de erro real (credencial inválida)", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn().mockResolvedValue(
+      respostaOk({
+        faultcode: "SOAP-ENV:Client-101",
+        faultstring: "App Key inválido",
+      })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("key-invalida", "secret-invalido");
+    // A asserção é anexada antes de avançar os timers pra não gerar
+    // "unhandled rejection" enquanto a promessa fica pendente.
+    const assercao = expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(
+      "App Key inválido"
+    );
+    await vi.runAllTimersAsync();
+    await assercao;
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("respeita o limite de tentativas quando o rate limit persiste", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn().mockResolvedValue(
+      respostaOk({
+        faultcode: "SOAP-ENV:Client-500",
+        faultstring: "ERROR: Consumo indevido detectado.",
+      })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new OmieHttpClientReal("minha-key", "meu-secret");
+    const assercao = expect(client.listarOrdensProducaoPagina(1, 50)).rejects.toThrow(
+      /consumo indevido/i
+    );
+    await vi.runAllTimersAsync();
+    await assercao;
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+});

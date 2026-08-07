@@ -3,7 +3,12 @@ import { IOrdemProducaoHttpClient } from "../../../domain/ordem-producao-http-cl
 
 const REGISTROS_POR_PAGINA = 100;
 const TETO_PAGINAS = 1000;
-const ESPERA_ENTRE_PAGINAS_MS = 200;
+/**
+ * Alinhado ao `INTERVALO_MINIMO_MS = 300` do `OmieClient` do servidor raiz
+ * (src/integrations/omie/omieClient.ts): abaixo disso a Omie devolve
+ * "consumo redundante" e a coleta das ~16 páginas de OP aborta no meio.
+ */
+export const ESPERA_ENTRE_PAGINAS_MS = 300;
 
 function aguardar(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

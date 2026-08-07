@@ -13,6 +13,38 @@ function aguardar(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Espera padrão quando a Omie sinaliza bloqueio momentâneo sem dizer quanto esperar. */
+const ESPERA_RATE_LIMIT_PADRAO_MS = 2000;
+
+/**
+ * Quanto esperar antes de tentar de novo, ou `null` se o erro não é
+ * recuperável. Replica a semântica de `calcularEsperaRetry` em
+ * `src/integrations/omie/omieClient.ts` (servidor raiz, já em produção): o
+ * rate limit da Omie não chega como HTTP 429/5xx, e sim como `faultstring`
+ * dentro de um HTTP 200 — "consumo indevido" (rate limit) ou "consumo
+ * redundante" (chamadas próximas demais). Quando a própria Omie informa
+ * "Aguarde N segundos", esse tempo é honrado. Qualquer outra `faultstring`
+ * (credencial inválida, parâmetro errado) continua falhando na hora, sem
+ * retry inútil.
+ */
+function calcularEsperaRetry(faultCode: unknown, faultstring: unknown): number | null {
+  const mensagem = String(faultstring ?? "").toLowerCase();
+
+  const segundosSugeridos = mensagem.match(/aguarde (\d+) segundos?/i);
+  if (segundosSugeridos) {
+    return (Number(segundosSugeridos[1]) + 1) * 1000;
+  }
+
+  const isRateLimit = faultCode === "SOAP-ENV:Client-500" || mensagem.includes("consumo indevido");
+  const isRedundante = faultCode === "SOAP-ENV:Client-6" || mensagem.includes("consumo redundante");
+
+  if (isRateLimit || isRedundante) {
+    return ESPERA_RATE_LIMIT_PADRAO_MS;
+  }
+
+  return null;
+}
+
 export class OmieHttpClientReal
   implements IProdutosHttpClient, IEstoqueHttpClient, IOrdemProducaoHttpClient
 {
@@ -173,8 +205,15 @@ export class OmieHttpClientReal
       }
 
       if (json && typeof json === "object" && ("faultstring" in json || "faultcode" in json)) {
-        const falha = json as { faultstring?: string };
-        throw new Error(falha.faultstring ?? "Erro desconhecido na API Omie");
+        const falha = json as { faultstring?: string; faultcode?: string };
+        ultimoErro = new Error(falha.faultstring ?? "Erro desconhecido na API Omie");
+
+        const espera = calcularEsperaRetry(falha.faultcode, falha.faultstring);
+        if (espera !== null && tentativa < MAX_TENTATIVAS) {
+          await aguardar(espera);
+          continue;
+        }
+        throw ultimoErro;
       }
 
       return json as ListarOrdemProducaoResponseBruto;
