@@ -41,3 +41,6 @@ graphify-out/cache/
 # dados locais do omie-data (contém credenciais em texto plano — nunca commitar)
 data/
 gerenciadorGoogleSheetsLabarr-feat-mvp-estoque-lotes-embalagem-confeitaria-expedicao.zip
+
+# configuração local do Claude Code (não versionável)
+.claude/settings.local.json
