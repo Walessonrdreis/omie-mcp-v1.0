@@ -17,6 +17,7 @@
     "doc-ferramentas": "pnpm run build && node scripts/gerar-doc-ferramentas.mjs",
     "skill-cache": "pnpm run build && node scripts/gerar-skill-cache.mjs",
     "skill-cache:check": "pnpm run build && node scripts/gerar-skill-cache.mjs --check",
+    "verificar-doc-omie": "node scripts/verificar-doc-omie.mjs",
     "pretest": "pnpm --filter omie-data build",
     "test": "vitest run",
     "omie-data": "node packages/omie-data/dist/cli.js"
