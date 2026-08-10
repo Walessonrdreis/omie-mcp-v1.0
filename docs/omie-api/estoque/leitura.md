@@ -83,49 +83,19 @@ snake ✅ — os dois convivem no mesmo request, como o bloco `caracteristicas` 
 produtos faz na resposta (ver
 [../glossario/campos.md](../glossario/campos.md)).
 
-### `nRegPorPagina` tem teto silencioso de 100
+### Os três que mudam o resultado
 
-Pedir mais que 100 **não** dá erro: a Omie devolve 100 e recalcula
-`nTotPaginas` de acordo ✅.
+`nRegPorPagina`, `cExibeTodos` e `dDataPosicao` fazem mais do que o nome sugere,
+e nenhum dos três comportamentos está na doc oficial. Em resumo ✅:
 
-| Pedido | `nRegistros` devolvido | `nTotPaginas` |
-|---|---|---|
-| 1 | 1 | 1353 |
-| 2 | 2 | 677 |
-| 500 | 100 | 14 |
+| Parâmetro | A surpresa |
+|---|---|
+| `nRegPorPagina` | Teto silencioso de 100 — pedir 500 devolve 100, sem erro |
+| `cExibeTodos` | `"S"` muda o universo (1353 → 2021) **e** fixa a página em 50 |
+| `dDataPosicao` | Reconstrói a posição em qualquer data passada |
 
-O repo pede 500 🔧 e recebe 100 — a varredura custa 14 requisições, não 3. Nada
-no código sinaliza isso, porque a paginação por `nTotPaginas` continua correta.
-Ver [armadilhas.md](armadilhas.md).
-
-### `cExibeTodos` decide o universo — e ignora o tamanho de página
-
-Faz duas coisas ao mesmo tempo, e a segunda não é documentada em lugar nenhum ✅:
-
-| `cExibeTodos` | `nTotRegistros` | Página efetiva |
-|---|---|---|
-| omitido ou `"N"` | 1353 | o que você pediu, até 100 |
-| `"S"` | 2021 | **50, fixo** — `nRegPorPagina` é ignorado |
-
-Com `"S"` o total bate exatamente com os 2021 produtos do catálogo ✅ (ver
-[../produtos/armadilhas.md](../produtos/armadilhas.md)): o padrão esconde **668
-produtos** que nunca tiveram movimento. Para inventário completo, `"S"` é
-obrigatório — ao custo de 41 páginas em vez de 14.
-
-### `dDataPosicao` dá posição retroativa
-
-Aceito na entrada e ecoado na resposta ✅. É o recurso mais subestimado do
-endpoint: dá para reconstruir o estoque em qualquer data passada sem manter
-histórico próprio.
-
-Comparação do mesmo produto nas duas datas ✅:
-
-| Produto | Em 01/01/2026 | Em 10/08/2026 |
-|---|---|---|
-| `100bm` | `fisico: 13` | `fisico: 180` |
-| Total de posições | 771 | 1353 |
-
-O universo também encolhe: produto que ainda não existia na data não aparece.
+Os números, as tabelas comparativas e o custo de cada combinação estão em
+[leitura-filtros.md](leitura-filtros.md).
 
 ## Request e laço
 
@@ -187,6 +157,8 @@ tentativa e erro, uma tag por vez.
 
 ## Próximo
 
+- [leitura-filtros.md](leitura-filtros.md) — os três parâmetros que mudam o
+  resultado, com os números
 - [campos.md](campos.md) — o que cada campo significa
 - [armadilhas.md](armadilhas.md) — o que morde
 - [escrita.md](escrita.md) — o ajuste de estoque

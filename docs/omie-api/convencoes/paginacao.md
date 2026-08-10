@@ -117,7 +117,7 @@ Página maior significa menos chamadas e menos espera de 300ms, mas **confira o
 `nRegistros` da resposta** em vez de assumir o que você pediu. Um recurso pode
 ter teto próprio, e `estoque/consulta` tem mais um caso: com `cExibeTodos: "S"`
 ele ignora `nRegPorPagina` e fixa a página em 50 ✅ — ver
-[../estoque/leitura.md](../estoque/leitura.md).
+[../estoque/leitura-filtros.md](../estoque/leitura-filtros.md).
 
 ## Próximo
 

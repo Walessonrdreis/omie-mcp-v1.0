@@ -28,7 +28,8 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
 
 | Arquivo | Assunto |
 |---|---|
-| [leitura.md](leitura.md) | Parâmetros, o custo da varredura, posição retroativa |
+| [leitura.md](leitura.md) | Parâmetros, o custo da varredura, local de estoque |
+| [leitura-filtros.md](leitura-filtros.md) | Teto de página, `cExibeTodos`, posição retroativa |
 | [campos.md](campos.md) | Os campos da posição e o que os quatro saldos significam |
 | [escrita.md](escrita.md) | Ajuste de estoque, os três enums, o que é irreversível |
 | [armadilhas.md](armadilhas.md) | As oito armadilhas do recurso |

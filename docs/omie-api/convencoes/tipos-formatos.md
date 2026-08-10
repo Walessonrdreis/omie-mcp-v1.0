@@ -46,7 +46,8 @@ Alguns campos usam enums de três letras em vez de `"S"`/`"N"` — `tipo`,
 
 Um caso à parte é `cExibeTodos` de `ListarPosEstoque`: é `"S"`/`"N"` na forma,
 mas não é um booleano de exibição — ele troca o universo de registros e ainda
-muda o tamanho da página ✅. Ver [../estoque/leitura.md](../estoque/leitura.md).
+muda o tamanho da página ✅. Ver
+[../estoque/leitura-filtros.md](../estoque/leitura-filtros.md).
 
 ## Números: JSON number, ponto decimal
 
