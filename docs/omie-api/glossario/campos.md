@@ -45,12 +45,19 @@ Reconhecer o padrão poupa consultar a tabela toda hora.
 
 | Estilo | Cara | Recursos |
 |---|---|---|
-| snake | `codigo_produto`, `valor_unitario` | `geral/produtos`, `produtos/pedido` |
+| snake | `codigo_produto`, `valor_unitario` | `geral/produtos` (com uma exceção, abaixo), `produtos/pedido` |
 | húngaro | `nCodProduto`, `cCodIntOP` | `produtos/op`, `estoque/consulta` |
 | camelo abreviado | `idProdMalha`, `descrFamMalha` | `geral/malha` |
 
 O mesmo dado atravessa os três estilos conforme você percorre a cadeia
 produto → malha → OP.
+
+**O estilo é do recurso, não da resposta — com uma exceção conhecida:** o bloco
+`caracteristicas`, devolvido por `ConsultarProduto`, vem em húngaro
+(`cNomeCaract`, `cConteudo`, `nCodCaract`) dentro de um recurso snake ✅. É o
+único ponto onde os dois estilos convivem na mesma resposta. Um parser que
+assume snake para o objeto inteiro não dá erro ali: os campos simplesmente viram
+`undefined`. Ver [../produtos/armadilhas.md](../produtos/armadilhas.md).
 
 **2. No estilo húngaro, o prefixo indica o tipo** 🔧
 
