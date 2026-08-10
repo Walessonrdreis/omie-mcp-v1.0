@@ -42,7 +42,7 @@ dois caminhos serve cada necessidade.
 Cinco recursos, nesta ordem (cada um depende dos conceitos do anterior):
 
 1. `geral/produtos` — cadastro de produtos
-2. `produtos/malha` — estrutura / BOM
+2. `geral/malha` — estrutura / BOM
 3. `estoque/consulta` + `estoque/ajuste` — posição e movimentos
 4. `produtos/op` — ordem de produção
 5. `produtos/pedido` — pedido de venda (**leitura/listagem apenas**)
