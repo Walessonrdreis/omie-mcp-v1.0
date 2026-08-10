@@ -46,4 +46,5 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
 - [../convencoes/paginacao.md](../convencoes/paginacao.md) — o dialeto snake
 - [../glossario/campos.md](../glossario/campos.md) — tradução para os outros
   recursos
-- `estrutura/README.md` (fase v1) — quem consome esses produtos como componente
+- [../estrutura/README.md](../estrutura/README.md) — quem consome esses produtos
+  como componente

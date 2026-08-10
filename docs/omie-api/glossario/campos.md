@@ -34,6 +34,14 @@ Onde a célula de estrutura tem dois nomes separados por `/`, o primeiro descrev
 o **produto pai** e o segundo o **componente** — ver
 [conceitos.md](conceitos.md) 🔧.
 
+**Ressalva:** a tabela nomeia o campo, não garante que ele venha. Em
+`geral/malha`, `intProduto` e `intProdMalha` (mais o `intMalha`, que não tem
+equivalente em produtos) **não aparecem em nenhuma resposta de leitura** ✅,
+embora a interface do repo os declare obrigatórios. `intMalha` ainda é exigido
+na escrita 🔧. Ou seja: o conceito "código de integração" existe no payload de
+entrada da malha, mas não no de saída — ver
+[../estrutura/campos.md](../estrutura/campos.md).
+
 Fontes: `src/modules/produtos/domain/interfaces/produtos-gateway.ts:1-11,26-55`
 e `src/modules/estrutura/domain/interfaces/estrutura-gateway.ts:6-43` 🔧.
 

@@ -31,11 +31,23 @@ as duas checagens são necessárias — nenhuma substitui a outra.
 | `SOAP-ENV:Client-500` | Consumo indevido (volume) | Esperar e repetir 🔧 |
 | `SOAP-ENV:Client-6` | Consumo redundante (frequência) | Esperar e repetir 🔧 |
 | `SOAP-ENV:Client-105` | Valor fora do enum aceito | Corrigir o payload; a mensagem lista as opções válidas 🔧 |
+| `SOAP-ENV:Client-103` | Registro não encontrado — **e o significado depende do recurso** | Ver abaixo ✅ |
+| `SOAP-ENV:Client-5001` | Parâmetro que não existe no request daquele método | Corrigir o payload; a mensagem nomeia a tag e o tipo ✅ |
 
 O `Client-105` é generoso de um jeito raro: quando você manda um valor inválido
 num campo de enum, a mensagem de erro **enumera os valores aceitos**. Foi assim
 que o enum de motivo de ajuste de estoque foi descoberto — a doc pública não o
 documenta 🔧 (`src/modules/estoque/domain/interfaces/estoque-gateway.ts:18-24`).
+
+O `Client-103` diz `"Produto não encontrado!"` mesmo quando o produto existe: em
+`geral/malha` ele significa **"este produto não tem estrutura cadastrada"** ✅.
+Não propague a mensagem da Omie para o usuário sem saber de qual recurso ela
+veio — ver [../estrutura/armadilhas.md](../estrutura/armadilhas.md).
+
+O `Client-5001` é o oposto do comportamento tolerante que se costuma esperar: a
+Omie **não ignora** parâmetro desconhecido, ela recusa a chamada nomeando a tag
+e o tipo complexo do request ✅. Bom para achar erro de digitação cedo, ruim
+para quem tenta descobrir filtro não documentado por tentativa.
 
 ## Rate limit tem dois sabores
 
