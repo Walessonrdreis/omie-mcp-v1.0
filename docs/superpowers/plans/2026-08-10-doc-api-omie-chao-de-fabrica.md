@@ -1,6 +1,6 @@
 # Documentação própria da API Omie (chão de fábrica) — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Execução:** na `main`, uma sessão por bloco — ver **[Divisão por sessão](#divisão-por-sessão)** logo abaixo das constraints. Cada sessão executa suas tasks com superpowers:executing-plans e termina em commit. Os steps usam checkbox (`- [ ]`) para rastreio; marque conforme avança.
 
 **Goal:** Construir `docs/omie-api/` — referência da API Omie para os cinco recursos de chão de fábrica, em arquivos curtos e navegáveis, com dicionário de nomenclatura divergente e marcação de confiança por afirmação.
 
@@ -21,6 +21,62 @@
 - **Fronteira:** `docs/omie-api/` documenta a API da Omie (protocolo, campos, comportamento). `docs/FERRAMENTAS.md` documenta as tools MCP (assinatura, argumentos). A doc da API **não** repete assinatura de tool.
 - **Gerenciador de pacotes:** `pnpm` na raiz. Nunca `npm install`.
 - **Commits:** um por task, mensagem em português, prefixo `docs:` (ou `feat:` para o verificador).
+
+---
+
+## Divisão por sessão
+
+Execução na `main`, uma sessão de Claude Code por bloco. O plano é dividido para
+que **nenhuma sessão precise carregar o contexto da anterior** — o estado vive
+nos commits e nos arquivos já escritos, não na conversa.
+
+| Sessão | Tasks | Entrega | Fase |
+|---|---|---|---|
+| 1 | 1, 2 | Verificador funcionando + índice mestre | — |
+| 2 | 3, 4 | Convenções + glossário | — |
+| 3 | 5 | Recurso Produtos | v1 |
+| 4 | 6 | Recurso Estrutura | fecha v1 |
+| 5 | 7 | Recurso Estoque | v2 |
+| 6 | 8 | Recurso Ordem de Produção | fecha v2 |
+| 7 | 9 | Recurso Pedido de Venda | v3 |
+| 8 | 10, 11 | Modelo frontend + gaps | fecha v3 |
+
+### Como abrir cada sessão
+
+Cole este prompt, trocando os números:
+
+```
+Execute as Tasks N e N+1 de docs/superpowers/plans/2026-08-10-doc-api-omie-chao-de-fabrica.md.
+
+Leia primeiro: as seções "Global Constraints" e "Divisão por sessão" do plano,
+e as tasks que vai executar. Não leia as outras tasks.
+```
+
+### Regras de contexto por sessão
+
+Valem para todas as sessões — é o que impede o contexto de inchar:
+
+1. **Leia só a sua task.** As tasks são autocontidas: cada uma lista os arquivos-fonte que precisa. Ler as outras onze não ajuda.
+2. **Nunca abra `docs/FERRAMENTAS.md` (90k), `README.md` da raiz (46k) ou `docs/CONTEXTO-SESSOES.md` (59k) inteiros.** Se precisar de algo deles, use Grep com um padrão específico. Abrir qualquer um deles inteiro consome a sessão.
+3. **Prefira ler as interfaces de domínio aos gateways.** `domain/interfaces/*-gateway.ts` tem os tipos das respostas e os comentários com os achados; o gateway de infraestrutura só acrescenta `resource`/`call`, que já estão citados na task.
+4. **Não releia o que acabou de escrever.** As tabelas de campos já vêm pré-preenchidas nas tasks a partir das interfaces.
+5. **Uma chamada de leitura ao vivo por método, com a menor página possível.** Guarde só o que responde "esse campo sempre vem?" — não cole a resposta inteira na conversa.
+
+### Retomada e conferência
+
+Cada sessão termina com commit, então `git log --oneline -5` mostra onde parou.
+Para conferir o estado real antes de começar:
+
+```bash
+pnpm run verificar-doc-omie
+git log --oneline -5
+```
+
+Se o verificador acusar problema em arquivo de uma sessão anterior, **corrija
+antes de seguir** — a doc só é útil se cada fase fecha limpa.
+
+Depois da sessão 4 (fecha v1), da 6 (fecha v2) e da 8 (fecha v3), a doc está
+utilizável mesmo que você pare ali.
 
 ---
 
