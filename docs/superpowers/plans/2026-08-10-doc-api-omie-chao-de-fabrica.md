@@ -17,6 +17,7 @@
 - **Marcação de confiança obrigatória** em toda afirmação sobre comportamento da API: `✅` observado ao vivo nesta coleta · `🔧` derivado do código que roda em produção · `📖` só da doc oficial, não verificado.
 - **Proibido executar escrita contra a Omie.** Nenhum `Incluir*`, `Alterar*`, `Excluir*`. Só `Listar*`/`Consultar*`. O conteúdo de `escrita.md` vem do código e da doc, marcado `🔧`/`📖`.
 - **Sem célula de tabela vazia.** Use `—` quando não se aplica, ou a marca de confiança quando não verificado.
+- **Arquivo de fase futura não vira link markdown.** Referencie como código inline — `` `estoque/campos.md` (fase v2) `` — porque todo link precisa resolver para o verificador passar. Ao criar o arquivo na fase dele, converta as referências pendentes em links de verdade.
 - **Precedência quando as fontes divergem:** resposta real > código do repo > doc oficial. Divergência nunca é resolvida em silêncio — vira entrada em `armadilhas.md`.
 - **Fronteira:** `docs/omie-api/` documenta a API da Omie (protocolo, campos, comportamento). `docs/FERRAMENTAS.md` documenta as tools MCP (assinatura, argumentos). A doc da API **não** repete assinatura de tool.
 - **Gerenciador de pacotes:** `pnpm` na raiz. Nunca `npm install`.
@@ -765,7 +766,13 @@ Dois métodos, mesmo gabarito para cada:
 |---|---|---|---|
 | `pagina` | number | sim | Página, 1-indexada 🔧 |
 | `registros_por_pagina` | number | sim | Tamanho da página 🔧 |
-| `codigo_familia` | number | não | Filtra por família; omitir traz todas 🔧 |
+| `apenas_importado_api` | string | sim | `"N"` — o gateway sempre envia 🔧 |
+| `filtrar_apenas_omiepdv` | string | sim | `"N"` — o gateway sempre envia 🔧 |
+| `filtrar_apenas_familia` | number | não | Filtra por família; omitir traz todas 🔧 |
+
+Os dois parâmetros `"N"` são enviados incondicionalmente em produção
+(`produtos-omie-gateway.ts:34-40`); confirmar ao vivo se são de fato exigidos ou
+apenas defensivos, e registrar o resultado com a marca de confiança correta.
 
 Incluir request mínimo e completo em JSON, o laço de paginação, e link para `campos.md`.
 
@@ -791,6 +798,7 @@ Formato fixo por item: *o que você espera* → *o que acontece* → *como conto
 2. **Produto com qualquer ajuste de estoque nunca mais pode ser excluído** — `ExcluirProduto` recusa por dependência mesmo depois do ajuste ser excluído, porque o movimento calculado permanece. Evidência `src/modules/estoque/domain/interfaces/estoque-gateway.ts:66-72` 🔧. Linkar `../estoque/armadilhas.md` como pendente da v2.
 3. **Sem consulta em lote** — enriquecer N produtos custa N chamadas, a 300ms cada. Evidência `produtos-gateway.ts:70-75` e `omieClient.ts:23` 🔧
 4. **Diferença entre listagem e consulta** — os campos que só aparecem em `ConsultarProduto`, conforme observado no passo 2 ✅
+5. **`quantidade_estoque` sempre vem `0`** — o campo existe em `ListarProdutos` e `ConsultarProduto` mas não é fonte confiável de estoque nesta conta; quem precisa do saldo real cruza com `estoque/consulta`. Um `0` que significa "não sei", não "zero unidades". Evidência `produtos-omie-gateway.ts:16-22` 🔧
 
 - [ ] **Step 7: Escrever `README.md` do recurso**
 
