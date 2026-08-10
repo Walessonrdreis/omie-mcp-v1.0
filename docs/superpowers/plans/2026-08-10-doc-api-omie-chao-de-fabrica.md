@@ -837,11 +837,11 @@ git commit -m "docs: referencia do recurso Produtos (geral/produtos)"
 - Consumes: dialeto húngaro (Task 3), glossário (Task 4), layout de Task 5.
 - Produces: fecha a fase v1.
 
-- [ ] **Step 1: Coletar a resposta real de `ListarEstruturas`**
+- [x] **Step 1: Coletar a resposta real de `ListarEstruturas`**
 
 Chamar `omie_estrutura_listar` com página pequena, e `omie_estrutura_buscar_por_produto` com o `idProduto` de um produto que tenha estrutura. Anotar presença/ausência de cada campo.
 
-- [ ] **Step 2: Escrever `campos.md`**
+- [x] **Step 2: Escrever `campos.md`**
 
 Duas tabelas — a Omie aninha o produto pai e os itens em blocos diferentes.
 
@@ -884,7 +884,7 @@ Bloco `itens[]` (componentes), de `estrutura-gateway.ts:6-23`:
 
 Substituir a coluna "Sempre vem?" pelo observado. Também documentar o bloco opcional `observacoes.obsRelevantes` 🔧.
 
-- [ ] **Step 3: Escrever `leitura.md`**
+- [x] **Step 3: Escrever `leitura.md`**
 
 **`ListarEstruturas`** — `POST geral/malha/` 🔧 (`estrutura-omie-gateway.ts:25-26`), **dialeto húngaro** (`nPagina`, `nRegPorPagina`; resposta `nPagina`/`nTotPaginas`/`nRegistros`/`nTotRegistros`, array `produtosEncontrados`) 🔧. Linkar `../convencoes/paginacao.md`.
 
@@ -892,7 +892,7 @@ Destacar o que economiza chamada: a estrutura **já devolve descrição, unidade
 
 Documentar como obter a estrutura de um produto específico, conforme observado no passo 1.
 
-- [ ] **Step 4: Escrever `escrita.md`**
+- [x] **Step 4: Escrever `escrita.md`**
 
 Aviso de não validado ao vivo. Três métodos, de `estrutura-omie-gateway.ts:39-59` e `estrutura-gateway.ts:53-99`:
 
@@ -902,7 +902,7 @@ Aviso de não validado ao vivo. Três métodos, de `estrutura-omie-gateway.ts:39
 
 Resposta de incluir/alterar vem em `itemMalhaStatus[]`, uma entrada por item enviado 🔧.
 
-- [ ] **Step 5: Escrever `armadilhas.md`**
+- [x] **Step 5: Escrever `armadilhas.md`**
 
 1. **Recurso é `geral/malha`, não `produtos/malha`** — o conceito é de produto, o endpoint é geral. Evidência `estrutura-omie-gateway.ts:25` 🔧
 2. **Dialeto de paginação diferente do de produtos** — `nPagina`/`nRegPorPagina` em vez de `pagina`/`registros_por_pagina`; código que reusa o helper de produtos pagina errado silenciosamente. Evidência `estrutura-gateway.ts:45-51` 🔧
@@ -910,7 +910,7 @@ Resposta de incluir/alterar vem em `itemMalhaStatus[]`, uma entrada por item env
 4. **Alterar exige `idProdMalha` redundante** — evidência `estrutura-gateway.ts:66-70` 🔧
 5. **`idMalha` × `idProdMalha`** — confundir os dois é o erro mais provável do recurso; linkar `../glossario/conceitos.md`
 
-- [ ] **Step 6: Escrever `README.md` do recurso e atualizar o índice**
+- [x] **Step 6: Escrever `README.md` do recurso e atualizar o índice**
 
 Mesmo layout de Task 5. No índice mestre:
 
@@ -918,12 +918,12 @@ Mesmo layout de Task 5. No índice mestre:
 | Estrutura (BOM) | `geral/malha` | [estrutura/](estrutura/README.md) |
 ```
 
-- [ ] **Step 7: Verificar**
+- [x] **Step 7: Verificar**
 
 Run: `pnpm run verificar-doc-omie`
 Expected: PASS — todos os links da v1 resolvem agora; nenhum arquivo acima de 200 linhas; nenhuma célula vazia. As linhas `_(pendente — fase v2/v3)_` não são links, então não quebram a verificação.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add docs/omie-api/estrutura/ docs/omie-api/README.md
