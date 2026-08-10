@@ -41,6 +41,7 @@ nos commits e nos arquivos já escritos, não na conversa.
 | 6 | 8 | Recurso Ordem de Produção | fecha v2 |
 | 7 | 9 | Recurso Pedido de Venda | v3 |
 | 8 | 10, 11 | Modelo frontend + gaps | fecha v3 |
+| 9 | 12 | Movimentos de estoque (`estoque/movestoque`) | v4 |
 
 ### Como abrir cada sessão
 
@@ -75,6 +76,9 @@ git log --oneline -5
 
 Se o verificador acusar problema em arquivo de uma sessão anterior, **corrija
 antes de seguir** — a doc só é útil se cada fase fecha limpa.
+
+A sessão 9 é um acréscimo posterior ao plano original e **não bloqueia nada** —
+a doc está completa no escopo combinado ao fim da sessão 8.
 
 Depois da sessão 4 (fecha v1), da 6 (fecha v2) e da 8 (fecha v3), a doc está
 utilizável mesmo que você pare ali.
@@ -1333,4 +1337,102 @@ Conferir manualmente os seis critérios de pronto da spec: método de gateway co
 ```bash
 git add docs/omie-api/91-gaps-camada-propria.md docs/omie-api/README.md
 git commit -m "docs: gaps da camada propria vs Omie direto - fecha v3"
+```
+
+---
+
+## Task 12: Movimentos de estoque (`estoque/movestoque`) — fase v4
+
+Acréscimo posterior ao plano original. Não bloqueia nada: a doc já está completa
+no escopo combinado ao fim da Task 11.
+
+**Por que ficou de fora:** a Task 7 se baseou no gateway de estoque, que cobre só
+`estoque/consulta` e `estoque/ajuste`. `estoque/movestoque` existe no repo apenas
+como passthrough sem gateway (`src/modules/estoque/presentation/mcp/estoque-tools.ts:48-54`),
+então não apareceu no levantamento. É o rastro do que a produção consumiu e
+gerou — o complemento natural de OP.
+
+**Esta task é diferente das outras: começa com descoberta, não com documentação.**
+O formato do request é desconhecido, e o gateway não ajuda porque não existe.
+
+**Files:**
+- Create: `docs/omie-api/movimentos-estoque/README.md`, `leitura.md`, `campos.md`, `armadilhas.md`
+- Modify: `docs/omie-api/README.md`, `docs/omie-api/glossario/campos.md`, `docs/omie-api/estoque/leitura.md` (a seção "Recurso vizinho" vira link)
+- Read: `src/modules/estoque/presentation/mcp/estoque-tools.ts:40-70`
+
+**Interfaces:**
+- Consumes: dialeto e convenções (Task 3), recurso Estoque (Task 7), OP (Task 8).
+- Produces: coluna `movimentos-estoque` no glossário; fecha a fase v4.
+
+Não há `escrita.md`: o recurso é só leitura (`ListarMovimentos`).
+
+- [ ] **Step 1: Descobrir o formato do request**
+
+O tipo do request é `epListarRequest`, e a sondagem da sessão 5 já **eliminou**
+quatro nomes ✅ — `nCodProd`, `cCodIntProd`, `dDtEstoqueDe`, `dDtEstoqueAte` são
+todos recusados com `Client-5001`.
+
+Use `omie_estoque_movimentos_listar` (a tool já existe e monta a chamada) e,
+para sondar nomes, `omie_chamar_api` com `resource: "estoque/movestoque"`,
+`call: "ListarMovimentos"`.
+
+Lembre que `Client-5001` **nomeia uma tag por resposta**, mesmo quando várias
+estão erradas — a sondagem é um ciclo de tentativa e erro, uma tag por vez. Não
+gaste mais que ~10 chamadas nisso; se o formato não sair, documente o que foi
+eliminado e pare. Uma página de "o que já sabemos que não é" tem valor real para
+a próxima tentativa.
+
+Candidatos a testar, por analogia com os outros recursos: `nPagina`/`nRegPorPagina`,
+`codigo_local_estoque`, `dDataDe`/`dDataAte`, `dDtInicial`/`dDtFinal`,
+`nIdProduto`, `cCodProduto`.
+
+- [ ] **Step 2: Coletar uma resposta real**
+
+Com o formato descoberto, uma chamada de página mínima. Anote presença de cada
+campo para a coluna "Sempre vem?".
+
+Se o Step 1 não achou o formato, pule para o Step 5 e escreva só o que se sabe,
+marcando o arquivo como incompleto no README do recurso.
+
+- [ ] **Step 3: Escrever `campos.md`**
+
+Mesmo gabarito dos outros recursos: tabela com Campo, Tipo, Sempre vem?,
+Significado, Sinônimo. Atenção ao que diferencia este recurso: um movimento tem
+**direção** (entrada/saída) e **origem** (ajuste, OP, pedido, nota). Se a origem
+vier como código, documente o enum — e se ela apontar para o documento que
+gerou o movimento, isso é o elo que liga estoque a OP e a pedido.
+
+- [ ] **Step 4: Escrever `leitura.md`**
+
+Endpoint, `call`, parâmetros descobertos, paginação (confirmar qual dialeto),
+request copiável, laço, e o custo real de varrer um período.
+
+Verificar explicitamente: o recurso aceita filtro por produto? Se aceitar, é a
+resposta para a armadilha 1 de [estoque] — a única forma de olhar um produto sem
+varrer tudo. Isso muda `91-gaps-camada-propria.md`, que deve ser atualizado.
+
+- [ ] **Step 5: Escrever `armadilhas.md` e `README.md`**
+
+Itens que a sondagem já garante:
+
+1. **O request recusa os nomes óbvios** — `nCodProd`, `cCodIntProd`,
+   `dDtEstoqueDe`, `dDtEstoqueAte` dão `Client-5001` ✅. Evidência: sondagem de
+   10/08/2026, registrada em `docs/omie-api/estoque/leitura.md`.
+2. **Não há gateway no repo** — só passthrough, sem tipo de resposta nem
+   normalização. Quem consome recebe o JSON cru da Omie 🔧.
+
+- [ ] **Step 6: Ligar aos vizinhos**
+
+- Em `docs/omie-api/estoque/leitura.md`, a seção "Recurso vizinho:
+  `estoque/movestoque`" deixa de ser um aviso e vira link para a doc nova.
+- Em `docs/omie-api/README.md`, acrescentar a linha na tabela de recursos.
+- Em `docs/omie-api/glossario/campos.md`, acrescentar a coluna.
+
+- [ ] **Step 7: Verificar e commitar**
+
+Run: `pnpm run verificar-doc-omie` → Expected: PASS.
+
+```bash
+git add docs/omie-api/
+git commit -m "docs: referencia de movimentos de estoque (estoque/movestoque) - v4"
 ```
