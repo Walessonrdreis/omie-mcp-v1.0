@@ -19,11 +19,20 @@ Evidências: `produtos-omie-gateway.ts:31-41`, `estrutura-omie-gateway.ts:24-31`
 **Atenção ao nome do tamanho de página no dialeto húngaro:** é `nRegPorPagina`,
 abreviado. Não é `nRegistrosPorPagina` nem `registros_por_pagina` 🔧.
 
-Este é o erro mais silencioso da API: mandar o parâmetro com o nome do outro
-dialeto não dá erro — a Omie **ignora** o parâmetro desconhecido e devolve a
-página 1 com o tamanho padrão dela. Um laço que confere `pagina < totalPaginas`
-usando o campo errado (que vem `undefined`) simplesmente não itera, e você
-conclui que a conta tem 50 produtos quando tem 3000.
+O que acontece se você errar o nome depende do recurso. Em `geral/malha`, a
+Omie **recusa a chamada**, nomeando a tag e o tipo complexo do request ✅:
+
+```
+SOAP-ENV:Client-5001
+ERROR: Tag [IDPRODUTO] não faz parte da estrutura do tipo complexo
+[malhaPesquisarRequest]!
+```
+
+Isso é uma boa notícia — falha alto em vez de paginar errado em silêncio. Mas
+**não assuma o mesmo dos outros recursos**: só `geral/malha` foi verificado.
+Onde a rejeição não acontecer, o sintoma é um laço que não itera, porque o campo
+de total vem `undefined` — e você conclui que a conta tem 50 produtos quando tem
+2021. Ver [erros.md](erros.md).
 
 ## O nome do array de resultados também muda
 
