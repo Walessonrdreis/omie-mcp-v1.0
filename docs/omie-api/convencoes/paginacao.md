@@ -1,0 +1,96 @@
+# Paginação
+
+A Omie tem **dois dialetos de paginação incompatíveis**, e qual usar depende do
+recurso. Não há como saber pelo nome do endpoint — só pela tabela abaixo.
+
+← [Índice](../README.md)
+
+## Os dois dialetos
+
+| Dialeto | Parâmetros que você envia | Campos que voltam | Recursos |
+|---|---|---|---|
+| **snake** | `pagina`, `registros_por_pagina` | `pagina`, `total_de_paginas`, `registros`, `total_de_registros` | `geral/produtos` 🔧, `produtos/op` 🔧, `produtos/pedido` 🔧 |
+| **húngaro** | `nPagina`, `nRegPorPagina` | `nPagina`, `nTotPaginas`, `nRegistros`, `nTotRegistros` | `geral/malha` 🔧, `estoque/consulta` 🔧 |
+
+Evidências: `produtos-omie-gateway.ts:31-41`, `estrutura-omie-gateway.ts:24-31`,
+`estoque-omie-gateway.ts:29-39`, `op-omie-gateway.ts:16-25`,
+`pedido-venda-omie-gateway.ts:33-34`.
+
+**Atenção ao nome do tamanho de página no dialeto húngaro:** é `nRegPorPagina`,
+abreviado. Não é `nRegistrosPorPagina` nem `registros_por_pagina` 🔧.
+
+Este é o erro mais silencioso da API: mandar o parâmetro com o nome do outro
+dialeto não dá erro — a Omie **ignora** o parâmetro desconhecido e devolve a
+página 1 com o tamanho padrão dela. Um laço que confere `pagina < totalPaginas`
+usando o campo errado (que vem `undefined`) simplesmente não itera, e você
+conclui que a conta tem 50 produtos quando tem 3000.
+
+## O nome do array de resultados também muda
+
+Cada recurso devolve os registros num campo com nome próprio 🔧:
+
+| Recurso | Campo do array |
+|---|---|
+| `geral/produtos` | `produto_servico_cadastro` |
+| `geral/malha` | `produtosEncontrados` |
+| `estoque/consulta` | `produtos` |
+| `produtos/op` | `cadastros` |
+| `produtos/pedido` | `pedido_venda_produto` |
+
+Não há padrão. Um helper genérico de paginação precisa receber o nome do campo
+como parâmetro.
+
+## O laço correto
+
+Peça a primeira página, leia o total de páginas da resposta, repita. Exemplo
+real do repo, dialeto húngaro 🔧 (`estoque-omie-gateway.ts:41-54`):
+
+```typescript
+async listarTodasPosicoes(): Promise<PosicaoEstoque[]> {
+  const posicoes: PosicaoEstoque[] = [];
+  let pagina = 1;
+  let totalPaginas = 1;
+
+  do {
+    const resposta = await this.listarPosEstoquePagina(pagina);
+    totalPaginas = resposta.nTotPaginas;
+    posicoes.push(...resposta.produtos);
+    pagina++;
+  } while (pagina <= totalPaginas);
+
+  return posicoes;
+}
+```
+
+Três detalhes que importam:
+
+1. **Páginas são 1-indexadas** 🔧 — começar em `0` devolve erro ou a primeira página, dependendo do recurso.
+2. **`totalPaginas` só é conhecido depois da primeira resposta** — por isso `do/while`, não `for`.
+3. **Cada volta custa no mínimo 300ms** — ver [request-auth.md](request-auth.md).
+
+## Página vazia pode vir como erro
+
+Em alguns recursos, pedir uma página sem registros devolve **erro**, não lista
+vazia 🔧. O código é `SOAP-ENV:Client-5113`, e ele precisa ser tratado como
+"acabou", não como falha.
+
+Isso já mordeu neste repo em Compras (ver `docs/API.md`, entrada de 2026-07-20).
+Detalhes em [erros.md](erros.md).
+
+## Tamanho de página
+
+Não há um limite único documentado. O que o repo usa em produção 🔧:
+
+| Recurso | Registros por página |
+|---|---|
+| `estoque/consulta` | 500 (`estoque-omie-gateway.ts:18`) |
+| Demais | Definido por quem chama |
+
+Página maior significa menos chamadas e menos espera de 300ms. Vale subir até
+onde o recurso aceitar.
+
+## Próximo
+
+- [erros.md](erros.md) — inclusive o erro que significa "página vazia"
+- [../glossario/campos.md](../glossario/campos.md) — o mesmo padrão de dois
+  dialetos vale para os campos de dados, não só para a paginação
