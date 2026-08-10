@@ -61,8 +61,17 @@ descubra de qual recurso ele veio.
 
 ## Local de estoque
 
-`codigo_local_estoque` identifica o depósito/local físico. **`0` significa o
-local padrão** 🔧.
+`codigo_local_estoque` identifica o depósito/local físico. **`0` é um valor
+especial de entrada, não um local**: enviar `0` ou omitir o parâmetro dá o mesmo
+resultado ✅, e um código inexistente é recusado com `SOAP-ENV:Client-1070` ✅.
+
+Se `0` significa "todos os locais" ou "o local padrão" **não foi possível
+distinguir** — esta conta tem um único local (`9169896468`), então as duas
+leituras dão o mesmo resultado. O comentário do repo diz "padrão" 🔧; a coleta
+não confirma nem desmente.
+
+Na **resposta**, `codigo_local_estoque` nunca vem `0`: vem sempre o ID real do
+local ✅. Agrupe pelo valor devolvido, não pelo que você enviou.
 
 O importante: posição de estoque é **sempre por local**. Um produto em três
 locais tem três posições, e o "total do produto" não existe na API — precisa ser
@@ -82,11 +91,20 @@ perguntas diferentes 🔧
 | `reservado` | Quanto já está comprometido com pedidos |
 | `nPendente` | Quanto está previsto entrar/sair mas não se concretizou |
 
-Para "posso vender?", use o disponível, não o físico. Para "o que o inventário
-deve encontrar na prateleira?", use o físico.
+**Para "posso vender?", use `nSaldo`. Para "o que o inventário deve encontrar na
+prateleira?", use `fisico`.**
 
-Os valores exatos e a relação entre eles serão confirmados ao vivo na fase v2 —
-ver `estoque/campos.md`.
+Duas ressalvas da coleta de 10/08/2026, e a primeira muda como você testa:
+
+1. **Nesta conta os dois são sempre iguais** ✅ — em cerca de 150 posições,
+   `nSaldo === fisico` e `reservado === 0`, sem exceção. A conta nunca reserva
+   estoque, então a distinção acima vem do contrato 🔧, não da observação.
+   Trocar um pelo outro é um bug invisível aqui.
+2. **`nPendente` não é descontado do `nSaldo`** ✅. Um produto com `fisico: 180`
+   e `nPendente: 24` tem `nSaldo: 180`. Quem quiser "disponível considerando o
+   que está por chegar" soma por conta própria.
+
+Detalhes e números em [../estoque/campos.md](../estoque/campos.md).
 
 ## Ordem de Produção
 

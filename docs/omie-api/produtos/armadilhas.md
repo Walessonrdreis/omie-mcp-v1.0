@@ -35,8 +35,8 @@ teste, use uma conta de sandbox; em produção, prefira **inativar**
 (`inativo: "S"`) a excluir.
 
 **Evidência:** `src/modules/estoque/domain/interfaces/estoque-gateway.ts:66-72`
-🔧 — comentário registrando teste ao vivo. O recurso de estoque será
-documentado em `estoque/armadilhas.md` (fase v2).
+🔧 — comentário registrando teste ao vivo. Detalhado do lado do estoque em
+[../estoque/armadilhas.md](../estoque/armadilhas.md).
 
 ## 3. Não existe consulta em lote
 
@@ -93,7 +93,7 @@ saldo real. É um `0` que significa "não sei", não "zero unidades".
 faz para calcular quantidade e valor reais.
 
 **Evidência:** `produtos-omie-gateway.ts:16-22` 🔧 e coleta de 10/08/2026 ✅.
-O recurso de estoque será documentado em `estoque/campos.md` (fase v2).
+O saldo real está em [../estoque/campos.md](../estoque/campos.md).
 
 ## 6. Omitir os flags de filtro muda o cadastro, não só o filtro
 

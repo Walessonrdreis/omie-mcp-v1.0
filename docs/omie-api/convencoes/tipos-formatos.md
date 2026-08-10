@@ -41,8 +41,12 @@ JavaScript. `if (pedido.cancelado)` é verdadeiro para pedido **não** cancelado
 Compare sempre com o literal: `pedido.cancelado === "S"`.
 
 Alguns campos usam enums de três letras em vez de `"S"`/`"N"` — `tipo`,
-`origem`, `motivo` no ajuste de estoque, por exemplo. Ver `estoque/escrita.md`
-(fase v2).
+`origem`, `motivo` no ajuste de estoque, por exemplo. Ver
+[../estoque/escrita.md](../estoque/escrita.md).
+
+Um caso à parte é `cExibeTodos` de `ListarPosEstoque`: é `"S"`/`"N"` na forma,
+mas não é um booleano de exibição — ele troca o universo de registros e ainda
+muda o tamanho da página ✅. Ver [../estoque/leitura.md](../estoque/leitura.md).
 
 ## Números: JSON number, ponto decimal
 
@@ -57,6 +61,12 @@ trabalho da apresentação, não da API.
 
 **Quantidade pode ser fracionária** 🔧 — produto vendido por peso ou medida tem
 `nQtde`/`quantidade` decimal. Não assuma inteiro.
+
+**E pode ser negativa.** Em `estoque/consulta`, `fisico` e `nSaldo` são
+negativos na maioria das posições desta conta, com extremo em `-5380` ✅.
+Quantidade não é um número natural — `if (qtd)` como teste de "tem estoque?"
+acerta por acidente com negativo e erra com zero. Ver
+[../estoque/campos.md](../estoque/campos.md).
 
 ## IDs: dois tipos, três papéis
 
@@ -95,8 +105,9 @@ Caso especial documentado: `quantidade_estoque` vem em `ListarProdutos` e
 `ConsultarProduto`, mas **sempre com valor 0** nesta conta — não é fonte
 confiável de estoque 🔧
 (`src/modules/produtos/infrastructure/gateways/produtos-omie-gateway.ts:16-22`).
-Um `0` que significa "não sei", não "zero unidades". Ver `estoque/README.md`
-(fase v2).
+Um `0` que significa "não sei", não "zero unidades". A fonte real de saldo é
+[../estoque/README.md](../estoque/README.md) — onde o mesmo padrão reaparece:
+`nCMC` vem `0` quando o custo não foi calculado ✅.
 
 ## Resumo para a borda
 

@@ -943,11 +943,11 @@ git commit -m "docs: referencia do recurso Estrutura/BOM (geral/malha) - fecha v
 - Consumes: dialeto húngaro (Task 3), layout de Task 5.
 - Produces: coluna `estoque` no glossário.
 
-- [ ] **Step 1: Coletar a resposta real**
+- [x] **Step 1: Coletar a resposta real**
 
 Chamar `omie_estoque_total_produto` para um produto conhecido e `omie_estoque_movimentos_listar` com janela curta. Anotar presença de cada campo.
 
-- [ ] **Step 2: Escrever `campos.md`**
+- [x] **Step 2: Escrever `campos.md`**
 
 De `estoque-gateway.ts:5-16` — resposta de `ListarPosEstoque` → `produtos[]`:
 
@@ -965,7 +965,7 @@ De `estoque-gateway.ts:5-16` — resposta de `ListarPosEstoque` → `produtos[]`
 
 Nota obrigatória: `fisico`, `nSaldo`, `reservado` e `nPendente` respondem perguntas diferentes; linkar `../glossario/conceitos.md`.
 
-- [ ] **Step 3: Escrever `leitura.md`**
+- [x] **Step 3: Escrever `leitura.md`**
 
 **`ListarPosEstoque`** — `POST estoque/consulta/` 🔧, dialeto húngaro, param `{ nPagina, nRegPorPagina, codigo_local_estoque }` 🔧 (`estoque-omie-gateway.ts:29-39`).
 
@@ -973,7 +973,7 @@ O ponto mais importante do recurso: **não existe filtro por produto**. Para sab
 
 Documentar `codigo_local_estoque: 0` como "todos/padrão" conforme o gateway usa 🔧, e o tamanho de página de 500 que o repo adota 🔧.
 
-- [ ] **Step 4: Escrever `escrita.md`**
+- [x] **Step 4: Escrever `escrita.md`**
 
 Aviso de não validado ao vivo. `IncluirAjusteEstoque` / `ExcluirAjusteEstoque` em `estoque/ajuste` 🔧, campos de `DadosAjusteEstoqueParaGravar` (`estoque-gateway.ts:26-37`).
 
@@ -987,14 +987,14 @@ Tabela dos enums, que a doc pública não documenta 🔧:
 
 Evidência do enum de `motivo`: `estoque-gateway.ts:18-24` — descoberto pelo erro `SOAP-ENV:Client-105`, que lista as opções válidas na mensagem 🔧.
 
-- [ ] **Step 5: Escrever `armadilhas.md`**
+- [x] **Step 5: Escrever `armadilhas.md`**
 
 1. **Não existe endpoint de estoque total por produto** — só posição por local, paginada, sem filtro. Evidência `estoque-omie-gateway.ts:20-24` 🔧
 2. **Ajuste é irreversível na prática** — a Omie exclui o ajuste, mas o movimento calculado fica no produto para sempre; depois de qualquer ajuste o produto **nunca mais** pode ser excluído. Evidência `estoque-gateway.ts:66-72` 🔧. Linkar `../produtos/armadilhas.md`.
 3. **Dialeto húngaro com nome próprio** — `nRegPorPagina`, não `nRegistrosPorPagina` nem `registros_por_pagina`. Evidência `estoque-omie-gateway.ts:34-35` 🔧
 4. **Enum de `motivo` só descobrível pelo erro** — evidência `estoque-gateway.ts:18-24` 🔧
 
-- [ ] **Step 6: Adicionar a coluna `estoque` ao glossário**
+- [x] **Step 6: Adicionar a coluna `estoque` ao glossário**
 
 Em `docs/omie-api/glossario/campos.md`, acrescentar a coluna preenchendo as linhas existentes (`—` onde não se aplica):
 
@@ -1009,7 +1009,7 @@ Em `docs/omie-api/glossario/campos.md`, acrescentar a coluna preenchendo as linh
 
 Demais conceitos: `—`.
 
-- [ ] **Step 7: `README.md` do recurso, índice mestre, verificar, commit**
+- [x] **Step 7: `README.md` do recurso, índice mestre, verificar, commit**
 
 Índice mestre:
 

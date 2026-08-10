@@ -33,6 +33,7 @@ as duas checagens são necessárias — nenhuma substitui a outra.
 | `SOAP-ENV:Client-105` | Valor fora do enum aceito | Corrigir o payload; a mensagem lista as opções válidas 🔧 |
 | `SOAP-ENV:Client-103` | Registro não encontrado — **e o significado depende do recurso** | Ver abaixo ✅ |
 | `SOAP-ENV:Client-5001` | Parâmetro que não existe no request daquele método | Corrigir o payload; a mensagem nomeia a tag e o tipo ✅ |
+| `SOAP-ENV:Client-1070` | Código de local de estoque não cadastrado | Corrigir o payload; a mensagem nomeia o código e a tag ✅ |
 
 O `Client-105` é generoso de um jeito raro: quando você manda um valor inválido
 num campo de enum, a mensagem de erro **enumera os valores aceitos**. Foi assim
@@ -48,6 +49,15 @@ O `Client-5001` é o oposto do comportamento tolerante que se costuma esperar: a
 Omie **não ignora** parâmetro desconhecido, ela recusa a chamada nomeando a tag
 e o tipo complexo do request ✅. Bom para achar erro de digitação cedo, ruim
 para quem tenta descobrir filtro não documentado por tentativa.
+
+Verificado em dois recursos, `geral/malha` e `estoque/consulta` ✅. A mensagem
+nomeia **uma tag por resposta**, mesmo quando várias estão erradas: sondar um
+request desconhecido é um ciclo de tentativa e erro, uma tag por vez ✅.
+
+O `Client-1070` mostra o outro lado da moeda: a tag `codigo_local_estoque`
+existe, então não é `Client-5001` — é o **valor** que não corresponde a nenhum
+local cadastrado ✅. Tag errada e valor errado têm códigos diferentes, e só o
+segundo depende dos dados da conta.
 
 ## Rate limit tem dois sabores
 

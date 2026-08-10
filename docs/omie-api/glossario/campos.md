@@ -10,25 +10,37 @@ canônica para traduzir entre eles.
 Um conceito por linha, uma coluna por recurso. `—` significa que aquele recurso
 não expõe o conceito.
 
-As colunas chegam por fase: **produtos** e **estrutura** agora (v1); estoque e
-ordem de produção na v2; pedido de venda na v3.
+As colunas chegam por fase: **produtos**, **estrutura** e **estoque** agora;
+ordem de produção fecha a v2; pedido de venda chega na v3.
+
+A coluna de estoque cobre os dois sub-recursos, que **não falam o mesmo
+dialeto**: onde há dois nomes separados por `/`, o primeiro é de
+`estoque/consulta` (leitura, húngaro) e o segundo de `estoque/ajuste` (escrita,
+snake) 🔧.
 
 ## Tabela
 
-| Conceito | produtos | estrutura |
-|---|---|---|
-| ID interno do produto | `codigo_produto` | `idProduto` / `idProdMalha` |
-| Código do usuário (SKU) | `codigo` | `codProduto` / `codProdMalha` |
-| Código de integração | `codigo_produto_integracao` | `intProduto` / `intProdMalha` |
-| Descrição do produto | `descricao` | `descrProduto` / `descrProdMalha` |
-| Unidade | `unidade` | `unidProduto` / `unidProdMalha` |
-| ID da família | `codigo_familia` | `idFamilia` / `idFamMalha` |
-| Descrição da família | `descricao_familia` | `descrFamilia` / `descrFamMalha` |
-| Peso líquido | `peso_liq` | `pesoLiqProduto` / `pesoLiqProdMalha` |
-| Peso bruto | `peso_bruto` | `pesoBrutoProduto` / `pesoBrutoProdMalha` |
-| Quantidade | — | `quantProdMalha` |
-| Código de status da resposta | `codigo_status` | `codStatus` |
-| Descrição do status | `descricao_status` | `descrStatus` |
+| Conceito | produtos | estrutura | estoque |
+|---|---|---|---|
+| ID interno do produto | `codigo_produto` | `idProduto` / `idProdMalha` | `nCodProd` / `id_prod` |
+| Código do usuário (SKU) | `codigo` | `codProduto` / `codProdMalha` | `cCodigo` |
+| Código de integração | `codigo_produto_integracao` | `intProduto` / `intProdMalha` | `cCodInt` |
+| Descrição do produto | `descricao` | `descrProduto` / `descrProdMalha` | `cDescricao` |
+| Unidade | `unidade` | `unidProduto` / `unidProdMalha` | — |
+| ID da família | `codigo_familia` | `idFamilia` / `idFamMalha` | — |
+| Descrição da família | `descricao_familia` | `descrFamilia` / `descrFamMalha` | — |
+| Peso líquido | `peso_liq` | `pesoLiqProduto` / `pesoLiqProdMalha` | — |
+| Peso bruto | `peso_bruto` | `pesoBrutoProduto` / `pesoBrutoProdMalha` | — |
+| Quantidade | — | `quantProdMalha` | `fisico` / `quan` |
+| Preço de venda | `valor_unitario` | — | `nPrecoUnitario` |
+| Data | — | — | `dDataPosicao` / `data` |
+| Código de status da resposta | `codigo_status` | `codStatus` | `codigo_status` |
+| Descrição do status | `descricao_status` | `descrStatus` | `descricao_status` |
+
+A linha "Quantidade" merece cuidado: em estoque há **quatro** números de
+quantidade na leitura (`fisico`, `nSaldo`, `reservado`, `nPendente`), e a tabela
+só nomeia o físico. Qual usar para quê está em
+[../estoque/campos.md](../estoque/campos.md).
 
 Onde a célula de estrutura tem dois nomes separados por `/`, o primeiro descreve
 o **produto pai** e o segundo o **componente** — ver
@@ -53,9 +65,18 @@ Reconhecer o padrão poupa consultar a tabela toda hora.
 
 | Estilo | Cara | Recursos |
 |---|---|---|
-| snake | `codigo_produto`, `valor_unitario` | `geral/produtos` (com uma exceção, abaixo), `produtos/pedido` |
+| snake | `codigo_produto`, `valor_unitario` | `geral/produtos` (com uma exceção, abaixo), `produtos/pedido`, `estoque/ajuste` |
 | húngaro | `nCodProduto`, `cCodIntOP` | `produtos/op`, `estoque/consulta` |
 | camelo abreviado | `idProdMalha`, `descrFamMalha` | `geral/malha` |
+
+Repare que **estoque aparece nas duas primeiras linhas**: `estoque/consulta` é
+húngaro e `estoque/ajuste` é snake 🔧. O mesmo produto é `nCodProd` quando você
+lê e `id_prod` quando você escreve, e não há um único campo em comum entre os
+dois payloads. O estilo é do sub-recurso, não do módulo.
+
+Há ainda um caso misto **dentro do mesmo request**: `ListarPosEstoque` pagina em
+húngaro (`nPagina`, `nRegPorPagina`) e recebe o local em snake
+(`codigo_local_estoque`) ✅.
 
 O mesmo dado atravessa os três estilos conforme você percorre a cadeia
 produto → malha → OP.

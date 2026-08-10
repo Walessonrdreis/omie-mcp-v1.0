@@ -49,7 +49,7 @@ contra a conta real. Tudo em `escrita.md` é `🔧` ou `📖`.
 |---|---|---|
 | Produtos | `geral/produtos` | [produtos/](produtos/README.md) |
 | Estrutura (BOM) | `geral/malha` | [estrutura/](estrutura/README.md) |
-| Estoque | `estoque/consulta`, `estoque/ajuste` | _(pendente — fase v2)_ |
+| Estoque | `estoque/consulta`, `estoque/ajuste` | [estoque/](estoque/README.md) |
 | Ordem de produção | `produtos/op` | _(pendente — fase v2)_ |
 | Pedido de venda | `produtos/pedido` | _(pendente — fase v3)_ |
 

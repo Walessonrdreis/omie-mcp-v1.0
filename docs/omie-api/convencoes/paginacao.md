@@ -10,7 +10,7 @@ recurso. Não há como saber pelo nome do endpoint — só pela tabela abaixo.
 | Dialeto | Parâmetros que você envia | Campos que voltam | Recursos |
 |---|---|---|---|
 | **snake** | `pagina`, `registros_por_pagina` | `pagina`, `total_de_paginas`, `registros`, `total_de_registros` | `geral/produtos` 🔧, `produtos/op` 🔧, `produtos/pedido` 🔧 |
-| **húngaro** | `nPagina`, `nRegPorPagina` | `nPagina`, `nTotPaginas`, `nRegistros`, `nTotRegistros` | `geral/malha` 🔧, `estoque/consulta` 🔧 |
+| **húngaro** | `nPagina`, `nRegPorPagina` | `nPagina`, `nTotPaginas`, `nRegistros`, `nTotRegistros` | `geral/malha` ✅, `estoque/consulta` ✅ |
 
 Evidências: `produtos-omie-gateway.ts:31-41`, `estrutura-omie-gateway.ts:24-31`,
 `estoque-omie-gateway.ts:29-39`, `op-omie-gateway.ts:16-25`,
@@ -28,11 +28,23 @@ ERROR: Tag [IDPRODUTO] não faz parte da estrutura do tipo complexo
 [malhaPesquisarRequest]!
 ```
 
-Isso é uma boa notícia — falha alto em vez de paginar errado em silêncio. Mas
-**não assuma o mesmo dos outros recursos**: só `geral/malha` foi verificado.
-Onde a rejeição não acontecer, o sintoma é um laço que não itera, porque o campo
-de total vem `undefined` — e você conclui que a conta tem 50 produtos quando tem
-2021. Ver [erros.md](erros.md).
+Isso é uma boa notícia — falha alto em vez de paginar errado em silêncio.
+`estoque/consulta` se comporta igual ✅, nomeando o seu próprio tipo:
+
+```
+SOAP-ENV:Client-5001
+ERROR: Tag [NCODPROD] não faz parte da estrutura do tipo complexo
+[ListarEstPosRequest]!
+```
+
+Dois recursos verificados, mesmo comportamento — mas **os demais continuam não
+verificados**. Onde a rejeição não acontecer, o sintoma é um laço que não itera,
+porque o campo de total vem `undefined` — e você conclui que a conta tem 50
+produtos quando tem 2021. Ver [erros.md](erros.md).
+
+Detalhe da mensagem: ela nomeia **uma tag por resposta**, mesmo quando várias
+estão erradas ✅. Sondar um request desconhecido é um ciclo de tentativa e erro,
+uma tag por vez.
 
 ## O nome do array de resultados também muda
 
@@ -88,15 +100,24 @@ Detalhes em [erros.md](erros.md).
 
 ## Tamanho de página
 
-Não há um limite único documentado. O que o repo usa em produção 🔧:
+Não há um limite único documentado, e **o que você pede não é necessariamente o
+que você recebe**.
 
-| Recurso | Registros por página |
-|---|---|
-| `estoque/consulta` | 500 (`estoque-omie-gateway.ts:18`) |
-| Demais | Definido por quem chama |
+| Recurso | O repo pede 🔧 | A Omie entrega |
+|---|---|---|
+| `estoque/consulta` | 500 (`estoque-omie-gateway.ts:18`) | **100** ✅ |
+| Demais | Definido por quem chama | Não verificado |
 
-Página maior significa menos chamadas e menos espera de 300ms. Vale subir até
-onde o recurso aceitar.
+Em `estoque/consulta` o teto é silencioso: pedir 500 devolve 100 e recalcula
+`nTotPaginas` como se você tivesse pedido 100 ✅. Sem erro, sem aviso — e o laço
+por `nTotPaginas` continua correto, então nada quebra. O que quebra é a sua
+estimativa de custo: a varredura completa da conta custa 14 requisições, não 3.
+
+Página maior significa menos chamadas e menos espera de 300ms, mas **confira o
+`nRegistros` da resposta** em vez de assumir o que você pediu. Um recurso pode
+ter teto próprio, e `estoque/consulta` tem mais um caso: com `cExibeTodos: "S"`
+ele ignora `nRegPorPagina` e fixa a página em 50 ✅ — ver
+[../estoque/leitura.md](../estoque/leitura.md).
 
 ## Próximo
 
