@@ -127,7 +127,7 @@ Ferramenta que sustenta os critérios de tamanho, navegabilidade e preenchimento
 - Consumes: nada.
 - Produces: `verificarDocOmie(raiz: string) => Problema[]`, onde `Problema = { arquivo: string, linha: number, tipo: "tamanho" | "link" | "celula-vazia", mensagem: string }`. `arquivo` é caminho relativo a `raiz`, com `/` como separador em qualquer plataforma. `linha` é 1-indexada; para `tipo: "tamanho"` vale `0`. Todas as tasks seguintes rodam `pnpm run verificar-doc-omie` como teste.
 
-- [ ] **Step 1: Ampliar o glob do vitest**
+- [x] **Step 1: Ampliar o glob do vitest**
 
 Em `vitest.config.ts`, trocar o `include` (o comentário acima dele continua válido; acrescentar a segunda frase):
 
@@ -147,7 +147,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 2: Escrever os testes que falham**
+- [x] **Step 2: Escrever os testes que falham**
 
 Criar `scripts/verificar-doc-omie.test.mjs`:
 
@@ -274,12 +274,12 @@ it("devolve lista vazia quando o diretório não existe", () => {
 });
 ```
 
-- [ ] **Step 3: Rodar os testes e confirmar que falham**
+- [x] **Step 3: Rodar os testes e confirmar que falham**
 
 Run: `pnpm vitest run scripts/verificar-doc-omie.test.mjs`
 Expected: FAIL — `Failed to resolve import "./verificar-doc-omie.mjs"`.
 
-- [ ] **Step 4: Implementar o verificador**
+- [x] **Step 4: Implementar o verificador**
 
 Criar `scripts/verificar-doc-omie.mjs`:
 
@@ -426,12 +426,12 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
 }
 ```
 
-- [ ] **Step 5: Rodar os testes e confirmar que passam**
+- [x] **Step 5: Rodar os testes e confirmar que passam**
 
 Run: `pnpm vitest run scripts/verificar-doc-omie.test.mjs`
 Expected: PASS — 12 testes.
 
-- [ ] **Step 6: Registrar o script no package.json**
+- [x] **Step 6: Registrar o script no package.json**
 
 Em `package.json`, dentro de `"scripts"`, logo depois da linha `"skill-cache:check"`:
 
@@ -439,12 +439,12 @@ Em `package.json`, dentro de `"scripts"`, logo depois da linha `"skill-cache:che
     "verificar-doc-omie": "node scripts/verificar-doc-omie.mjs",
 ```
 
-- [ ] **Step 7: Confirmar que a suíte inteira continua passando**
+- [x] **Step 7: Confirmar que a suíte inteira continua passando**
 
 Run: `pnpm test`
 Expected: PASS — a suíte de `src/**` mais os 12 testes novos.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add scripts/verificar-doc-omie.mjs scripts/verificar-doc-omie.test.mjs vitest.config.ts package.json
@@ -462,7 +462,7 @@ git commit -m "feat: verificador da doc da API Omie (links, tamanho, celulas vaz
 - Consumes: `pnpm run verificar-doc-omie` (Task 1).
 - Produces: o índice que todas as tasks seguintes editam para trocar `_(pendente)_` por link. O formato de linha pendente é exatamente `| Recurso | _(pendente — fase vN)_ |` — as tasks seguintes procuram por essa string.
 
-- [ ] **Step 1: Escrever o índice**
+- [x] **Step 1: Escrever o índice**
 
 Criar `docs/omie-api/README.md`:
 
@@ -552,12 +552,12 @@ pnpm run verificar-doc-omie
 Checa links quebrados, arquivos acima de 200 linhas e células de tabela vazias.
 ````
 
-- [ ] **Step 2: Rodar o verificador**
+- [x] **Step 2: Rodar o verificador**
 
 Run: `pnpm run verificar-doc-omie`
 Expected: FAIL — links para `convencoes/*` e `glossario/*` ainda não resolvem. Confirma que o verificador está de fato checando. Anote quantos problemas apareceram; a Task 4 zera esse número.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/omie-api/README.md
@@ -581,7 +581,7 @@ Os quatro arquivos transversais. Fonte principal: `src/integrations/omie/omieCli
 - Consumes: índice de Task 2.
 - Produces: `convencoes/paginacao.md` define os nomes **dialeto snake** e **dialeto húngaro** para os dois esquemas de paginação. Todas as tasks de recurso referenciam esses dois nomes em vez de repetir a explicação.
 
-- [ ] **Step 1: Escrever `request-auth.md`**
+- [x] **Step 1: Escrever `request-auth.md`**
 
 Conteúdo obrigatório, extraído de `omieClient.ts:20,96-106`:
 
@@ -592,7 +592,7 @@ Conteúdo obrigatório, extraído de `omieClient.ts:20,96-106`:
 - Exemplo copiável completo com `ListarProdutos`
 - Espaçamento mínimo de 300ms entre requisições da mesma instância (`omieClient.ts:23,172-176`) e por que existe 🔧 — linkar `erros.md`
 
-- [ ] **Step 2: Escrever `paginacao.md`**
+- [x] **Step 2: Escrever `paginacao.md`**
 
 O ponto central: **a Omie tem dois dialetos de paginação incompatíveis**, e qual usar depende do recurso. Documentar como tabela:
 
@@ -608,7 +608,7 @@ Incluir também:
 - Que o nome do array de resultados **muda por recurso** (`produto_servico_cadastro`, `produtosEncontrados`, `produtos`, `cadastros`, `pedido_venda_produto`) — tabela, com link pro `campos.md` de cada recurso 🔧
 - Aviso: página vazia pode voltar como **erro**, não como lista vazia — linkar `erros.md`
 
-- [ ] **Step 3: Escrever `erros.md`**
+- [x] **Step 3: Escrever `erros.md`**
 
 Extraído de `omieClient.ts:52-72,129-149`:
 
@@ -627,7 +627,7 @@ Extraído de `omieClient.ts:52-72,129-149`:
 - Política de retry que o repo usa: 4 tentativas, 2s para bloqueio momentâneo, backoff linear para falha de rede 🔧
 - Que erro de negócio (campo obrigatório faltando) **não** é retentável — só bloqueio momentâneo é
 
-- [ ] **Step 4: Escrever `tipos-formatos.md`**
+- [x] **Step 4: Escrever `tipos-formatos.md`**
 
 - Datas: `dd/mm/aaaa` em string, nunca ISO 🔧 (`dDtPrevisao`, `data_previsao`)
 - Booleanos: string `"S"`/`"N"`, nunca `true`/`false` 🔧 (`cConcluida`, `cancelado`, `faturado`, `inativo`)
@@ -636,12 +636,12 @@ Extraído de `omieClient.ts:52-72,129-149`:
 - Código de integração (`*_integracao`, `cCodInt*`): definido por quem integra, serve como chave alternativa em quase todo recurso 🔧 — linkar `glossario/campos.md`
 - Campo ausente × `null` × `0`: por que a coluna "Sempre vem?" existe nos `campos.md`
 
-- [ ] **Step 5: Verificar tamanho e links**
+- [x] **Step 5: Verificar tamanho e links**
 
 Run: `pnpm run verificar-doc-omie`
 Expected: os 4 arquivos de convenções não aparecem em problema de tamanho nem de célula vazia. Links pendentes para `glossario/*` e recursos ainda falham — normal nesta altura.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add docs/omie-api/convencoes/
@@ -661,7 +661,7 @@ git commit -m "docs: convencoes da API Omie (request, paginacao, erros, tipos)"
 - Consumes: os nomes de dialeto de Task 3.
 - Produces: a tabela canônica que cada `<recurso>/campos.md` referencia na coluna "Sinônimo". Colunas são adicionadas por fase — nesta task entram apenas **produtos** e **estrutura**; estoque e OP entram na v2; pedido na v3.
 
-- [ ] **Step 1: Escrever `conceitos.md`**
+- [x] **Step 1: Escrever `conceitos.md`**
 
 Um parágrafo curto por conceito, sem tabela:
 
@@ -673,7 +673,7 @@ Um parágrafo curto por conceito, sem tabela:
 - **Local de estoque** (`codigo_local_estoque`) — `0` significa o local padrão 🔧. Posição de estoque é sempre por local; o "total do produto" não existe na API e precisa ser somado por quem consome.
 - **Saldo físico × saldo × reservado × pendente** — os quatro números que `ListarPosEstoque` devolve, e o que cada um responde 🔧 (`estoque-gateway.ts:5-16`).
 
-- [ ] **Step 2: Escrever `campos.md`**
+- [x] **Step 2: Escrever `campos.md`**
 
 Abrir explicando a regra: um conceito por linha, uma coluna por recurso, `—` quando o recurso não expõe o conceito. Colunas de estoque, OP e pedido chegam nas fases seguintes.
 
@@ -701,12 +701,12 @@ Depois da tabela, uma seção **"Padrões de renomeação"** — a parte que eco
 3. Em `geral/malha`, o sufixo `Malha` no campo indica que ele descreve o **item da estrutura**; sem sufixo, descreve o **produto pai** 🔧
 4. Campos de status de escrita mudam de nome por recurso, mas sempre vêm em par código+descrição 🔧
 
-- [ ] **Step 3: Verificar**
+- [x] **Step 3: Verificar**
 
 Run: `pnpm run verificar-doc-omie`
 Expected: nenhum problema em `convencoes/` nem `glossario/`. Os links pendentes de recursos continuam falhando — Task 5 e 6 resolvem os dois primeiros.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/omie-api/glossario/
@@ -728,17 +728,17 @@ Primeiro recurso — estabelece o padrão que os outros quatro repetem.
 - Consumes: dialeto snake (Task 3), tabela canônica (Task 4).
 - Produces: o layout dos cinco arquivos que as Tasks 6, 7, 8 e 9 repetem com seu próprio conteúdo.
 
-- [ ] **Step 1: Coletar a resposta real de `ListarProdutos`**
+- [x] **Step 1: Coletar a resposta real de `ListarProdutos`**
 
 Chamar a tool MCP `omie_produtos_listar` com a menor página possível (`pagina: 1`, `registros_por_pagina: 3`). Guardar a resposta.
 
 Do resultado, anotar para cada campo: veio? veio vazio? veio ausente? É isso que preenche a coluna "Sempre vem?" com `✅`. Campos presentes na interface TS mas ausentes na resposta continuam `🔧`.
 
-- [ ] **Step 2: Coletar a resposta real de `ConsultarProduto`**
+- [x] **Step 2: Coletar a resposta real de `ConsultarProduto`**
 
 Chamar `omie_produtos_consultar` com o `codigo_produto` de um dos produtos do passo anterior. Anotar **quais campos existem aqui e não existem na listagem** — essa diferença é conteúdo de `armadilhas.md`.
 
-- [ ] **Step 3: Escrever `campos.md`**
+- [x] **Step 3: Escrever `campos.md`**
 
 Tabela da resposta de `ListarProdutos` → `produto_servico_cadastro[]`. Base derivada de `produtos-gateway.ts:1-11`; a coluna "Sempre vem?" vira `✅ sim`/`✅ não` conforme os passos 1-2:
 
@@ -756,7 +756,7 @@ Tabela da resposta de `ListarProdutos` → `produto_servico_cadastro[]`. Base de
 
 Substituir cada `🔧` da coluna "Sempre vem?" pelo resultado observado. Fechar com nota: a resposta real traz mais campos que a interface do repo modela; listar os que apareceram nos passos 1-2 e não estão acima.
 
-- [ ] **Step 4: Escrever `leitura.md`**
+- [x] **Step 4: Escrever `leitura.md`**
 
 Dois métodos, mesmo gabarito para cada:
 
@@ -780,7 +780,7 @@ Incluir request mínimo e completo em JSON, o laço de paginação, e link para 
 
 Registrar também: para várias consultas, o repo faz N chamadas com deduplicação (`consultarProdutosPorCodigo`, `produtos-gateway.ts:70-75`) — **não existe endpoint de consulta em lote** 🔧. Linkar `90-modelo-frontend.md` como pendente da v3.
 
-- [ ] **Step 5: Escrever `escrita.md`**
+- [x] **Step 5: Escrever `escrita.md`**
 
 Aviso no topo: não validado ao vivo nesta coleta; derivado de `DadosProdutoParaGravar` e do gateway.
 
@@ -790,7 +790,7 @@ Tabela de campos de `IncluirProduto`/`AlterarProduto` a partir de `produtos-gate
 - `AlterarProduto` aceita chave + campos parciais 🔧
 - `ExcluirProduto` recebe `ChaveProduto` 🔧
 
-- [ ] **Step 6: Escrever `armadilhas.md`**
+- [x] **Step 6: Escrever `armadilhas.md`**
 
 Formato fixo por item: *o que você espera* → *o que acontece* → *como contornar* → *evidência*. Itens obrigatórios:
 
@@ -800,11 +800,11 @@ Formato fixo por item: *o que você espera* → *o que acontece* → *como conto
 4. **Diferença entre listagem e consulta** — os campos que só aparecem em `ConsultarProduto`, conforme observado no passo 2 ✅
 5. **`quantidade_estoque` sempre vem `0`** — o campo existe em `ListarProdutos` e `ConsultarProduto` mas não é fonte confiável de estoque nesta conta; quem precisa do saldo real cruza com `estoque/consulta`. Um `0` que significa "não sei", não "zero unidades". Evidência `produtos-omie-gateway.ts:16-22` 🔧
 
-- [ ] **Step 7: Escrever `README.md` do recurso**
+- [x] **Step 7: Escrever `README.md` do recurso**
 
 Curto: o que é, endpoint, tabela de métodos (`ListarProdutos`, `ConsultarProduto`, `IncluirProduto`, `AlterarProduto`, `ExcluirProduto`) com coluna de link para `leitura.md` ou `escrita.md`, e links para os outros três arquivos.
 
-- [ ] **Step 8: Atualizar o índice mestre**
+- [x] **Step 8: Atualizar o índice mestre**
 
 Em `docs/omie-api/README.md`, trocar a linha da tabela de recursos:
 
@@ -812,12 +812,12 @@ Em `docs/omie-api/README.md`, trocar a linha da tabela de recursos:
 | Produtos | `geral/produtos` | [produtos/](produtos/README.md) |
 ```
 
-- [ ] **Step 9: Verificar**
+- [x] **Step 9: Verificar**
 
 Run: `pnpm run verificar-doc-omie`
 Expected: nenhum problema em `produtos/`. Se algum arquivo passou de 200 linhas, quebrar `leitura.md` em `leitura-listar.md` e `leitura-consultar.md` e atualizar o `README.md` do recurso antes de seguir.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add docs/omie-api/produtos/ docs/omie-api/README.md

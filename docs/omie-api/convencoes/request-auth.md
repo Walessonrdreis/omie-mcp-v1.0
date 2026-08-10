@@ -106,8 +106,10 @@ curl -X POST https://app.omie.com.br/api/v1/geral/produtos/ \
   }'
 ```
 
-Os dois últimos parâmetros são exigidos por `ListarProdutos` especificamente 🔧
-— ver `produtos/leitura.md` (fase v1).
+Os dois últimos parâmetros são específicos de `ListarProdutos`. Não são
+obrigatórios — a chamada responde sem eles ✅ —, mas omiti-los reduz o número
+de registros e zera os campos fiscais da resposta. Envie os dois `"N"`; o
+comparativo está em [../produtos/leitura.md](../produtos/leitura.md).
 
 ## Próximo
 
