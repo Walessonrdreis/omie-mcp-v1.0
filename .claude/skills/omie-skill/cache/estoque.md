@@ -33,7 +33,7 @@ Exclui um ajuste de estoque (pelo id_ajuste devolvido na inclusão). Método Omi
 
 ### `omie_estoque_movimentos_listar`
 
-Lista os movimentos de estoque (entradas/saídas) de um produto em um período, por local de estoque. Método Omie: ListarMovimentos (recurso 'estoque/movestoque').
+Lista os movimentos de estoque (entradas/saídas) agregados por produto e por dia. Método Omie: ListarMovimentos (recurso 'estoque/movestoque'). ATENÇÃO: NÃO existe filtro por produto nem por período — os únicos parâmetros aceitos são pagina, registros_por_pagina e codigo_local_estoque, e omitir o local traz só o local padrão. Filtre produto e data em memória. Ver docs/omie-api/movimentos-estoque/.
 
 **Parâmetros:**
 
