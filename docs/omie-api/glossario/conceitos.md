@@ -41,29 +41,46 @@ O sufixo do campo diz de quem ele fala: em `geral/malha`, campo com sufixo
 
 ## Etapa
 
-Existe nos dois sentidos abaixo, eles **não têm relação**, e a diferença é
-prática:
+Posição de um documento no kanban do ERP. Existe para pedido de venda
+(`etapa`, snake) e para ordem de produção (`cEtapa`, húngaro), e **os dois
+saem do mesmo catálogo** ✅: `ListarEtapasFaturamento`, no recurso
+`produtos/etapafat` — que não pertence a nenhum dos dois.
 
-**Etapa de Ordem de Produção** (`cEtapa`) — código cru do kanban de produção.
-Cada conta Omie configura de 3 a 6 etapas com nomes próprios, e **a API não
-expõe endpoint para traduzir o código para o nome** 🔧
-(`src/modules/ordemProducao/domain/interfaces/op-gateway.ts:12-18`). Você recebe
-`"20"` e não há como descobrir pela API que isso significa "Em usinagem" naquela
-conta. Quem precisa exibir o nome tem que manter o mapa fora da Omie.
+O catálogo é indexado por **operação + código**, e é a operação que separa os
+dois sentidos ✅:
 
-Confirmado ao vivo: os códigos vêm crus, sem nome junto ✅ — `"10"`, `"20"`,
-`"30"` e `"40"` em OPs abertas, `"60"` e `"80"` em concluídas. A numeração
-sugere ordem, mas nem isso é garantido: `"60"` e `"80"` são as duas de OP
-concluída. Ver
-[../ordem-producao/armadilhas.md](../ordem-producao/armadilhas.md).
+| Operação | Nome | Documento |
+|---|---|---|
+| `"11"` | Venda de Produto | Pedido de venda 🔧 (`pedido-venda-gateway.ts:53-54`) |
+| `"28"` | Ordem de Produção | OP ✅ |
 
-**Etapa de Pedido de Venda** (`etapa`) — catálogo fixo e documentado,
-resolvível por `ListarEtapasFaturamento` no recurso `produtos/etapafat` 🔧
-(`src/modules/pedidoVenda/domain/interfaces/pedido-venda-gateway.ts:96-105`).
-Aqui o código traduz com confiança.
+**O código sozinho não identifica nada.** `"20"` é "Separar Estoque" na operação
+`"11"`, "LOJA" na `"28"` e "Requisição" na `"21"` (compra). Ao ler código que
+fala em "etapa", primeiro descubra de qual recurso ele veio — não para saber se
+traduz, mas para saber **por qual operação** traduzir.
 
-Mesmo nome, garantias opostas. Ao ler código que fala em "etapa", primeiro
-descubra de qual recurso ele veio.
+Cada conta renomeia as etapas, e o catálogo expõe as duas versões: `cDescrPadrao`
+é o nome de fábrica da Omie, `cDescricao` é o desta conta ✅. Prefira o
+customizado — nesta conta a etapa `"10"` da OP chama-se "FABRICA", não
+"A Produzir".
+
+> **Correção de 10/08/2026.** Até esta data a doc afirmava que a etapa de OP não
+> tinha tradução via API, ao contrário da de pedido. Estava errado: a varredura
+> completa das 1722 OPs mostra que os valores de `cEtapa` são exatamente o
+> catálogo da operação `"28"` ✅.
+
+Catálogo completo e evidência em
+[../pedido-venda/etapas.md](../pedido-venda/etapas.md).
+
+Uma diferença real permanece: **filtrar** por etapa. `ListarPedidos` aceita
+`etapa` como parâmetro ✅; `ListarOrdemProducao` recusa qualquer variante do nome
+com `Client-5001` ✅. Kanban de pedido é uma requisição por coluna; kanban de OP
+é varredura mais agrupamento em memória. Ver
+[../ordem-producao/leitura-filtros.md](../ordem-producao/leitura-filtros.md).
+
+E cuidado com a etapa do pedido: **cancelar não a reseta** ✅ — 35 dos 60
+pedidos em "Separar Estoque" estão cancelados nesta conta. Ver
+[../pedido-venda/armadilhas.md](../pedido-venda/armadilhas.md).
 
 ## Local de estoque
 

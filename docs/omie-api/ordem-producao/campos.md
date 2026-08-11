@@ -57,15 +57,17 @@ O bloco mistura estilos no mesmo objeto: seis campos húngaros e um snake
 
 | Campo | Tipo | Sempre vem? | Significado | Sinônimo |
 |---|---|---|---|---|
-| `cEtapa` | string | ✅ sim | Código cru da etapa no kanban | `etapa` (pedido de venda), mas traduzível lá |
+| `cEtapa` | string | ✅ sim | Código da etapa no kanban; traduzível fora do recurso | `etapa` (pedido de venda) |
 | `dDtInicio` | string | ✅ sim | Data de início | — |
 | `dDtConclusao` | string | ✅ sim | Data de conclusão prevista | — |
 | `nCodProjeto` | number | ✅ sim | Projeto vinculado; `0` = nenhum | — |
 
-`cEtapa` é o campo mais importante do bloco e o menos utilizável: **não existe
-endpoint que traduza o código para o nome** ✅. Códigos observados nesta conta:
-`"10"`, `"20"`, `"30"`, `"40"` em OPs abertas e `"60"`, `"80"` em concluídas.
-Detalhes em [armadilhas.md](armadilhas.md).
+`cEtapa` é o campo mais importante do bloco, e o recurso não o traduz: vem só o
+código ✅ — `"10"`, `"20"`, `"30"`, `"40"` em OPs abertas e `"60"`, `"80"` em
+concluídas. **O catálogo existe, em outro recurso**: `produtos/etapafat`,
+operação `"28"`, onde `"10"` é "FABRICA" e `"60"` é "Concluído" nesta conta ✅.
+Ver [../pedido-venda/etapas.md](../pedido-venda/etapas.md) e
+[armadilhas.md](armadilhas.md).
 
 `nCodProjeto: 0` em toda a amostra ✅ — esta conta não usa projetos.
 

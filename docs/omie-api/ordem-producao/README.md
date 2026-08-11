@@ -30,6 +30,7 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
 |---|---|
 | [leitura.md](leitura.md) | Métodos, paginação, o custo do nome do produto |
 | [leitura-filtros.md](leitura-filtros.md) | `cConcluida`, as nove tags recusadas, o teto de 100 |
+| [../pedido-venda/etapas.md](../pedido-venda/etapas.md) | O catálogo que traduz `cEtapa` — em outro recurso |
 | [campos.md](campos.md) | Os quatro blocos da OP |
 | [campos-itens.md](campos-itens.md) | Os insumos: quantidade já multiplicada, retrato do dia da criação |
 | [escrita.md](escrita.md) | `Incluir`/`Alterar`/`Excluir`, derivados do código |
@@ -37,8 +38,9 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
 
 ## O essencial em seis linhas
 
-1. **`cEtapa` é código cru e a API não traduz** ✅ — `"10"`, `"20"`, `"60"`,
-   `"80"` nesta conta. O mapa para nomes vive fora da Omie.
+1. **`cEtapa` vem como código cru** ✅ — `"10"`, `"20"`, `"60"`, `"80"` nesta
+   conta. O catálogo que os traduz está em outro recurso, `produtos/etapafat`,
+   operação `"28"` ✅ — ver [../pedido-venda/etapas.md](../pedido-venda/etapas.md).
 2. `cConcluida` é o **único** filtro: 63 OPs abertas contra 1659 concluídas ✅ —
    uma requisição em vez de 18.
 3. A listagem traz `nCodProduto` **sem descrição**, e produtos não têm consulta
@@ -60,4 +62,5 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
   teto de 100
 - [../glossario/conceitos.md](../glossario/conceitos.md) — etapa de OP × etapa
   de pedido de venda
-- `pedido-venda/README.md` (fase v3) — a demanda que motiva a produção
+- [../pedido-venda/README.md](../pedido-venda/README.md) — a demanda que motiva
+  a produção

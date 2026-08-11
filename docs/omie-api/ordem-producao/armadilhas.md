@@ -5,28 +5,49 @@ espera → o que acontece → como contornar → evidência.
 
 ← [Ordem de produção](README.md) · [Índice](../README.md)
 
-## 1. `cEtapa` é um código que a API não traduz
+## 1. `cEtapa` é um código, e o catálogo está em outro recurso
 
-**Você espera:** um endpoint que devolva o nome da etapa, como
-`ListarEtapasFaturamento` faz para pedido de venda.
+**Você espera:** que `ListarOrdemProducao` ou `ConsultarOrdemProducao` devolvam
+o nome da etapa junto com o código.
 
-**O que acontece:** você recebe `"20"` e **não há nada na API que diga o que
-"20" significa** 🔧 (`op-gateway.ts:12-18`). Cada conta Omie configura de 3 a 6
-etapas com nomes próprios, no kanban de produção, e o catálogo não é exposto.
+**O que acontece:** você recebe `"20"` e mais nada 🔧 (`op-gateway.ts:12-18`).
 Códigos observados nesta conta ✅: `"10"`, `"20"`, `"30"`, `"40"` em OPs
 abertas; `"60"` e `"80"` em concluídas.
 
-Repare que a numeração é esparsa e sugere ordem, mas **nem isso é garantido** —
-`"60"` e `"80"` aparecem as duas em OPs concluídas.
+**Mas a tradução existe** — em `produtos/etapafat`, o mesmo endpoint que serve o
+pedido de venda, na operação `"28" — Ordem de Produção` ✅:
 
-**Como contornar:** mantenha o mapa código → nome **fora da Omie**, como
-configuração da sua aplicação, e trate código desconhecido exibindo o número
-cru. Uma etapa criada no ERP depois do seu deploy vai aparecer, e a UI não pode
-quebrar por causa disso.
+| `cEtapa` | Padrão da Omie | Nome nesta conta | OPs |
+|---|---|---|---|
+| `"10"` | A Produzir | **FABRICA** | 54 |
+| `"20"` | Produzindo | **LOJA** | 2 |
+| `"30"` | Qualidade | **PEDIDOS GRANDES** | 2 |
+| `"40"` | Conferido | **Embalado** | 5 |
+| `"60"` | Concluído | Concluído | 1349 |
+| `"80"` | Armazenado | Armazenado | 310 |
 
-**Evidência:** `op-gateway.ts:12-18` 🔧; coleta de 10/08/2026 ✅. O contraste com
-pedido de venda está em [../glossario/conceitos.md](../glossario/conceitos.md) —
-mesmo nome, garantias opostas.
+> **Correção de 10/08/2026.** Esta página afirmava que a API não expunha o
+> catálogo. Estava errado: a varredura completa das 1722 OPs mostra que o
+> conjunto de valores distintos de `cEtapa` é exatamente o catálogo da operação
+> `"28"`, sem um único código fora dele ✅.
+
+O que era verdade continua: **cada conta renomeia as etapas**. Esta rebatizou
+quatro das seis, com nomes que não parecem de kanban de produção ("FABRICA",
+"LOJA", "PEDIDOS GRANDES"). Era essa customização que fazia o código parecer
+intraduzível — e é exatamente o que `cDescricao` entrega.
+
+Cai junto a suspeita sobre a numeração: `"60"` e `"80"` em OPs concluídas não é
+anomalia, são "Concluído" e "Armazenado", dois estados pós-conclusão. **A ordem
+é real.**
+
+**Como contornar:** baixe `ListarEtapasFaturamento` uma vez, filtre a operação
+`"28"` e resolva em memória. Prefira `cDescricao` e caia para `cDescrPadrao` só
+quando ele vier vazio. Continue tratando código desconhecido exibindo o número
+cru: uma etapa criada no ERP depois do seu último cache vai aparecer.
+
+**Evidência:** catálogo e varredura em
+[../pedido-venda/etapas.md](../pedido-venda/etapas.md) ✅;
+`op-gateway.ts:12-18` 🔧 documenta o contrato antigo.
 
 ## 2. O wrapper `identificacao` só vale na escrita
 

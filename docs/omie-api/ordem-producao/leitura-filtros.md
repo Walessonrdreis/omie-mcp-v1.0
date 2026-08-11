@@ -82,8 +82,10 @@ varrendo e filtrando em memória, exatamente como o saldo por produto em
 produção em aberto.
 
 A segunda mais cara é a de **etapa**: montar um kanban exige baixar as 63 OPs
-abertas e agrupar por `cEtapa` no cliente — e ainda sem os nomes das etapas, que
-a API não traduz. Ver [armadilhas.md](armadilhas.md).
+abertas e agrupar por `cEtapa` no cliente. Os nomes das colunas, ao menos, saem
+de graça — uma chamada a `produtos/etapafat`, operação `"28"` ✅, ver
+[../pedido-venda/etapas.md](../pedido-venda/etapas.md). O que não existe é o
+recorte na origem. Ver [armadilhas.md](armadilhas.md).
 
 ## `registros_por_pagina` tem o mesmo teto de 100
 
@@ -95,10 +97,10 @@ Pedir mais que 100 não dá erro: devolve 100 e recalcula `total_de_paginas` ✅
 | 100 | 100 | 18 |
 | 500 | 100 | 18 |
 
-É o mesmo teto silencioso de `estoque/consulta` ✅ — dois recursos, dialetos de
-paginação diferentes, o mesmo limite. Trate 100 como o teto da Omie até que
-algum recurso prove o contrário, e **confira o `registros` da resposta** em vez
-de assumir o que pediu.
+É o mesmo teto silencioso de `estoque/consulta` e de `produtos/pedido` ✅ — três
+recursos, três dialetos de paginação, o mesmo limite. Trate 100 como o teto da
+Omie até que algum recurso prove o contrário, e **confira o `registros` da
+resposta** em vez de assumir o que pediu.
 
 ## Próximo
 

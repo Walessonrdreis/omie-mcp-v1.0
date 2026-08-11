@@ -1142,11 +1142,11 @@ git commit -m "docs: referencia do recurso Ordem de Producao - fecha v2"
 - Consumes: dialeto snake (Task 3), produtos (Task 5).
 - Produces: coluna `pedido-venda` no glossário.
 
-- [ ] **Step 1: Coletar a resposta real**
+- [x] **Step 1: Coletar a resposta real**
 
 Chamar `omie_pedido_venda_listar` (página pequena), `omie_pedido_venda_etapas_listar`, e `omie_pedido_venda_consultar` com um `codigo_pedido` do resultado. Guardar o catálogo de etapas — ele vira tabela na doc.
 
-- [ ] **Step 2: Escrever `campos.md`**
+- [x] **Step 2: Escrever `campos.md`**
 
 Por bloco, de `pedido-venda-gateway.ts:1-30`.
 
@@ -1177,7 +1177,7 @@ Por bloco, de `pedido-venda-gateway.ts:1-30`.
 
 Tabela à parte com o catálogo de etapas coletado no passo 1 (`cCodigo` → `cDescricao`), marcada `✅`.
 
-- [ ] **Step 3: Escrever `leitura.md`**
+- [x] **Step 3: Escrever `leitura.md`**
 
 **`ListarPedidos`** — `POST produtos/pedido/` 🔧, dialeto snake, array `pedido_venda_produto` 🔧, filtro opcional por `etapa` 🔧 (`pedido-venda-omie-gateway.ts:33-34`).
 
@@ -1185,7 +1185,7 @@ Tabela à parte com o catálogo de etapas coletado no passo 1 (`cCodigo` → `cD
 
 **`ConsultarPedido`** — `produtos/pedido`, chave `codigo_pedido` ou `codigo_pedido_integracao` 🔧.
 
-- [ ] **Step 4: Escrever `escrita.md`**
+- [x] **Step 4: Escrever `escrita.md`**
 
 Aviso duplo no topo: **fora do escopo desta doc** (só a leitura de pedido foi documentada) e não validado ao vivo. Registrar apenas o essencial, de `pedido-venda-gateway.ts:63-88`:
 
@@ -1195,14 +1195,14 @@ Aviso duplo no topo: **fora do escopo desta doc** (só a leitura de pedido foi d
 
 Encerrar apontando `../../FERRAMENTAS.md` para quem precisa do CRUD completo.
 
-- [ ] **Step 5: Escrever `armadilhas.md`**
+- [x] **Step 5: Escrever `armadilhas.md`**
 
 1. **`AlterarPedidoVenda` foge do padrão** — os outros métodos do recurso são `IncluirPedido`/`ExcluirPedido`/`ConsultarPedido`, mas o de alteração é `AlterarPedidoVenda`. Evidência `pedido-venda-omie-gateway.ts:108,116,124` 🔧
 2. **Pedido cancelado mantém a etapa antiga** — o cancelamento não reseta `etapa`; filtrar por etapa sem cruzar com `infoCadastro.cancelado` traz pedido cancelado como se estivesse ativo. Evidência `pedido-venda-gateway.ts:101-105` 🔧
 3. **Resolver etapa exige outro endpoint** — `produtos/etapafat`, com o código de operação fixo `"11"` para venda de produto. Evidência `pedido-venda-gateway.ts:53-54` 🔧
 4. **Etapa de pedido × etapa de OP** — mesmo nome, naturezas opostas: a do pedido tem catálogo, a da OP não. Evidência `pedido-venda-gateway.ts:96-100` e `op-gateway.ts:12-18` 🔧. Linkar `../ordem-producao/armadilhas.md`.
 
-- [ ] **Step 6: Adicionar a coluna `pedido-venda` ao glossário**
+- [x] **Step 6: Adicionar a coluna `pedido-venda` ao glossário**
 
 | Conceito | pedido-venda |
 |---|---|
@@ -1217,7 +1217,7 @@ Encerrar apontando `../../FERRAMENTAS.md` para quem precisa do CRUD completo.
 
 Demais conceitos: `—`.
 
-- [ ] **Step 7: `README.md` do recurso, índice mestre, verificar, commit**
+- [x] **Step 7: `README.md` do recurso, índice mestre, verificar, commit**
 
 ```markdown
 | Pedido de venda | `produtos/pedido` | [pedido-venda/](pedido-venda/README.md) |

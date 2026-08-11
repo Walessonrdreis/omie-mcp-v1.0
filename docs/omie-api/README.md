@@ -51,7 +51,7 @@ contra a conta real. Tudo em `escrita.md` é `🔧` ou `📖`.
 | Estrutura (BOM) | `geral/malha` | [estrutura/](estrutura/README.md) |
 | Estoque | `estoque/consulta`, `estoque/ajuste` | [estoque/](estoque/README.md) |
 | Ordem de produção | `produtos/op` | [ordem-producao/](ordem-producao/README.md) |
-| Pedido de venda | `produtos/pedido` | _(pendente — fase v3)_ |
+| Pedido de venda | `produtos/pedido`, `produtos/etapafat` | [pedido-venda/](pedido-venda/README.md) |
 
 ## Integração
 
@@ -63,7 +63,8 @@ contra a conta real. Tudo em `escrita.md` é `🔧` ou `📖`.
 ## Escopo
 
 **Cobre:** produtos, estrutura, estoque, ordem de produção, e a **leitura** de
-pedido de venda.
+pedido de venda — incluindo o catálogo de etapas de `produtos/etapafat`, que
+serve os dois últimos.
 
 **Não cobre:** emissão fiscal (NF-e, NFS-e), financeiro, compras, CRM,
 serviços, e o CRUD de pedido de venda. Para esses, veja

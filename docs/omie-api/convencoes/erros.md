@@ -27,10 +27,11 @@ as duas checagens são necessárias — nenhuma substitui a outra.
 
 | Código | Significa | Como tratar |
 |---|---|---|
-| `SOAP-ENV:Client-5113` | Página sem registros | **Fim da paginação**, não falha 🔧 |
+| `SOAP-ENV:Client-5113` | Página sem registros — **ou filtro sem resultado** | **Fim da paginação**, não falha ✅ |
 | `SOAP-ENV:Client-500` | Consumo indevido (volume) | Esperar e repetir 🔧 |
 | `SOAP-ENV:Client-6` | Consumo redundante (frequência) | Esperar e repetir 🔧 |
-| `SOAP-ENV:Client-105` | Valor fora do enum aceito | Corrigir o payload; a mensagem lista as opções válidas 🔧 |
+| `SOAP-ENV:Client-105` | Valor fora do enum aceito **ou** registro não encontrado | Depende do recurso — ver abaixo ✅ |
+| `SOAP-ENV:Client-104` | Data fora da faixa aceita (ano ≤ 1900) | Corrigir o payload; a mensagem nomeia a tag ✅ |
 | `SOAP-ENV:Client-103` | Registro não encontrado — **e o significado depende do recurso** | Ver abaixo ✅ |
 | `SOAP-ENV:Client-5001` | Parâmetro que não existe no request daquele método | Corrigir o payload; a mensagem nomeia a tag e o tipo ✅ |
 | `SOAP-ENV:Client-1070` | Código de local de estoque não cadastrado | Corrigir o payload; a mensagem nomeia o código e a tag ✅ |
@@ -39,6 +40,17 @@ O `Client-105` é generoso de um jeito raro: quando você manda um valor inváli
 num campo de enum, a mensagem de erro **enumera os valores aceitos**. Foi assim
 que o enum de motivo de ajuste de estoque foi descoberto — a doc pública não o
 documenta 🔧 (`src/modules/estoque/domain/interfaces/estoque-gateway.ts:18-24`).
+
+**Mas o mesmo código serve para "registro não encontrado"** ✅. `ConsultarPedido`
+com um `codigo_pedido` inexistente devolve `Client-105`, não `Client-103`:
+
+```
+SOAP-ENV:Client-105
+ERROR: Pedido não cadastrado para o Código [1] !
+```
+
+Ou seja, `103` e `105` se sobrepõem, e **nenhum dos dois é confiável como
+discriminador**. Classifique pela `faultstring`, não pelo código.
 
 O `Client-103` diz `"Produto não encontrado!"` mesmo quando o produto existe: em
 `geral/malha` ele significa **"este produto não tem estrutura cadastrada"** ✅.
@@ -50,9 +62,33 @@ Omie **não ignora** parâmetro desconhecido, ela recusa a chamada nomeando a ta
 e o tipo complexo do request ✅. Bom para achar erro de digitação cedo, ruim
 para quem tenta descobrir filtro não documentado por tentativa.
 
-Verificado em dois recursos, `geral/malha` e `estoque/consulta` ✅. A mensagem
-nomeia **uma tag por resposta**, mesmo quando várias estão erradas: sondar um
-request desconhecido é um ciclo de tentativa e erro, uma tag por vez ✅.
+Verificado em quatro recursos ✅ — `geral/malha`, `estoque/consulta`,
+`produtos/op` e `produtos/pedido`. A mensagem nomeia **uma tag por resposta**,
+mesmo quando várias estão erradas: sondar um request desconhecido é um ciclo de
+tentativa e erro, uma tag por vez ✅.
+
+O tipo complexo nomeado é **por método**, não por recurso: `pvpListarRequest` no
+`ListarPedidos` e `pvpConsultarRequest` no `ConsultarPedido` ✅. Um parâmetro
+aceito num método pode ser recusado no outro.
+
+## O `Client-5113` também significa "filtro sem resultado"
+
+A leitura óbvia é "acabou a paginação", e é assim que ele deve ser tratado. Mas
+ele aparece também quando **a página 1 de um filtro válido não tem registros**
+✅ — `ListarPedidos` com uma etapa que existe e está vazia devolve exatamente a
+mesma coisa que uma etapa inexistente:
+
+```
+SOAP-ENV:Client-5113
+ERROR: Não existem registros para a página [1]!
+```
+
+Consequência que morde: um relatório com filtro errado volta **vazio e sem
+erro**, porque o cliente traduz `5113` para lista vazia. O caso concreto é
+`filtrar_por_data_ate` sem `_de`, que a Omie interpreta como "de hoje até a data
+informada" — ver
+[../pedido-venda/armadilhas.md](../pedido-venda/armadilhas.md). Valide os
+filtros antes de enviar; a API não vai reclamar deles.
 
 O `Client-1070` mostra o outro lado da moeda: a tag `codigo_local_estoque`
 existe, então não é `Client-5001` — é o **valor** que não corresponde a nenhum
