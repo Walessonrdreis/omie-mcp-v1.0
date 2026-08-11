@@ -95,9 +95,14 @@ export interface ChavePedido {
 
 /**
  * Contrato de acesso a Pedidos de Venda, independente de vir da Omie real ou
- * de um fake em memória (`OMIE_MOCK=true`). Diferente da Ordem de Produção, a
- * `etapa` do pedido É um catálogo fixo e documentado (`ListarEtapasFaturamento`),
- * não configurável por conta — dá pra traduzir o código com confiança.
+ * de um fake em memória (`OMIE_MOCK=true`).
+ *
+ * A `etapa` do pedido tem catálogo em `ListarEtapasFaturamento`
+ * (`produtos/etapafat`), na operação "11" — Venda de Produto. A Ordem de
+ * Produção também tem, na operação "28": o catálogo cobre os dois recursos.
+ * Em ambos, cada conta renomeia as etapas — prefira `cDescricao` e caia para
+ * `cDescrPadrao` só quando ele vier vazio. Ver
+ * `docs/omie-api/pedido-venda/etapas.md`.
  *
  * Importante: pedidos CANCELADOS continuam com a `etapa` antiga (o
  * cancelamento não reseta o campo) — por isso quem usa este gateway sempre

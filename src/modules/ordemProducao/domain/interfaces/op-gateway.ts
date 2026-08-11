@@ -10,10 +10,12 @@ export interface OrdemProducao {
   };
   infAdicionais: {
     /**
-     * Código cru da etapa no kanban de produção. NÃO tem significado fixo:
-     * cada conta Omie configura de 3 a 6 etapas com nomes próprios, e a API
-     * não expõe endpoint pra traduzir o código pro nome — por isso este
-     * gateway não tenta interpretar esse valor, só repassa.
+     * Código cru da etapa no kanban de produção. Cada conta Omie renomeia as
+     * etapas, então o código só vira nome legível consultando o catálogo:
+     * `ListarEtapasFaturamento` (recurso `produtos/etapafat`), operação "28" —
+     * Ordem de Produção. Este gateway não faz essa resolução, só repassa o
+     * código; quem precisa do nome busca o catálogo uma vez e resolve em
+     * memória. Ver `docs/omie-api/pedido-venda/etapas.md`.
      */
     cEtapa: string;
     dDtConclusao: string;
