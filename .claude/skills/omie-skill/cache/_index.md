@@ -5,7 +5,7 @@
 | Módulo | Ferramentas | Arquivo | Resumo |
 |---|---|---|---|
 | Genérica | 1 | `cache/generica.md` | Chamada genérica pra qualquer endpoint da Omie, quando não existe tool específica. |
-| Ordem de Produção | 6 | `cache/ordem-de-producao.md` | Criar, alterar, excluir e consultar Ordens de Produção (OP). |
+| Ordem de Produção | 7 | `cache/ordem-de-producao.md` | Criar, alterar, excluir e consultar Ordens de Produção (OP). |
 | Produtos | 7 | `cache/produtos.md` | Cadastro de produtos/serviços, famílias e consulta. |
 | Estoque | 4 | `cache/estoque.md` | Saldo e ajustes de estoque, por local. |
 | Pedido de Venda | 9 | `cache/pedido-de-venda.md` | Pedidos de venda: incluir, alterar, consultar, listar. |
@@ -26,4 +26,4 @@
 | Contas a Pagar | 1 | `cache/contas-a-pagar.md` | Contas a pagar: incluir, alterar, consultar, listar. |
 | Contas a Receber | 5 | `cache/contas-a-receber.md` | Contas a receber: incluir, alterar, consultar, listar. |
 
-**Total:** 116 ferramentas (51 destrutivas) em 21 módulos.
+**Total:** 117 ferramentas (51 destrutivas) em 21 módulos.

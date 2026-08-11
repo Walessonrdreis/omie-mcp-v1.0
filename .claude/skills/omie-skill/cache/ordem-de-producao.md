@@ -55,7 +55,7 @@ Consulta uma Ordem de Produção específica (por código Omie ou código intern
 
 ### `omie_op_listar`
 
-Lista as Ordens de Produção cadastradas, com paginação e filtros. Método Omie: ListarOrdemProducao. Devolve só o código do produto (nCodProduto, sem descrição/SKU) e a etapa como código cru (cEtapa, configurável por conta, sem tradução via API). Para já vir com a descrição do produto, use omie_op_listar_com_produto.
+Lista as Ordens de Produção cadastradas, com paginação e filtros. Método Omie: ListarOrdemProducao. Devolve só o código do produto (nCodProduto, sem descrição/SKU) e a etapa como código cru (cEtapa). O nome da etapa sai de omie_pedido_venda_etapas_listar, na operação '28' — Ordem de Produção (cada conta renomeia as etapas; prefira cDescricao e caia para cDescrPadrao só quando vier vazio). Para já vir com a descrição do produto, use omie_op_listar_com_produto.
 
 **Parâmetros:**
 
@@ -65,13 +65,23 @@ Lista as Ordens de Produção cadastradas, com paginação e filtros. Método Om
 
 ### `omie_op_listar_com_produto`
 
-Lista Ordens de Produção JÁ com a descrição/SKU do produto de cada OP (a Omie só devolve o código do produto na listagem crua, sem descrição — esta ferramenta busca o cadastro de cada produto envolvido e junta). Também expõe 'concluida' (true/false, campo confiável) além do 'etapaCodigo' cru (a etapa do kanban é configurável por conta — de 3 a 6 fases com nomes próprios — e a API não tem endpoint pra traduzir o código pro nome; se você souber o significado das etapas dessa conta, pode interpretar etapaCodigo). Suporta paginação (pagina/registros_por_pagina), o filtro apenas_nao_concluidas e o parâmetro genérico 'filtros' — lista de critérios (campo/operador/valor) aplicados sobre QUALQUER campo do resultado já enriquecido (ex: descricaoProduto, codigoSku, quantidade), com operadores igual/diferente/contem/maior_que/menor_que/entre. Ex: filtros: [{ campo: 'descricaoProduto', operador: 'contem', valor: '100kg' }].
+Lista Ordens de Produção JÁ com a descrição/SKU do produto de cada OP, lendo de um CACHE LOCAL (não bate na Omie a cada chamada — chame omie_op_atualizar_cache antes se precisar de dado mais recente que o cache atual). A resposta inclui geradoEm/idadeMs informando a idade do dado. Também expõe 'concluida' (true/false, campo confiável) além do 'etapaCodigo' cru (cada conta renomeia as etapas do kanban; o nome sai de omie_pedido_venda_etapas_listar na operação '28' — Ordem de Produção, preferindo cDescricao e caindo para cDescrPadrao quando vier vazio). Suporta paginação (pagina/registros_por_pagina, agora aplicada sobre o cache local): atenção, totalRegistros/totalPaginas refletem o total JÁ FILTRADO do cache inteiro (antes refletiam só a página crua devolvida pela Omie). Também aceita o filtro apenas_nao_concluidas e o parâmetro genérico 'filtros' — lista de critérios (campo/operador/valor) aplicados sobre QUALQUER campo do resultado já enriquecido (ex: descricaoProduto, codigoSku, quantidade), com operadores igual/diferente/contem/maior_que/menor_que/entre. Ex: filtros: [{ campo: 'descricaoProduto', operador: 'contem', valor: '100kg' }].
 
 **Parâmetros:**
 
-  - `pagina` (number, opcional) — Página da listagem de OPs (padrão 1).
-  - `registros_por_pagina` (number, opcional) — Quantidade de OPs por página (padrão 20 — cada OP dispara uma busca de produto).
+  - `pagina` (integer, opcional) — Página da listagem de OPs (padrão 1). Inteiro >= 1.
+  - `registros_por_pagina` (integer, opcional) — Quantidade de OPs por página (padrão 20, máximo 200). A leitura vem do cache local, então o custo não é de rede: o limite existe porque a resposta inteira vai pro contexto — prefira paginar ou usar 'filtros' a pedir páginas gigantes.
   - `apenas_nao_concluidas` (boolean, opcional) — Se true, remove da lista as OPs já concluídas (cConcluida = 'S').
   - `filtros` (array, opcional) — Filtros adicionais sobre o resultado já enriquecido desta ferramenta (qualquer campo do retorno, não só os filtros nativos da Omie). Todos os critérios precisam bater (AND). Ex: [{ campo: 'descricaoProduto', operador: 'contem', valor: 'kg' }].
+
+**Tipo:** use-case (lógica própria)
+
+### `omie_op_atualizar_cache`
+
+Atualiza o cache local de Ordens de Produção, buscando TODAS as OPs na Omie (ListarOrdemProducao, paginado) e regravando o cache que omie_op_listar_com_produto lê. Sem parâmetro. CARA: são dezenas de chamadas reais à Omie (~16 páginas com 300ms de espera entre elas, vários segundos por execução) — NÃO chame a cada pergunta. Chame antes de omie_op_listar_com_produto só se precisar de dado mais recente que o cache atual; a resposta de omie_op_listar_com_produto sempre informa a idade do dado (geradoEm/idadeMs), que é o critério pra decidir. Devolve 'atualizadoEm', o mesmo carimbo que passa a ser lido como 'geradoEm' pelas consultas ao cache.
+
+**Parâmetros:**
+
+  - _(sem parâmetros documentados no schema)_
 
 **Tipo:** use-case (lógica própria)

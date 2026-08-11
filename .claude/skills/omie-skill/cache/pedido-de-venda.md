@@ -73,7 +73,7 @@ Lista Pedidos de Venda cadastrados, com paginação e filtros (aceita filtro 'et
 
 ### `omie_pedido_venda_etapas_listar`
 
-Lista o catálogo de etapas de faturamento da Omie (kanban de vendas, OS, compras, etc.), com código e descrição de cada etapa por tipo de operação. Método Omie: ListarEtapasFaturamento (recurso 'produtos/etapafat'). Diferente da etapa de Ordem de Produção (configurável por conta, sem tradução via API), essas etapas são um catálogo fixo e documentado pela Omie.
+Lista o catálogo de etapas de faturamento da Omie (kanban de vendas, OS, compras, etc.), com código e descrição de cada etapa por tipo de operação. Método Omie: ListarEtapasFaturamento (recurso 'produtos/etapafat'). É este catálogo que traduz o código de etapa dos DOIS kanbans: operação '11' — Venda de Produto (etapa do pedido) e operação '28' — Ordem de Produção (cEtapa da OP). Cada conta renomeia as etapas: prefira cDescricao e caia para cDescrPadrao só quando ele vier vazio.
 
 **Parâmetros:**
 

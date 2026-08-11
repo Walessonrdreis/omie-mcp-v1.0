@@ -88,8 +88,10 @@ export const ordemProducaoTools: ToolDef[] = [
     description:
       "Lista as Ordens de Produção cadastradas, com paginação e filtros. Método Omie: " +
       "ListarOrdemProducao. Devolve só o código do produto (nCodProduto, sem descrição/SKU) e a " +
-      "etapa como código cru (cEtapa, configurável por conta, sem tradução via API). Para já vir " +
-      "com a descrição do produto, use omie_op_listar_com_produto.",
+      "etapa como código cru (cEtapa). O nome da etapa sai de omie_pedido_venda_etapas_listar, " +
+      "na operação '28' — Ordem de Produção (cada conta renomeia as etapas; prefira cDescricao e " +
+      "caia para cDescrPadrao só quando vier vazio). Para já vir com a descrição do produto, use " +
+      "omie_op_listar_com_produto.",
     inputSchema: { param: paramSchema },
     resource: "produtos/op",
     call: "ListarOrdemProducao",
@@ -101,9 +103,9 @@ export const ordemProducaoTools: ToolDef[] = [
       "LOCAL (não bate na Omie a cada chamada — chame omie_op_atualizar_cache antes se precisar de " +
       "dado mais recente que o cache atual). A resposta inclui geradoEm/idadeMs informando a idade " +
       "do dado. Também expõe 'concluida' (true/false, campo confiável) além do 'etapaCodigo' cru " +
-      "(a etapa do kanban é configurável por conta — de 3 a 6 fases com nomes próprios — e a API " +
-      "não tem endpoint pra traduzir o código pro nome; se você souber o significado das etapas " +
-      "dessa conta, pode interpretar etapaCodigo). Suporta paginação (pagina/registros_por_pagina, " +
+      "(cada conta renomeia as etapas do kanban; o nome sai de omie_pedido_venda_etapas_listar na " +
+      "operação '28' — Ordem de Produção, preferindo cDescricao e caindo para cDescrPadrao quando " +
+      "vier vazio). Suporta paginação (pagina/registros_por_pagina, " +
       "agora aplicada sobre o cache local): atenção, totalRegistros/totalPaginas refletem o total " +
       "JÁ FILTRADO do cache inteiro (antes refletiam só a página crua devolvida pela Omie). " +
       "Também aceita o filtro apenas_nao_concluidas e o parâmetro genérico " +
