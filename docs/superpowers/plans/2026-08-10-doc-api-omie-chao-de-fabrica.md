@@ -1366,7 +1366,7 @@ O formato do request é desconhecido, e o gateway não ajuda porque não existe.
 
 Não há `escrita.md`: o recurso é só leitura (`ListarMovimentos`).
 
-- [ ] **Step 1: Descobrir o formato do request**
+- [x] **Step 1: Descobrir o formato do request**
 
 O tipo do request é `epListarRequest`, e a sondagem da sessão 5 já **eliminou**
 quatro nomes ✅ — `nCodProd`, `cCodIntProd`, `dDtEstoqueDe`, `dDtEstoqueAte` são
@@ -1386,7 +1386,7 @@ Candidatos a testar, por analogia com os outros recursos: `nPagina`/`nRegPorPagi
 `codigo_local_estoque`, `dDataDe`/`dDataAte`, `dDtInicial`/`dDtFinal`,
 `nIdProduto`, `cCodProduto`.
 
-- [ ] **Step 2: Coletar uma resposta real**
+- [x] **Step 2: Coletar uma resposta real**
 
 Com o formato descoberto, uma chamada de página mínima. Anote presença de cada
 campo para a coluna "Sempre vem?".
@@ -1394,7 +1394,7 @@ campo para a coluna "Sempre vem?".
 Se o Step 1 não achou o formato, pule para o Step 5 e escreva só o que se sabe,
 marcando o arquivo como incompleto no README do recurso.
 
-- [ ] **Step 3: Escrever `campos.md`**
+- [x] **Step 3: Escrever `campos.md`**
 
 Mesmo gabarito dos outros recursos: tabela com Campo, Tipo, Sempre vem?,
 Significado, Sinônimo. Atenção ao que diferencia este recurso: um movimento tem
@@ -1402,7 +1402,7 @@ Significado, Sinônimo. Atenção ao que diferencia este recurso: um movimento t
 vier como código, documente o enum — e se ela apontar para o documento que
 gerou o movimento, isso é o elo que liga estoque a OP e a pedido.
 
-- [ ] **Step 4: Escrever `leitura.md`**
+- [x] **Step 4: Escrever `leitura.md`**
 
 Endpoint, `call`, parâmetros descobertos, paginação (confirmar qual dialeto),
 request copiável, laço, e o custo real de varrer um período.
@@ -1411,7 +1411,7 @@ Verificar explicitamente: o recurso aceita filtro por produto? Se aceitar, é a
 resposta para a armadilha 1 de [estoque] — a única forma de olhar um produto sem
 varrer tudo. Isso muda `91-gaps-camada-propria.md`, que deve ser atualizado.
 
-- [ ] **Step 5: Escrever `armadilhas.md` e `README.md`**
+- [x] **Step 5: Escrever `armadilhas.md` e `README.md`**
 
 Itens que a sondagem já garante:
 
@@ -1421,14 +1421,14 @@ Itens que a sondagem já garante:
 2. **Não há gateway no repo** — só passthrough, sem tipo de resposta nem
    normalização. Quem consome recebe o JSON cru da Omie 🔧.
 
-- [ ] **Step 6: Ligar aos vizinhos**
+- [x] **Step 6: Ligar aos vizinhos**
 
 - Em `docs/omie-api/estoque/leitura.md`, a seção "Recurso vizinho:
   `estoque/movestoque`" deixa de ser um aviso e vira link para a doc nova.
 - Em `docs/omie-api/README.md`, acrescentar a linha na tabela de recursos.
 - Em `docs/omie-api/glossario/campos.md`, acrescentar a coluna.
 
-- [ ] **Step 7: Verificar e commitar**
+- [x] **Step 7: Verificar e commitar**
 
 Run: `pnpm run verificar-doc-omie` → Expected: PASS.
 
