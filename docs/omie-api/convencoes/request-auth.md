@@ -86,7 +86,7 @@ paginação normal cai em "consumo redundante" — ver [erros.md](erros.md).
 
 Consequência de projeto: **chamada à Omie é cara em tempo.** Uma tela que
 precisa de 40 produtos leva no mínimo 12 segundos se resolver produto a
-produto. Ver `90-modelo-frontend.md` (fase v3).
+produto. Ver [../90-modelo-frontend.md](../90-modelo-frontend.md).
 
 ## Exemplo completo
 

@@ -97,8 +97,8 @@ por `codigo_produto` e sirva os nomes de lá. Passa a valer a partir de ~40
 produtos distintos, e o índice serve estoque e estrutura ao mesmo tempo.
 
 É o mesmo remédio do [../estoque/leitura.md](../estoque/leitura.md): varrer uma
-vez e indexar, em vez de perguntar por item. As receitas de cruzamento saem na
-fase v3 em `90-modelo-frontend.md`.
+vez e indexar, em vez de perguntar por item. A receita completa está em
+[../90-receita-ops-abertas.md](../90-receita-ops-abertas.md).
 
 ## O laço
 

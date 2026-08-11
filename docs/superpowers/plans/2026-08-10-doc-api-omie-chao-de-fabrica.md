@@ -1242,7 +1242,7 @@ git commit -m "docs: referencia do recurso Pedido de Venda (leitura)"
 - Consumes: os cinco recursos (Tasks 5-9).
 - Produces: as receitas que `91-gaps-camada-propria.md` referencia.
 
-- [ ] **Step 1: Escrever as três receitas**
+- [x] **Step 1: Escrever as três receitas**
 
 Formato fixo por receita: *pergunta* → *sequência de chamadas* → *custo em chamadas* → *shape agregado sugerido*.
 
@@ -1252,7 +1252,7 @@ Formato fixo por receita: *pergunta* → *sequência de chamadas* → *custo em 
 
 **Receita 3 — pedidos pendentes de separação.** `ListarPedidos` filtrando por etapa → `ListarEtapasFaturamento` (operação `"11"`) para resolver o nome → descartar os `cancelado === "S"`. Custo: 1 chamada de catálogo + N páginas. Shape sugerido.
 
-- [ ] **Step 2: Escrever a seção "Regras de shape"**
+- [x] **Step 2: Escrever a seção "Regras de shape"**
 
 Recomendações transversais para quem desenha o contrato do front, cada uma com o motivo:
 
@@ -1261,7 +1261,7 @@ Recomendações transversais para quem desenha o contrato do front, cada uma com
 - Nunca paginar no front: a Omie não tem filtro suficiente para isso; agregue no servidor
 - Tratar campo ausente e `0` como coisas diferentes — linkar as colunas "Sempre vem?"
 
-- [ ] **Step 3: Atualizar o índice e verificar**
+- [x] **Step 3: Atualizar o índice e verificar**
 
 ```markdown
 | [Modelo pro frontend](90-modelo-frontend.md) | Receitas de cruzamento e shape agregado |
@@ -1269,7 +1269,7 @@ Recomendações transversais para quem desenha o contrato do front, cada uma com
 
 Run: `pnpm run verificar-doc-omie` → Expected: PASS. Se o arquivo passou de 200 linhas, quebrar por receita (`90-modelo-frontend.md` vira índice; cada receita ganha arquivo próprio).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/omie-api/90-modelo-frontend.md docs/omie-api/README.md
@@ -1289,11 +1289,11 @@ git commit -m "docs: modelo de dados para o frontend (receitas de cruzamento)"
 - Consumes: receitas de Task 10.
 - Produces: fecha a fase v3 e o plano.
 
-- [ ] **Step 1: Levantar o que a camada própria cobre**
+- [x] **Step 1: Levantar o que a camada própria cobre**
 
 Ler `src/tools/registry.ts` para as tools dos cinco recursos, e `packages/omie-data/src/modules/` para saber quais têm cache (hoje: produtos, estoque, ordem de produção — confirmar). Anotar, por necessidade, se existe cobertura.
 
-- [ ] **Step 2: Escrever a tabela de decisão**
+- [x] **Step 2: Escrever a tabela de decisão**
 
 Uma linha por necessidade, três colunas de veredito:
 
@@ -1304,7 +1304,7 @@ Preencher com o levantamento do passo 1. A coluna "Veredito" diz uma de três co
 
 Necessidades a cobrir, no mínimo: listar produtos; consultar produto; ficha técnica de um produto; posição de estoque de um produto; listar OPs com descrição de produto; listar pedidos por etapa; pedidos pendentes de separação.
 
-- [ ] **Step 3: Escrever a seção "Por que a camada própria ganha"**
+- [x] **Step 3: Escrever a seção "Por que a camada própria ganha"**
 
 Os três casos em que chamar a Omie direto é ruim, cada um linkando a armadilha que o comprova:
 
@@ -1314,7 +1314,7 @@ Os três casos em que chamar a Omie direto é ruim, cada um linkando a armadilha
 
 E o caso oposto, honesto: quando o dado precisa estar quente (etapa de OP que acabou de mudar no chão de fábrica), o cache atrapalha e a Omie direta é a resposta certa.
 
-- [ ] **Step 4: Atualizar o índice e a nota de escopo**
+- [x] **Step 4: Atualizar o índice e a nota de escopo**
 
 ```markdown
 | [Gaps da camada própria](91-gaps-camada-propria.md) | httpServer/omie-data × Omie direto |
@@ -1322,7 +1322,7 @@ E o caso oposto, honesto: quando o dado precisa estar quente (etapa de OP que ac
 
 Conferir que nenhuma linha `_(pendente — fase vN)_` sobrou no `docs/omie-api/README.md`.
 
-- [ ] **Step 5: Verificação final**
+- [x] **Step 5: Verificação final**
 
 Run: `pnpm run verificar-doc-omie`
 Expected: PASS, sem nenhum problema.
@@ -1332,7 +1332,7 @@ Expected: PASS.
 
 Conferir manualmente os seis critérios de pronto da spec: método de gateway coberto, sem `TBD`, armadilha com evidência, nada acima de 200 linhas, verificador passa, marca de confiança em toda afirmação.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add docs/omie-api/91-gaps-camada-propria.md docs/omie-api/README.md

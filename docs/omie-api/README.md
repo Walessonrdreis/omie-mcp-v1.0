@@ -57,8 +57,8 @@ contra a conta real. Tudo em `escrita.md` é `🔧` ou `📖`.
 
 | Arquivo | Assunto |
 |---|---|
-| Modelo pro frontend | _(pendente — fase v3)_ |
-| Gaps da camada própria | _(pendente — fase v3)_ |
+| [Modelo pro frontend](90-modelo-frontend.md) | Receitas de cruzamento e shape agregado |
+| [Gaps da camada própria](91-gaps-camada-propria.md) | httpServer/omie-data × Omie direto |
 
 ## Escopo
 

@@ -146,7 +146,8 @@ Não há endpoint que aceite uma lista de códigos.
 
 Quando você já vai percorrer boa parte do catálogo, **listar e indexar em
 memória sai mais barato que consultar produto a produto** — 41 chamadas contra
-2021. As receitas de cruzamento saem na fase v3 em `90-modelo-frontend.md`.
+2021. As receitas de cruzamento estão em
+[../90-modelo-frontend.md](../90-modelo-frontend.md).
 
 ## Próximo
 

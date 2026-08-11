@@ -166,8 +166,8 @@ Sugestão de nomes neutros:
 | Quantidade | `quantidade` |
 | Unidade | `unidade` |
 
-O modelo completo, com as agregações, sai na fase v3 em
-`90-modelo-frontend.md`.
+O modelo completo, com as agregações, está em
+[../90-modelo-frontend.md](../90-modelo-frontend.md).
 
 ## Próximo
 

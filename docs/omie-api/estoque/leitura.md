@@ -67,8 +67,8 @@ Somar o saldo real de um produto exige repetir tudo por local — ver a seção
 
 A saída é inverter o custo: varra **uma vez**, indexe por `nCodProd` em memória
 ou em cache, e sirva as consultas dali. É exatamente o tipo de caso em que a
-camada própria vale mais que a Omie direta — ver `91-gaps-camada-propria.md`
-(fase v3).
+camada própria vale mais que a Omie direta — ver
+[../91-gaps-camada-propria.md](../91-gaps-camada-propria.md).
 
 ## Parâmetros
 
