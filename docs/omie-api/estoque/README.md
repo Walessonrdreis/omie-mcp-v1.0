@@ -56,5 +56,7 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
   saldo físico × disponível
 - [../produtos/README.md](../produtos/README.md) — o cadastro cujo
   `quantidade_estoque` este recurso substitui
+- [../movimentos-estoque/README.md](../movimentos-estoque/README.md) — o
+  histórico por trás destes números, com o mesmo viés de local
 - [../ordem-producao/README.md](../ordem-producao/README.md) — quem consome e
   produz saldo, sempre por local

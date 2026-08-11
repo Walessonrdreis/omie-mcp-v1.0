@@ -10,8 +10,8 @@ canônica para traduzir entre eles.
 Um conceito por linha, uma coluna por recurso. `—` significa que aquele recurso
 não expõe o conceito.
 
-As cinco colunas estão completas: **produtos**, **estrutura**, **estoque**,
-**ordem de produção** e **pedido de venda**.
+As seis colunas estão completas: **produtos**, **estrutura**, **estoque**,
+**movimentos de estoque**, **ordem de produção** e **pedido de venda**.
 
 A coluna de estoque cobre os dois sub-recursos, que **não falam o mesmo
 dialeto**: onde há dois nomes separados por `/`, o primeiro é de
@@ -20,24 +20,24 @@ snake) 🔧.
 
 ## Tabela
 
-| Conceito | produtos | estrutura | estoque | ordem-producao | pedido-venda |
-|---|---|---|---|---|---|
-| ID interno do produto | `codigo_produto` | `idProduto` / `idProdMalha` | `nCodProd` / `id_prod` | `nCodProduto` / `nIdProdutoMalha` | `codigo_produto` |
-| Código do usuário (SKU) | `codigo` | `codProduto` / `codProdMalha` | `cCodigo` | — | `codigo` |
-| Código de integração | `codigo_produto_integracao` | `intProduto` / `intProdMalha` | `cCodInt` | `cCodIntOP` (da OP, não do produto) | `codigo_pedido_integracao` (do pedido) |
-| Descrição do produto | `descricao` | `descrProduto` / `descrProdMalha` | `cDescricao` | — | `descricao` |
-| Unidade | `unidade` | `unidProduto` / `unidProdMalha` | — | — | `unidade` |
-| ID da família | `codigo_familia` | `idFamilia` / `idFamMalha` | — | — | — |
-| Descrição da família | `descricao_familia` | `descrFamilia` / `descrFamMalha` | — | — | — |
-| Peso líquido | `peso_liq` | `pesoLiqProduto` / `pesoLiqProdMalha` | — | — | `peso_liquido` (do item) |
-| Peso bruto | `peso_bruto` | `pesoBrutoProduto` / `pesoBrutoProdMalha` | — | — | `peso_bruto` (do item) |
-| Quantidade | — | `quantProdMalha` | `fisico` / `quan` | `nQtde` | `quantidade` |
-| Preço de venda | `valor_unitario` | — | `nPrecoUnitario` | — | `valor_unitario` |
-| Data | — | — | `dDataPosicao` / `data` | `dDtPrevisao` | `data_previsao` |
-| Local de estoque | — | — | `codigo_local_estoque` | `codigo_local_estoque` | `codigo_local_estoque` (por item) |
-| Etapa do kanban | — | — | — | `cEtapa` | `etapa` |
-| Código de status da resposta | `codigo_status` | `codStatus` | `codigo_status` | `cCodStatus` | `codigo_status` |
-| Descrição do status | `descricao_status` | `descrStatus` | `descricao_status` | `cDesStatus` | `descricao_status` |
+| Conceito | produtos | estrutura | estoque | movimentos-estoque | ordem-producao | pedido-venda |
+|---|---|---|---|---|---|---|
+| ID interno do produto | `codigo_produto` | `idProduto` / `idProdMalha` | `nCodProd` / `id_prod` | `nCodProd` | `nCodProduto` / `nIdProdutoMalha` | `codigo_produto` |
+| Código do usuário (SKU) | `codigo` | `codProduto` / `codProdMalha` | `cCodigo` | `cCodigo` | — | `codigo` |
+| Código de integração | `codigo_produto_integracao` | `intProduto` / `intProdMalha` | `cCodInt` | `cCodIntProd` | `cCodIntOP` (da OP, não do produto) | `codigo_pedido_integracao` (do pedido) |
+| Descrição do produto | `descricao` | `descrProduto` / `descrProdMalha` | `cDescricao` | `cDescricao` | — | `descricao` |
+| Unidade | `unidade` | `unidProduto` / `unidProdMalha` | — | — | — | `unidade` |
+| ID da família | `codigo_familia` | `idFamilia` / `idFamMalha` | — | — | — | — |
+| Descrição da família | `descricao_familia` | `descrFamilia` / `descrFamMalha` | — | — | — | — |
+| Peso líquido | `peso_liq` | `pesoLiqProduto` / `pesoLiqProdMalha` | — | — | — | `peso_liquido` (do item) |
+| Peso bruto | `peso_bruto` | `pesoBrutoProduto` / `pesoBrutoProdMalha` | — | — | — | `peso_bruto` (do item) |
+| Quantidade | — | `quantProdMalha` | `fisico` / `quan` | `nQtdeEntradas` + `nQtdeSaidas` | `nQtde` | `quantidade` |
+| Preço de venda | `valor_unitario` | — | `nPrecoUnitario` | — | — | `valor_unitario` |
+| Data | — | — | `dDataPosicao` / `data` | `dDataMovimento` | `dDtPrevisao` | `data_previsao` |
+| Local de estoque | — | — | `codigo_local_estoque` | `codigo_local_estoque` (só no request) | `codigo_local_estoque` | `codigo_local_estoque` (por item) |
+| Etapa do kanban | — | — | — | — | `cEtapa` | `etapa` |
+| Código de status da resposta | `codigo_status` | `codStatus` | `codigo_status` | — | `cCodStatus` | `codigo_status` |
+| Descrição do status | `descricao_status` | `descrStatus` | `descricao_status` | — | `cDesStatus` | `descricao_status` |
 
 Duas células da coluna de OP escondem armadilha. `cCodIntOP` é código de
 integração **da ordem**, não do produto — é o único recurso onde "integração"
@@ -60,7 +60,15 @@ pedido, `"28"` para OP) ✅ — ver [conceitos.md](conceitos.md).
 A linha "Quantidade" merece cuidado: em estoque há **quatro** números de
 quantidade na leitura (`fisico`, `nSaldo`, `reservado`, `nPendente`), e a tabela
 só nomeia o físico. Qual usar para quê está em
-[../estoque/campos.md](../estoque/campos.md).
+[../estoque/campos.md](../estoque/campos.md). Em movimentos são **dois baldes**,
+não um número com sinal: `nQtdeEntradas` e `nQtdeSaidas` convivem na mesma linha,
+somados por dia ✅ — ver
+[../movimentos-estoque/campos.md](../movimentos-estoque/campos.md).
+
+A coluna de movimentos é quase toda igual à de estoque, com dois desvios ✅: o
+código de integração é `cCodIntProd`, não `cCodInt`, e `codigo_local_estoque`
+existe **só na entrada** — a resposta não diz de qual local veio cada linha. As
+duas linhas de status vêm vazias porque o recurso é só leitura.
 
 Onde a célula de estrutura tem dois nomes separados por `/`, o primeiro descreve
 o **produto pai** e o segundo o **componente** — ver
@@ -85,8 +93,8 @@ Reconhecer o padrão poupa consultar a tabela toda hora.
 
 | Estilo | Cara | Recursos |
 |---|---|---|
-| snake | `codigo_produto`, `valor_unitario` | `geral/produtos` (com uma exceção, abaixo), `produtos/pedido`, `estoque/ajuste` |
-| húngaro | `nCodProduto`, `cCodIntOP` | `produtos/op`, `estoque/consulta` |
+| snake | `codigo_produto`, `valor_unitario` | `geral/produtos` (com uma exceção, abaixo), `produtos/pedido`, `estoque/ajuste`, `estoque/movestoque` (request) |
+| húngaro | `nCodProduto`, `cCodIntOP` | `produtos/op`, `estoque/consulta`, `estoque/movestoque` (resposta) |
 | camelo abreviado | `idProdMalha`, `descrFamMalha` | `geral/malha` |
 
 Repare que **estoque aparece nas duas primeiras linhas**: `estoque/consulta` é
@@ -103,6 +111,12 @@ húngaro (`nPagina`, `nRegPorPagina`) e recebe o local em snake
 `cEtapa`, `nQtde`) e carrega um `codigo_local_estoque` snake dentro do bloco
 húngaro. Três estilos no mesmo objeto — por isso ele aparece nas duas primeiras
 linhas da tabela acima, como estoque.
+
+`estoque/movestoque` repete esse desenho de forma ainda mais limpa ✅: request
+inteiramente snake (`pagina`, `registros_por_pagina`, `codigo_local_estoque`) e
+resposta com envelope snake e conteúdo húngaro (`nCodProd`, `dDataMovimento`,
+`nQtdeEntradas`). Ou seja, o vizinho `estoque/consulta` fala húngaro na entrada e
+ele fala snake — dentro do mesmo módulo.
 
 O mesmo dado atravessa os três estilos conforme você percorre a cadeia
 produto → malha → OP.

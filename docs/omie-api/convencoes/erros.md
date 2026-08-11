@@ -62,10 +62,15 @@ Omie **não ignora** parâmetro desconhecido, ela recusa a chamada nomeando a ta
 e o tipo complexo do request ✅. Bom para achar erro de digitação cedo, ruim
 para quem tenta descobrir filtro não documentado por tentativa.
 
-Verificado em quatro recursos ✅ — `geral/malha`, `estoque/consulta`,
-`produtos/op` e `produtos/pedido`. A mensagem nomeia **uma tag por resposta**,
-mesmo quando várias estão erradas: sondar um request desconhecido é um ciclo de
-tentativa e erro, uma tag por vez ✅.
+Verificado em cinco recursos ✅ — `geral/malha`, `estoque/consulta`,
+`produtos/op`, `produtos/pedido` e `estoque/movestoque`. A mensagem nomeia **uma
+tag por resposta**, mesmo quando várias estão erradas: sondar um request
+desconhecido é um ciclo de tentativa e erro, uma tag por vez ✅.
+
+O quinto foi descoberto **inteiro** por esse ciclo, sem gateway nem doc para
+partir: três parâmetros achados e doze nomes eliminados em treze chamadas ✅. É
+caro, mas funciona — ver
+[../movimentos-estoque/leitura.md](../movimentos-estoque/leitura.md).
 
 O tipo complexo nomeado é **por método**, não por recurso: `pvpListarRequest` no
 `ListarPedidos` e `pvpConsultarRequest` no `ConsultarPedido` ✅. Um parâmetro

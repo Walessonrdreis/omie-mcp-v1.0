@@ -50,6 +50,7 @@ contra a conta real. Tudo em `escrita.md` é `🔧` ou `📖`.
 | Produtos | `geral/produtos` | [produtos/](produtos/README.md) |
 | Estrutura (BOM) | `geral/malha` | [estrutura/](estrutura/README.md) |
 | Estoque | `estoque/consulta`, `estoque/ajuste` | [estoque/](estoque/README.md) |
+| Movimentos de estoque | `estoque/movestoque` | [movimentos-estoque/](movimentos-estoque/README.md) |
 | Ordem de produção | `produtos/op` | [ordem-producao/](ordem-producao/README.md) |
 | Pedido de venda | `produtos/pedido`, `produtos/etapafat` | [pedido-venda/](pedido-venda/README.md) |
 
@@ -62,9 +63,14 @@ contra a conta real. Tudo em `escrita.md` é `🔧` ou `📖`.
 
 ## Escopo
 
-**Cobre:** produtos, estrutura, estoque, ordem de produção, e a **leitura** de
-pedido de venda — incluindo o catálogo de etapas de `produtos/etapafat`, que
-serve os dois últimos.
+**Cobre:** produtos, estrutura, estoque, movimentos de estoque, ordem de
+produção, e a **leitura** de pedido de venda — incluindo o catálogo de etapas de
+`produtos/etapafat`, que serve os dois últimos.
+
+Movimentos de estoque é o único recurso **sem gateway no repo** 🔧: o formato do
+request foi descoberto por sondagem ao vivo, e os filtros por produto e por
+período **não existem** ✅ — ver
+[movimentos-estoque/leitura.md](movimentos-estoque/leitura.md).
 
 **Não cobre:** emissão fiscal (NF-e, NFS-e), financeiro, compras, CRM,
 serviços, e o CRUD de pedido de venda. Para esses, veja
@@ -72,7 +78,7 @@ serviços, e o CRUD de pedido de venda. Para esses, veja
 
 ## Manutenção
 
-Mexeu num gateway de um dos cinco recursos, ou descobriu comportamento novo da
+Mexeu num gateway de um dos recursos cobertos, ou descobriu comportamento novo da
 Omie? Atualize o arquivo correspondente **no mesmo commit**.
 
 Antes de commitar:

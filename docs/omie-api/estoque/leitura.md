@@ -164,17 +164,17 @@ O que a resposta devolve nunca é `0`: é sempre o ID real do local ✅ — voc�
 
 ## Recurso vizinho: `estoque/movestoque`
 
-`ListarMovimentos` lista movimentações, não posições. **Não está documentado
-aqui** — o escopo desta pasta é `estoque/consulta` e `estoque/ajuste`.
+`ListarMovimentos` lista movimentações, não posições, e agora tem doc própria:
+[../movimentos-estoque/README.md](../movimentos-estoque/README.md).
 
-Fica o que quatro tentativas de sondagem estabeleceram ✅: o tipo do request é
-`epListarRequest`, e ele recusa `nCodProd`, `cCodIntProd`, `dDtEstoqueDe` e
-`dDtEstoqueAte`. Os nomes dos parâmetros são outros; descobri-los exige uma
-coleta própria.
+Três coisas dali mudam o que você faz aqui ✅:
 
-Detalhe útil da sondagem: o `Client-5001` nomeia **uma tag por resposta**, mesmo
-quando várias estão erradas ✅. Descobrir um request desconhecido é um ciclo de
-tentativa e erro, uma tag por vez.
+- Ele **também não filtra por produto** — a armadilha 1 não tem escapatória pelo
+  vizinho, e ainda ganhou seis nomes recusados novos.
+- Ele pagina em **snake** (`pagina`, `registros_por_pagina`), não em húngaro. Os
+  dois sub-recursos de estoque não compartilham nem o dialeto de paginação.
+- Ele tem o **mesmo viés de local**: omitir `codigo_local_estoque` traz só o
+  padrão. Mas é a forma mais barata de ver o que se moveu nos outros 14 locais.
 
 ## Próximo
 

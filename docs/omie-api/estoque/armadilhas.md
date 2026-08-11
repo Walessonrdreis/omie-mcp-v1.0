@@ -26,6 +26,11 @@ cache. O caminho ingênuo — varrer a cada pergunta — é o que o repo faz hoj
 (`estoque-omie-gateway.ts:56-59`) e custa 1353 posições baixadas para devolver
 uma. Dez produtos viram 140 requisições e mais de 40 segundos.
 
+**E o vizinho não salva:** `estoque/movestoque` também não aceita filtro por
+produto ✅ — mais seis nomes recusados, ver
+[../movimentos-estoque/leitura.md](../movimentos-estoque/leitura.md). A
+limitação é do módulo de estoque inteiro, não de `ListarPosEstoque`.
+
 **Evidência:** coleta de 10/08/2026 ✅; custo detalhado em
 [leitura.md](leitura.md).
 

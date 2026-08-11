@@ -9,7 +9,7 @@ recurso. Não há como saber pelo nome do endpoint — só pela tabela abaixo.
 
 | Dialeto | Parâmetros que você envia | Campos que voltam | Recursos |
 |---|---|---|---|
-| **snake** | `pagina`, `registros_por_pagina` | `pagina`, `total_de_paginas`, `registros`, `total_de_registros` | `geral/produtos` 🔧, `produtos/op` ✅, `produtos/pedido` ✅, `produtos/etapafat` ✅ |
+| **snake** | `pagina`, `registros_por_pagina` | `pagina`, `total_de_paginas`, `registros`, `total_de_registros` | `geral/produtos` 🔧, `produtos/op` ✅, `produtos/pedido` ✅, `produtos/etapafat` ✅, `estoque/movestoque` ✅ |
 | **húngaro** | `nPagina`, `nRegPorPagina` | `nPagina`, `nTotPaginas`, `nRegistros`, `nTotRegistros` | `geral/malha` ✅, `estoque/consulta` ✅ |
 
 Evidências: `produtos-omie-gateway.ts:31-41`, `estrutura-omie-gateway.ts:24-31`,
@@ -46,7 +46,12 @@ recurso ✅: `pvpListarRequest` no `ListarPedidos` e `pvpConsultarRequest` no
 `ConsultarPedido`. Um parâmetro válido em um método pode ser recusado no outro —
 `apenas_resumo` é aceito na listagem e recusado na consulta ✅.
 
-Quatro recursos verificados, mesmo comportamento — mas **os demais continuam não
+`estoque/movestoque` é o quinto, com o tipo `epListarRequest` ✅, e foi o único
+cujo request inteiro precisou ser descoberto por essa via — treze chamadas, doze
+nomes eliminados, ver
+[../movimentos-estoque/leitura.md](../movimentos-estoque/leitura.md).
+
+Cinco recursos verificados, mesmo comportamento — mas **os demais continuam não
 verificados**. Onde a rejeição não acontecer, o sintoma é um laço que não itera,
 porque o campo de total vem `undefined` — e você conclui que a conta tem 50
 produtos quando tem 2021. Ver [erros.md](erros.md).
@@ -67,9 +72,15 @@ Cada recurso devolve os registros num campo com nome próprio 🔧:
 | `produtos/op` | `cadastros` |
 | `produtos/pedido` | `pedido_venda_produto` ✅ |
 | `produtos/etapafat` | `cadastros` ✅ |
+| `estoque/movestoque` | `cadastros` ✅ |
 
 Não há padrão. Um helper genérico de paginação precisa receber o nome do campo
 como parâmetro.
+
+E o nome do campo não diz o que se está contando: em `estoque/movestoque`,
+`cadastros` é uma lista de **produtos**, cada um com um array `movimentos`
+dentro ✅. `total_de_registros` conta produtos, não movimentos — ver
+[../movimentos-estoque/armadilhas.md](../movimentos-estoque/armadilhas.md).
 
 E o nome pode mudar de **tipo** entre métodos do mesmo recurso:
 `pedido_venda_produto` é um array em `ListarPedidos` e um **objeto** em
@@ -131,14 +142,16 @@ que você recebe**.
 | `estoque/consulta` | 500 (`estoque-omie-gateway.ts:18`) | **100** ✅ |
 | `produtos/op` | Definido por quem chama | **100** ✅ |
 | `produtos/pedido` | Definido por quem chama | **100** ✅ |
+| `estoque/movestoque` | Definido por quem chama | **100** ✅ |
 | Demais | Definido por quem chama | Não verificado |
 
-**100 é o teto da Omie, não do recurso** ✅: os três verificados param ali,
+**100 é o teto da Omie, não do recurso** ✅: os quatro verificados param ali,
 apesar de usarem dialetos de paginação diferentes — húngaro, misto e snake. Até
 que algum recurso prove o contrário, planeje custo com 100 por página.
 
-O teto silencioso vale nos três: pedir 500 em `produtos/pedido` devolve 100 e
-recalcula `total_de_paginas` para 37, sem erro ✅.
+O teto silencioso vale nos quatro: pedir 500 em `produtos/pedido` devolve 100 e
+recalcula `total_de_paginas` para 37, sem erro ✅. Em `estoque/movestoque`, pedir
+500 num local com 210 produtos devolve `total_de_paginas: 3` ✅.
 
 Em `estoque/consulta` o teto é silencioso: pedir 500 devolve 100 e recalcula
 `nTotPaginas` como se você tivesse pedido 100 ✅. Sem erro, sem aviso — e o laço
