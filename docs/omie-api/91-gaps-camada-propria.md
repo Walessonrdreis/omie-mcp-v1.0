@@ -34,7 +34,7 @@ têm View pronta: `view_produtos` e `view_ordens_producao` 🔧. Estoque tem
 | Posição de estoque de um produto | `omie_estoque_total_produto` — varre 14 páginas por consulta 🔧 | `raw_estoque` coletado, **sem View** 🔧 | **Trabalho novo** — a View de estoque falta, e as duas camadas leem só o local padrão; ver o gap 4 |
 | Produtos com quantidade e valor | `omie_produtos_listar_com_estoque` — cruza os dois endpoints 🔧 | `view_produtos` já cruza `raw_produtos` com `raw_estoque` 🔧 | **Camada própria.** A Omie não tem esse cruzamento: `quantidade_estoque` vem sempre `0` ✅ |
 | Listar OPs com descrição do produto | `omie_op_listar_com_produto` — lê o cache 🔧 | `view_ordens_producao` 🔧 | **Camada própria.** Sem ela são até 64 requisições ✅ — ver [90-receita-ops-abertas.md](90-receita-ops-abertas.md) |
-| Nome da etapa de uma OP | `omie_pedido_venda_etapas_listar` devolve as 11 operações 🔧 | Não guarda o nome 🔧 | **Trabalho novo** — nada resolve a operação `"28"` sozinho; ver o gap 6 |
+| Nome da etapa de uma OP | `omie_pedido_venda_etapas_listar` devolve as onze operações 🔧 | Não guarda o nome 🔧 | **Trabalho novo** — o catálogo existe (operação `"28"` ✅), mas nada o cruza com a OP; ver o gap 6 |
 | Listar pedidos por etapa | `omie_pedido_venda_listar_com_cliente` — resolve cliente e etapa 🔧 | Sem módulo | **Omie direta.** É dado de fila, muda o dia inteiro |
 | Pedidos pendentes de separação | `omie_pedido_venda_separar_estoque_listar` e `omie_pedido_venda_produtos_para_separar` — já descartam os cancelados 🔧 | Sem módulo | **Camada própria**, com a ressalva do gap 5 |
 
@@ -158,17 +158,22 @@ produz página com buracos e total inflado.
 O conserto é baixar a etapa inteira (cabe numa página de 100 ✅), filtrar, e
 paginar em cima do resultado.
 
-### 6. A descrição de uma ferramenta ainda nega a tradução da etapa
+### 6. O cache de OP não guarda o nome da etapa
 
-`omie_op_listar_com_produto` descreve `etapaCodigo` dizendo que "a API não tem
-endpoint pra traduzir o código pro nome" 🔧
-(`ordem-producao-tools.ts:104-106`). **É falso** ✅: o catálogo está em
-`produtos/etapafat`, operação `"28"` — ver
-[pedido-venda/etapas.md](pedido-venda/etapas.md).
+O catálogo existe — `produtos/etapafat`, operação `"28"` ✅, ver
+[pedido-venda/etapas.md](pedido-venda/etapas.md) — mas **nada no repo o resolve
+para quem consome uma OP**. `omie_op_listar_com_produto` devolve `etapaCodigo`
+cru, e o cache não tem `etapaNome` 🔧: quem monta um kanban precisa buscar o
+catálogo por fora e cruzar na mão.
 
-Os comentários dos gateways de OP e de pedido foram corrigidos em `d16d305`; a
-descrição da ferramenta não. E o cache de OP não guarda `etapaNome`, então nem
-com a correção do texto o consumidor recebe o nome pronto.
+O conserto: guardar o catálogo junto do cache de OP (ele muda em semanas, não em
+minutos) e enriquecer a View com `etapaNome`, preferindo `cDescricao` e caindo
+para `cDescrPadrao`.
+
+> **Parte textual resolvida em 11/08/2026.** Cinco afirmações negavam a
+> existência do catálogo — dois comentários de gateway (`d16d305`) e três
+> descrições de ferramenta (`2b1cf41`). Todas corrigidas, cache da skill
+> regenerado. O que sobra é código, não texto.
 
 ## Onde a fronteira fica
 
