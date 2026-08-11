@@ -51,15 +51,19 @@ Números desta conta, medidos em 10/08/2026 ✅:
 
 | Grandeza | Valor |
 |---|---|
-| Posições na listagem padrão | 1353 |
+| Posições no local padrão | 1353 |
 | Tamanho de página que o repo pede | 500 (`estoque-omie-gateway.ts:18`) 🔧 |
-| Tamanho de página que a Omie entrega | 100 — ver o teto, abaixo |
+| Tamanho de página que a Omie entrega | 100 — ver [leitura-filtros.md](leitura-filtros.md) |
 | Páginas para varrer tudo | 14 |
 | Espera mínima só de espaçamento | ~4,2 s (14 × 300ms) |
 
 Ou seja: **cada consulta de saldo de um único produto baixa 1353 posições e
 descarta 1352.** Uma tela que mostra o saldo de 10 produtos, resolvida
 ingenuamente produto a produto, faz 140 requisições e leva mais de 40 segundos.
+
+E essa varredura **não cobre a conta inteira**: são as posições do local padrão.
+Somar o saldo real de um produto exige repetir tudo por local — ver a seção
+[Local de estoque](#local-de-estoque).
 
 A saída é inverter o custo: varra **uma vez**, indexe por `nCodProd` em memória
 ou em cache, e sirva as consultas dali. É exatamente o tipo de caso em que a
@@ -73,10 +77,10 @@ Os cinco que `ListarEstPosRequest` aceita, todos verificados ao vivo ✅:
 | Parâmetro | Tipo | Obrigatório | O que faz |
 |---|---|---|---|
 | `nPagina` | number | ✅ sim | Página, 1-indexada |
-| `nRegPorPagina` | number | ✅ sim | Tamanho da página — com teto, veja abaixo |
-| `codigo_local_estoque` | number | ✅ não | Filtra por local; `0` ou omitido traz tudo |
+| `nRegPorPagina` | number | ✅ sim | Tamanho da página — teto silencioso de 100 |
+| `codigo_local_estoque` | number | ✅ não | Local; `0` ou omitido = **o local padrão**, não todos |
 | `dDataPosicao` | string | ✅ não | Posição retroativa, `dd/mm/aaaa` |
-| `cExibeTodos` | string | ✅ não | `"S"` inclui produto sem movimento |
+| `cExibeTodos` | string | ✅ não | `"S"` inclui produto sem movimento **no local pedido** |
 
 Note a mistura de estilos: a paginação é húngara, mas `codigo_local_estoque` é
 snake ✅ — os dois convivem no mesmo request, como o bloco `caracteristicas` de
