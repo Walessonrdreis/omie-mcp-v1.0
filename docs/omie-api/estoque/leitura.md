@@ -133,10 +133,27 @@ ERROR: Local do Estoque não cadastrado para o Código [12345] ! -
 tag: [codigo_local_estoque]
 ```
 
-Ou seja, `0` é tratado como valor especial, não como um local real. Se `0`
-significa "todos os locais" ou "o local padrão" **não pôde ser distinguido**:
-esta conta tem um único local (`9169896468`), então as duas leituras dão o mesmo
-resultado. Ver [../glossario/conceitos.md](../glossario/conceitos.md).
+Ou seja, `0` é tratado como valor especial, não como um local real. E ele
+significa **o local padrão, não todos os locais** ✅ — a conta tem 15 locais
+cadastrados, e cada um responde com a sua própria posição:
+
+| `codigo_local_estoque` | Local | Posições |
+|---|---|---|
+| `0` (ou omitido) | resolve para `9169896468` | 1353 |
+| `9169896468` | Estoque Labarr 711 — `padrao: "S"` | 1353 |
+| `9084171539` | Estoque Fábrica | 284 |
+| `9176802789` | Insumos Fábrica | 51 |
+
+**A leitura padrão não enxerga o saldo dos outros locais.** Um insumo que só
+existe em `Insumos Fábrica` some da varredura sem deixar rastro — não vem
+zerado, simplesmente não aparece.
+
+O catálogo de locais vem de `ListarLocaisEstoque`, no recurso `estoque/local` —
+paginação húngara, array `locaisEncontrados`, 15 registros nesta conta ✅. Cada
+local traz `padrao`, `inativo` e as flags `dispVenda`, `dispRemessa` e
+`dispOrdemProducao`. Esse recurso **não é documentado aqui**: o escopo desta
+pasta é `estoque/consulta` e `estoque/ajuste`. Ver
+[../glossario/conceitos.md](../glossario/conceitos.md).
 
 O que a resposta devolve nunca é `0`: é sempre o ID real do local ✅ — você manda
 `0` e recebe `9169896468`.

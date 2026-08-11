@@ -50,7 +50,7 @@ contra a conta real. Tudo em `escrita.md` é `🔧` ou `📖`.
 | Produtos | `geral/produtos` | [produtos/](produtos/README.md) |
 | Estrutura (BOM) | `geral/malha` | [estrutura/](estrutura/README.md) |
 | Estoque | `estoque/consulta`, `estoque/ajuste` | [estoque/](estoque/README.md) |
-| Ordem de produção | `produtos/op` | _(pendente — fase v2)_ |
+| Ordem de produção | `produtos/op` | [ordem-producao/](ordem-producao/README.md) |
 | Pedido de venda | `produtos/pedido` | _(pendente — fase v3)_ |
 
 ## Integração

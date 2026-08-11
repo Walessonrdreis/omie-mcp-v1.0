@@ -34,7 +34,7 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
 | [escrita.md](escrita.md) | Ajuste de estoque, os três enums, o que é irreversível |
 | [armadilhas.md](armadilhas.md) | As oito armadilhas do recurso |
 
-## O essencial em seis linhas
+## O essencial em sete linhas
 
 1. **Não existe filtro por produto** ✅. Saber o saldo de um item exige varrer
    tudo e filtrar em memória — 14 requisições para 1353 posições.
@@ -46,6 +46,8 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
 5. Para "posso vender?" use `nSaldo`; para inventário, `fisico`. Nesta conta os
    dois são **sempre iguais**, então o teste não pega a troca ✅.
 6. `fisico` negativo e fracionário é o normal, não a exceção ✅.
+7. `codigo_local_estoque: 0` é o **local padrão**, não todos os locais ✅ — a
+   conta tem 15, e a leitura padrão ignora o saldo dos outros 14.
 
 ## Relacionados
 
@@ -54,4 +56,5 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
   saldo físico × disponível
 - [../produtos/README.md](../produtos/README.md) — o cadastro cujo
   `quantidade_estoque` este recurso substitui
-- `ordem-producao/README.md` (fase v2) — quem consome e produz saldo
+- [../ordem-producao/README.md](../ordem-producao/README.md) — quem consome e
+  produz saldo, sempre por local

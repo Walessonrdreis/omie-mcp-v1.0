@@ -10,8 +10,8 @@ canônica para traduzir entre eles.
 Um conceito por linha, uma coluna por recurso. `—` significa que aquele recurso
 não expõe o conceito.
 
-As colunas chegam por fase: **produtos**, **estrutura** e **estoque** agora;
-ordem de produção fecha a v2; pedido de venda chega na v3.
+As colunas chegam por fase: **produtos**, **estrutura**, **estoque** e **ordem
+de produção** agora; pedido de venda chega na v3.
 
 A coluna de estoque cobre os dois sub-recursos, que **não falam o mesmo
 dialeto**: onde há dois nomes separados por `/`, o primeiro é de
@@ -20,22 +20,30 @@ snake) 🔧.
 
 ## Tabela
 
-| Conceito | produtos | estrutura | estoque |
-|---|---|---|---|
-| ID interno do produto | `codigo_produto` | `idProduto` / `idProdMalha` | `nCodProd` / `id_prod` |
-| Código do usuário (SKU) | `codigo` | `codProduto` / `codProdMalha` | `cCodigo` |
-| Código de integração | `codigo_produto_integracao` | `intProduto` / `intProdMalha` | `cCodInt` |
-| Descrição do produto | `descricao` | `descrProduto` / `descrProdMalha` | `cDescricao` |
-| Unidade | `unidade` | `unidProduto` / `unidProdMalha` | — |
-| ID da família | `codigo_familia` | `idFamilia` / `idFamMalha` | — |
-| Descrição da família | `descricao_familia` | `descrFamilia` / `descrFamMalha` | — |
-| Peso líquido | `peso_liq` | `pesoLiqProduto` / `pesoLiqProdMalha` | — |
-| Peso bruto | `peso_bruto` | `pesoBrutoProduto` / `pesoBrutoProdMalha` | — |
-| Quantidade | — | `quantProdMalha` | `fisico` / `quan` |
-| Preço de venda | `valor_unitario` | — | `nPrecoUnitario` |
-| Data | — | — | `dDataPosicao` / `data` |
-| Código de status da resposta | `codigo_status` | `codStatus` | `codigo_status` |
-| Descrição do status | `descricao_status` | `descrStatus` | `descricao_status` |
+| Conceito | produtos | estrutura | estoque | ordem-producao |
+|---|---|---|---|---|
+| ID interno do produto | `codigo_produto` | `idProduto` / `idProdMalha` | `nCodProd` / `id_prod` | `nCodProduto` / `nIdProdutoMalha` |
+| Código do usuário (SKU) | `codigo` | `codProduto` / `codProdMalha` | `cCodigo` | — |
+| Código de integração | `codigo_produto_integracao` | `intProduto` / `intProdMalha` | `cCodInt` | `cCodIntOP` (da OP, não do produto) |
+| Descrição do produto | `descricao` | `descrProduto` / `descrProdMalha` | `cDescricao` | — |
+| Unidade | `unidade` | `unidProduto` / `unidProdMalha` | — | — |
+| ID da família | `codigo_familia` | `idFamilia` / `idFamMalha` | — | — |
+| Descrição da família | `descricao_familia` | `descrFamilia` / `descrFamMalha` | — | — |
+| Peso líquido | `peso_liq` | `pesoLiqProduto` / `pesoLiqProdMalha` | — | — |
+| Peso bruto | `peso_bruto` | `pesoBrutoProduto` / `pesoBrutoProdMalha` | — | — |
+| Quantidade | — | `quantProdMalha` | `fisico` / `quan` | `nQtde` |
+| Preço de venda | `valor_unitario` | — | `nPrecoUnitario` | — |
+| Data | — | — | `dDataPosicao` / `data` | `dDtPrevisao` |
+| Local de estoque | — | — | `codigo_local_estoque` | `codigo_local_estoque` |
+| Código de status da resposta | `codigo_status` | `codStatus` | `codigo_status` | `cCodStatus` |
+| Descrição do status | `descricao_status` | `descrStatus` | `descricao_status` | `cDesStatus` |
+
+Duas células da coluna de OP escondem armadilha. `cCodIntOP` é código de
+integração **da ordem**, não do produto — é o único recurso onde "integração"
+muda de entidade. E `nIdProdutoMalha`, apesar do sufixo, identifica o **produto
+componente** (`idProdMalha`), não a linha da estrutura (`idMalha`), que a OP não
+expõe ✅ — ver
+[../ordem-producao/campos-itens.md](../ordem-producao/campos-itens.md).
 
 A linha "Quantidade" merece cuidado: em estoque há **quatro** números de
 quantidade na leitura (`fisico`, `nSaldo`, `reservado`, `nPendente`), e a tabela
@@ -74,9 +82,15 @@ húngaro e `estoque/ajuste` é snake 🔧. O mesmo produto é `nCodProd` quando 
 lê e `id_prod` quando você escreve, e não há um único campo em comum entre os
 dois payloads. O estilo é do sub-recurso, não do módulo.
 
-Há ainda um caso misto **dentro do mesmo request**: `ListarPosEstoque` pagina em
+Há ainda casos mistos **dentro do mesmo request**: `ListarPosEstoque` pagina em
 húngaro (`nPagina`, `nRegPorPagina`) e recebe o local em snake
 (`codigo_local_estoque`) ✅.
+
+`produtos/op` é o mais misto de todos ✅: pagina em **snake**
+(`pagina`, `registros_por_pagina`), devolve os dados em **húngaro** (`nCodOP`,
+`cEtapa`, `nQtde`) e carrega um `codigo_local_estoque` snake dentro do bloco
+húngaro. Três estilos no mesmo objeto — por isso ele aparece nas duas primeiras
+linhas da tabela acima, como estoque.
 
 O mesmo dado atravessa os três estilos conforme você percorre a cadeia
 produto → malha → OP.

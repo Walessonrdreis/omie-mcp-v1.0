@@ -122,12 +122,16 @@ ERROR: Local do Estoque não cadastrado para o Código [12345] !
 
 Omitir o parâmetro dá o mesmo resultado que `0` ✅.
 
-**Como contornar:** agrupe as posições pelo `codigo_local_estoque` **da
-resposta**. Código que assume `0` para reconciliar depois não encontra nada.
+E `0` significa **o local padrão**, não "todos os locais" ✅: a conta tem 15
+locais, e a leitura com `0` traz só as 1353 posições de `9169896468` — o único
+com `padrao: "S"`. Ficam de fora 284 posições de `Estoque Fábrica` e 51 de
+`Insumos Fábrica`.
 
-Se `0` significa "todos os locais" ou "o local padrão" **não foi possível
-distinguir**: esta conta tem um local só, e as duas leituras dão o mesmo
-resultado. Numa conta multi-local, verifique antes de confiar.
+**Como contornar:** agrupe as posições pelo `codigo_local_estoque` **da
+resposta**. Código que assume `0` para reconciliar depois não encontra nada. E
+para saber o total de um produto na empresa, varra local por local
+(`ListarLocaisEstoque`, em `estoque/local`) — a leitura padrão responde "quanto
+tem no depósito principal", que é outra pergunta.
 
 **Evidência:** coleta de 10/08/2026 ✅.
 

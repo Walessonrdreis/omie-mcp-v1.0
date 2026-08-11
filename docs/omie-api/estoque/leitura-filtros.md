@@ -44,6 +44,11 @@ produtos** que nunca tiveram movimento.
 Para inventário completo, `"S"` é obrigatório — ao custo de 41 páginas em vez
 de 14.
 
+Uma ressalva sobre "nunca tiveram movimento": esses 668 são os produtos sem
+posição **no local padrão** ✅. Produto que só se move em outro depósito também
+cai nessa conta — ver [leitura.md](leitura.md). `cExibeTodos` resolve o recorte
+de produtos, não o de locais; os dois filtros são independentes.
+
 Na forma é `"S"`/`"N"`, mas não é um booleano de exibição: troca o conjunto de
 registros e o tamanho da página. Ver
 [../convencoes/tipos-formatos.md](../convencoes/tipos-formatos.md).

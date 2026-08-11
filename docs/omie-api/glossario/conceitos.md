@@ -51,6 +51,12 @@ expõe endpoint para traduzir o código para o nome** 🔧
 `"20"` e não há como descobrir pela API que isso significa "Em usinagem" naquela
 conta. Quem precisa exibir o nome tem que manter o mapa fora da Omie.
 
+Confirmado ao vivo: os códigos vêm crus, sem nome junto ✅ — `"10"`, `"20"`,
+`"30"` e `"40"` em OPs abertas, `"60"` e `"80"` em concluídas. A numeração
+sugere ordem, mas nem isso é garantido: `"60"` e `"80"` são as duas de OP
+concluída. Ver
+[../ordem-producao/armadilhas.md](../ordem-producao/armadilhas.md).
+
 **Etapa de Pedido de Venda** (`etapa`) — catálogo fixo e documentado,
 resolvível por `ListarEtapasFaturamento` no recurso `produtos/etapafat` 🔧
 (`src/modules/pedidoVenda/domain/interfaces/pedido-venda-gateway.ts:96-105`).
@@ -65,10 +71,18 @@ descubra de qual recurso ele veio.
 especial de entrada, não um local**: enviar `0` ou omitir o parâmetro dá o mesmo
 resultado ✅, e um código inexistente é recusado com `SOAP-ENV:Client-1070` ✅.
 
-Se `0` significa "todos os locais" ou "o local padrão" **não foi possível
-distinguir** — esta conta tem um único local (`9169896468`), então as duas
-leituras dão o mesmo resultado. O comentário do repo diz "padrão" 🔧; a coleta
-não confirma nem desmente.
+**`0` significa "o local padrão", não "todos os locais"** ✅. A conta tem **15
+locais cadastrados**, cinco deles ativos, e cada um tem posição própria:
+`0` devolve 1353 posições, exatamente o total do local `9169896468` — que é o
+único marcado `padrao: "S"` ✅. Os outros locais têm saldo que essa leitura
+**não** enxerga (284 posições em `9084171539`, 51 em `9176802789`).
+
+Quem quer o total de um produto na empresa precisa somar as posições de cada
+local, uma leitura por local. O catálogo de locais vem de `ListarLocaisEstoque`,
+no recurso `estoque/local` — dialeto húngaro, array `locaisEncontrados` ✅. Cada
+local traz `padrao`, `inativo` e três flags de uso: `dispVenda`, `dispRemessa` e
+`dispOrdemProducao`. Só três locais desta conta aceitam OP ✅ — ver
+[../ordem-producao/escrita.md](../ordem-producao/escrita.md).
 
 Na **resposta**, `codigo_local_estoque` nunca vem `0`: vem sempre o ID real do
 local ✅. Agrupe pelo valor devolvido, não pelo que você enviou.
@@ -115,6 +129,13 @@ Depende de estrutura: **o produto precisa ter malha cadastrada antes**, senão a
 Omie recusa a criação da OP 🔧
 (`src/modules/ordemProducao/domain/interfaces/op-gateway.ts:38-42`). A cadeia é
 produto → malha → OP.
+
+A OP **copia** a malha no momento em que nasce, e a cópia não acompanha
+alterações posteriores da ficha técnica ✅. Duas consequências que separam os
+dois conceitos: a quantidade de cada insumo na OP já vem multiplicada pela
+quantidade produzida (na malha é por unidade), e uma OP antiga não é
+reconstituível a partir da malha de hoje. Detalhes em
+[../ordem-producao/campos-itens.md](../ordem-producao/campos-itens.md).
 
 ## Família
 

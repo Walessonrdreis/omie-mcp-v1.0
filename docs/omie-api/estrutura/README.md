@@ -51,4 +51,5 @@ Nenhum método de escrita foi executado contra a conta real — ver o aviso em
   × produto componente
 - [../produtos/README.md](../produtos/README.md) — o cadastro que alimenta pai e
   componentes
-- `ordem-producao/README.md` (fase v2) — quem consome a estrutura para produzir
+- [../ordem-producao/README.md](../ordem-producao/README.md) — quem consome a
+  estrutura para produzir, e a copia congelada no dia da criação da OP

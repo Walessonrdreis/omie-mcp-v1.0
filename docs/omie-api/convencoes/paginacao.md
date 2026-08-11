@@ -9,7 +9,7 @@ recurso. Não há como saber pelo nome do endpoint — só pela tabela abaixo.
 
 | Dialeto | Parâmetros que você envia | Campos que voltam | Recursos |
 |---|---|---|---|
-| **snake** | `pagina`, `registros_por_pagina` | `pagina`, `total_de_paginas`, `registros`, `total_de_registros` | `geral/produtos` 🔧, `produtos/op` 🔧, `produtos/pedido` 🔧 |
+| **snake** | `pagina`, `registros_por_pagina` | `pagina`, `total_de_paginas`, `registros`, `total_de_registros` | `geral/produtos` 🔧, `produtos/op` ✅, `produtos/pedido` 🔧 |
 | **húngaro** | `nPagina`, `nRegPorPagina` | `nPagina`, `nTotPaginas`, `nRegistros`, `nTotRegistros` | `geral/malha` ✅, `estoque/consulta` ✅ |
 
 Evidências: `produtos-omie-gateway.ts:31-41`, `estrutura-omie-gateway.ts:24-31`,
@@ -37,7 +37,11 @@ ERROR: Tag [NCODPROD] não faz parte da estrutura do tipo complexo
 [ListarEstPosRequest]!
 ```
 
-Dois recursos verificados, mesmo comportamento — mas **os demais continuam não
+`produtos/op` completa o terceiro, nomeando o seu tipo `copListarRequest` ✅ —
+tanto para uma tag inventada quanto para nomes plausíveis de filtro como
+`nCodProduto` ou `filtrar_por_data_de`.
+
+Três recursos verificados, mesmo comportamento — mas **os demais continuam não
 verificados**. Onde a rejeição não acontecer, o sintoma é um laço que não itera,
 porque o campo de total vem `undefined` — e você conclui que a conta tem 50
 produtos quando tem 2021. Ver [erros.md](erros.md).
@@ -95,8 +99,17 @@ Em alguns recursos, pedir uma página sem registros devolve **erro**, não lista
 vazia 🔧. O código é `SOAP-ENV:Client-5113`, e ele precisa ser tratado como
 "acabou", não como falha.
 
-Isso já mordeu neste repo em Compras (ver `docs/API.md`, entrada de 2026-07-20).
-Detalhes em [erros.md](erros.md).
+Isso já mordeu neste repo em Compras (ver `docs/API.md`, entrada de 2026-07-20),
+e agora está confirmado ao vivo em `produtos/op` ✅:
+
+```
+SOAP-ENV:Client-5113
+ERROR: Não existem registros para a página [9999]!
+```
+
+No mesmo recurso, `pagina: 0` **não** dá erro: é tratada como página 1 ✅. Ou
+seja, o limite inferior é silencioso e o superior é ruidoso. Detalhes em
+[erros.md](erros.md).
 
 ## Tamanho de página
 
@@ -106,7 +119,12 @@ que você recebe**.
 | Recurso | O repo pede 🔧 | A Omie entrega |
 |---|---|---|
 | `estoque/consulta` | 500 (`estoque-omie-gateway.ts:18`) | **100** ✅ |
+| `produtos/op` | Definido por quem chama | **100** ✅ |
 | Demais | Definido por quem chama | Não verificado |
+
+**100 parece ser o teto da Omie, não do recurso** ✅: os dois verificados param
+ali, apesar de usarem dialetos de paginação diferentes. Até que algum recurso
+prove o contrário, planeje custo com 100 por página.
 
 Em `estoque/consulta` o teto é silencioso: pedir 500 devolve 100 e recalcula
 `nTotPaginas` como se você tivesse pedido 100 ✅. Sem erro, sem aviso — e o laço

@@ -1041,11 +1041,11 @@ git commit -m "docs: referencia do recurso Estoque (consulta + ajuste)"
 - Consumes: dialeto snake (Task 3), produtos (Task 5), estrutura (Task 6).
 - Produces: coluna `ordem-producao` no glossário; fecha a fase v2.
 
-- [ ] **Step 1: Coletar a resposta real**
+- [x] **Step 1: Coletar a resposta real**
 
 Chamar `omie_op_listar` com página pequena e `omie_op_consultar` com um `nCodOP` do resultado. Anotar quais blocos vêm sempre (`identificacao`, `infAdicionais`, `outrasInf`) e se `observacoes`/`itensDetalhes` aparecem — esses dois são opcionais na interface 🔧 (`op-gateway.ts:65-73`).
 
-- [ ] **Step 2: Escrever `campos.md`**
+- [x] **Step 2: Escrever `campos.md`**
 
 Uma tabela por bloco, de `op-gateway.ts:1-28,65-73`.
 
@@ -1080,7 +1080,7 @@ Uma tabela por bloco, de `op-gateway.ts:1-28,65-73`.
 
 Só em `ConsultarOrdemProducao` 🔧: `observacoes.cObs`, e `itensDetalhes[]` com `nIdProdutoMalha`, `nQtde`, `codigo_local_estoque`, `cObs`. Marcar conforme observado no passo 1.
 
-- [ ] **Step 3: Escrever `leitura.md`**
+- [x] **Step 3: Escrever `leitura.md`**
 
 **`ListarOrdemProducao`** — `POST produtos/op/` 🔧, dialeto snake, param `{ pagina, registros_por_pagina }`, array de resposta `cadastros` 🔧 (`op-omie-gateway.ts:16-25`).
 
@@ -1088,7 +1088,7 @@ Destacar: a listagem **só traz `nCodProduto` cru**, sem descrição — para mo
 
 **`ConsultarOrdemProducao`** — param é a chave direto na raiz (`{ nCodOP }` ou `{ cCodIntOP }`) 🔧 (`op-omie-gateway.ts:27-33`).
 
-- [ ] **Step 4: Escrever `escrita.md`**
+- [x] **Step 4: Escrever `escrita.md`**
 
 Aviso de não validado ao vivo. De `op-omie-gateway.ts:35-57` e `op-gateway.ts:38-63`:
 
@@ -1097,14 +1097,14 @@ Aviso de não validado ao vivo. De `op-omie-gateway.ts:35-57` e `op-gateway.ts:3
 - O produto precisa **já ter estrutura (BOM) cadastrada**, senão a Omie recusa 🔧 (`op-gateway.ts:38-42`) — linkar `../estrutura/README.md`
 - Resposta em `StatusOPOmie`: `nCodOP`, `cCodIntOP`, `cCodStatus`, `cDesStatus` 🔧
 
-- [ ] **Step 5: Escrever `armadilhas.md`**
+- [x] **Step 5: Escrever `armadilhas.md`**
 
 1. **`cEtapa` não é traduzível pela API** — código cru; cada conta configura de 3 a 6 etapas com nomes próprios e não há endpoint para resolver o nome. Ao contrário do pedido de venda, que tem catálogo. Evidência `op-gateway.ts:12-18` 🔧. Linkar `../pedido-venda/armadilhas.md` (pendente da v3).
 2. **Wrapper `identificacao` só na escrita** — evidência `op-omie-gateway.ts:39,47` × `:31,55` 🔧
 3. **OP exige estrutura prévia** — evidência `op-gateway.ts:38-42` 🔧
 4. **Listagem sem descrição de produto** — N+1 chamadas para montar tela. Evidência `op-omie-gateway.ts:16-25` 🔧
 
-- [ ] **Step 6: Adicionar a coluna `ordem-producao` ao glossário**
+- [x] **Step 6: Adicionar a coluna `ordem-producao` ao glossário**
 
 | Conceito | ordem-producao |
 |---|---|
@@ -1116,7 +1116,7 @@ Aviso de não validado ao vivo. De `op-omie-gateway.ts:35-57` e `op-gateway.ts:3
 
 Demais conceitos: `—`. A observação entre parênteses na linha de integração é obrigatória — é justamente o tipo de confusão que o glossário existe para evitar.
 
-- [ ] **Step 7: `README.md` do recurso, índice mestre, verificar, commit**
+- [x] **Step 7: `README.md` do recurso, índice mestre, verificar, commit**
 
 ```markdown
 | Ordem de produção | `produtos/op` | [ordem-producao/](ordem-producao/README.md) |
