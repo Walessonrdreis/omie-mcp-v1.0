@@ -15,7 +15,7 @@ O MCP salva a credencial em `~/.omie-data/` e a usa em qualquer cliente
 (Claude Code, Claude Desktop, etc.) — não precisa repetir a configuração:
 
 ```bash
-npx -y -p github:Walessonrdreis/omie-mcp-v1.0 omie-data configurar \
+npx -y omie-data configurar \
   --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET
 ```
 
@@ -29,7 +29,7 @@ npx -y -p github:Walessonrdreis/omie-mcp-v1.0 omie-data configurar \
 **Claude Code:**
 
 ```bash
-claude mcp add omie -- npx -y -p github:Walessonrdreis/omie-mcp-v1.0 omie-mcp
+claude mcp add omie -- npx -y omie-mcp
 ```
 
 **Claude Desktop** (`claude_desktop_config.json`):
@@ -39,18 +39,14 @@ claude mcp add omie -- npx -y -p github:Walessonrdreis/omie-mcp-v1.0 omie-mcp
   "mcpServers": {
     "omie": {
       "command": "npx",
-      "args": ["-y", "-p", "github:Walessonrdreis/omie-mcp-v1.0", "omie-mcp"]
+      "args": ["-y", "omie-mcp"]
     }
   }
 }
 ```
 
 Pronto — o Claude já consegue consultar a Omie (famílias, produtos, pedidos,
-financeiro, etc.). A primeira execução baixa e compila o pacote (pode demorar
-30–60s); depois fica em cache.
-
-> Se preferir publicar o pacote no npm (futuro), o comando vira simplesmente
-> `npx -y omie-mcp` — sem o `-p github:...`.
+financeiro, etc.). A primeira execução baixa o pacote do npm (segundos).
 
 ## API HTTP local (opcional, pra consumir de um frontend/backend próprio)
 
