@@ -87,13 +87,27 @@ function toErrorContent(err: unknown) {
   };
 }
 
-/** Converte um schema zod pra JSON puro e remove o `$schema` (draft-07) que o
- * zod-to-json-schema injeta — clientes como o Claude Desktop exigem 2020-12
- * e rejeitam a chave. */
+/** Converte um schema zod pra JSON puro no draft que o Claude Desktop/API
+ * exige (2020-12): o zod-to-json-schema v3 só gera draft-07, então além de
+ * remover o `$schema`, converte tuplas `items: [a, b]` (draft-07) pra
+ * `prefixItems` (2020-12) — sem isso o Desktop rejeita com
+ * "input_schema: JSON schema is invalid". */
 function jsonSchema(zodShape: Record<string, z.ZodTypeAny>): Record<string, unknown> {
   const s = zodToJsonSchema(z.object(zodShape)) as Record<string, unknown>;
   delete s.$schema;
+  corrigirPara2020_12(s);
   return s;
+}
+
+/** Converte construções draft-07 pra 2020-12, recursivamente. */
+function corrigirPara2020_12(node: Record<string, unknown>): void {
+  if (Array.isArray(node.items)) {
+    node.prefixItems = node.items;
+    delete node.items;
+  }
+  for (const v of Object.values(node)) {
+    if (v && typeof v === "object") corrigirPara2020_12(v as Record<string, unknown>);
+  }
 }
 
 // Catálogo de ferramentas: genérica + dedicadas por módulo.

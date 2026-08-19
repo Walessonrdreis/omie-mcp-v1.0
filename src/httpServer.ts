@@ -113,18 +113,29 @@ class ConfirmacaoNecessaria extends Error {
 }
 
 function schemaDaFerramenta(nome: string): Record<string, unknown> {
-  // zod-to-json-schema v3 só gera draft-07 — remove o $schema pra não
-  // rejeitar clientes que exigem 2020-12 (mesmo tratamento do registro MCP).
-  const semSchema = (s: Record<string, unknown>): Record<string, unknown> => {
+  // zod-to-json-schema v3 gera draft-07; o Claude exige 2020-12 — remove o
+  // $schema e converte tuplas `items: [a,b]` pra `prefixItems` (mesmo
+  // tratamento do registro MCP em index.ts).
+  const corrigir = (s: Record<string, unknown>): Record<string, unknown> => {
     delete s.$schema;
+    const converter = (n: Record<string, unknown>) => {
+      if (Array.isArray(n.items)) {
+        n.prefixItems = n.items;
+        delete n.items;
+      }
+      for (const v of Object.values(n)) {
+        if (v && typeof v === "object") converter(v as Record<string, unknown>);
+      }
+    };
+    converter(s);
     return s;
   };
   if (nome === genericToolDefinition.name) {
-    return semSchema(zodToJsonSchema(z.object(genericToolDefinition.inputSchema), nome));
+    return corrigir(zodToJsonSchema(z.object(genericToolDefinition.inputSchema), nome));
   }
   const tool = allTools.find((t) => t.name === nome);
   if (!tool) return {};
-  return semSchema(zodToJsonSchema(z.object({ param: tool.inputSchema.param }), nome));
+  return corrigir(zodToJsonSchema(z.object({ param: tool.inputSchema.param }), nome));
 }
 
 /**
