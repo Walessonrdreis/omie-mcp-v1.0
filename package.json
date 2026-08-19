@@ -1,6 +1,6 @@
 {
   "name": "omie-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Servidor MCP para integração com a API da Omie (Chão de Fábrica e demais módulos)",
   "type": "module",
   "main": "dist/index.js",
