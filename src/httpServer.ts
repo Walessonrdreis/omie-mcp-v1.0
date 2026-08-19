@@ -113,12 +113,18 @@ class ConfirmacaoNecessaria extends Error {
 }
 
 function schemaDaFerramenta(nome: string): Record<string, unknown> {
+  // zod-to-json-schema v3 só gera draft-07 — remove o $schema pra não
+  // rejeitar clientes que exigem 2020-12 (mesmo tratamento do registro MCP).
+  const semSchema = (s: Record<string, unknown>): Record<string, unknown> => {
+    delete s.$schema;
+    return s;
+  };
   if (nome === genericToolDefinition.name) {
-    return zodToJsonSchema(z.object(genericToolDefinition.inputSchema), nome);
+    return semSchema(zodToJsonSchema(z.object(genericToolDefinition.inputSchema), nome));
   }
   const tool = allTools.find((t) => t.name === nome);
   if (!tool) return {};
-  return zodToJsonSchema(z.object({ param: tool.inputSchema.param }), nome);
+  return semSchema(zodToJsonSchema(z.object({ param: tool.inputSchema.param }), nome));
 }
 
 /**

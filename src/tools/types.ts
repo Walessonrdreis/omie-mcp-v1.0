@@ -40,7 +40,7 @@ export interface UseCaseToolDef {
 export type ToolDef = PassthroughToolDef | UseCaseToolDef;
 
 export const paramSchema = z
-  .record(z.unknown())
+  .record(z.string(), z.unknown())
   .describe("Parâmetros da chamada, conforme documentação Omie para este método.");
 
 /** Helper para declarar uma ToolDef com menos repetição. */

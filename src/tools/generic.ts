@@ -33,7 +33,7 @@ export const genericToolDefinition = {
           "'ListarClientes', 'IncluirContaPagar', 'ConsultarEstrutura'."
       ),
     param: z
-      .record(z.unknown())
+      .record(z.string(), z.unknown())
       .optional()
       .describe("Objeto com os parâmetros exigidos pelo método (conforme documentação Omie)."),
   },

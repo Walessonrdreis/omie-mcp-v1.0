@@ -2,10 +2,12 @@
 import "dotenv/config";
 // @ts-ignore - o pacote expõe types via subpath exports que o resolvedor
 // NodeNext às vezes falha em casar (dist/esm/*.d.ts vs *.js); import válido em runtime.
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 // @ts-ignore
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import { OmieClient, OmieApiError } from "./integrations/omie/omieClient.js";
 import { genericToolDefinition, handleGenericCall } from "./tools/generic.js";
 import { allTools, handleToolCall } from "./tools/registry.js";
@@ -56,10 +58,10 @@ function getClient(): OmieClient {
   return client;
 }
 
-const server = new McpServer({
-  name: "omie-mcp",
-  version: "0.1.0",
-});
+const server = new Server(
+  { name: "omie-mcp", version: "0.1.0" },
+  { capabilities: { tools: {} } }
+);
 
 function toContent(result: unknown) {
   return {
@@ -85,43 +87,60 @@ function toErrorContent(err: unknown) {
   };
 }
 
-// Ferramenta genérica: cobre todos os módulos da Omie (financeiro, CRM,
-// vendas, NF-e, serviços, cadastros, etc.)
-server.registerTool(
-  genericToolDefinition.name,
-  {
-    description: genericToolDefinition.description,
-    inputSchema: genericToolDefinition.inputSchema,
-  },
-  async (args: any) => {
-    try {
-      const result = await handleGenericCall(getClient(), args as any);
-      return toContent(result);
-    } catch (err) {
-      return toErrorContent(err);
-    }
-  }
-);
+/** Converte um schema zod pra JSON puro e remove o `$schema` (draft-07) que o
+ * zod-to-json-schema injeta — clientes como o Claude Desktop exigem 2020-12
+ * e rejeitam a chave. */
+function jsonSchema(zodShape: Record<string, z.ZodTypeAny>): Record<string, unknown> {
+  const s = zodToJsonSchema(z.object(zodShape)) as Record<string, unknown>;
+  delete s.$schema;
+  return s;
+}
 
-// Ferramentas dedicadas por módulo (produção, produtos, estoque, compras,
-// e futuramente financeiro, CRM, vendas, etc. — ver src/tools/registry.ts)
-for (const tool of allTools) {
-  server.registerTool(
-    tool.name,
-    {
-      description: tool.description,
-      inputSchema: tool.inputSchema,
-    },
-    async (args: any) => {
+// Catálogo de ferramentas: genérica + dedicadas por módulo.
+// O schema vai como JSON puro (sem $schema) pra ser válido em draft 2020-12.
+const toolsCatalog = [
+  {
+    name: genericToolDefinition.name,
+    description: genericToolDefinition.description,
+    inputSchema: jsonSchema(genericToolDefinition.inputSchema),
+    handler: async (args: any) => {
       try {
-        const result = await handleToolCall(getClient(), tool.name, args as any);
-        return toContent(result);
+        return toContent(await handleGenericCall(getClient(), args as any));
       } catch (err) {
         return toErrorContent(err);
       }
-    }
-  );
-}
+    },
+  },
+  ...allTools.map((tool) => ({
+    name: tool.name,
+    description: tool.description,
+    inputSchema: jsonSchema({ param: tool.inputSchema.param }),
+    handler: async (args: any) => {
+      try {
+        return toContent(await handleToolCall(getClient(), tool.name, args as any));
+      } catch (err) {
+        return toErrorContent(err);
+      }
+    },
+  })),
+];
+
+server.setRequestHandler(ListToolsRequestSchema, () => ({
+  tools: toolsCatalog.map((t) => ({
+    name: t.name,
+    description: t.description,
+    inputSchema: t.inputSchema,
+  })),
+}));
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+  const tool = toolsCatalog.find((t) => t.name === name);
+  if (!tool) {
+    return toErrorContent(new Error(`Ferramenta desconhecida: ${name}`));
+  }
+  return tool.handler(args);
+});
 
 async function main() {
   const transport = new StdioServerTransport();
