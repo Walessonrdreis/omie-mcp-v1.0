@@ -17,7 +17,9 @@ import { carregarCredencialAtiva } from "./data/infrastructure/credenciais.js";
  * 2. a credencial salva localmente pelo CLI `omie-data configurar`
  *    (em ~/.omie-data/), de forma que quem já configurou o CLI da skill
  *    não precise configurar de novo pro MCP;
- * 3. nenhuma → instrui o usuário a configurar e sai (não sobe o servidor).
+ * 3. nenhuma → não derruba o servidor: cada chamada de ferramenta retorna
+ *    erro claro pedindo pra configurar (o usuário configura e reinicia, ou
+ *    o próximo acesso já funciona).
  */
 function resolverCredencial(): { appKey: string; appSecret: string } | null {
   const envKey = process.env.OMIE_APP_KEY;
@@ -34,45 +36,30 @@ function resolverCredencial(): { appKey: string; appSecret: string } | null {
   return null;
 }
 
-const credencial = resolverCredencial();
-if (!credencial) {
-  console.error(
-    [
-      "Credenciais da Omie não configuradas.",
-      "",
-      "Para usar o servidor MCP Omie, configure a credencial de acesso à API.",
-      "",
-      "Comando:",
-      "  npx -y omie-mcp configurar --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET",
-      "",
-      "A App Key e o App Secret são criados em https://developer.omie.com.br/my-apps/.",
-      "",
-      "Dica: rodando sem argumentos, o comando abre um menu interativo que também configura.",
-    ].join("\n")
-  );
-  process.exit(1);
+let client: OmieClient | null = null;
+
+function getClient(): OmieClient {
+  if (client) return client;
+
+  // Tenta de novo a cada chamada: se o usuário configurou a credencial
+  // (env/.env/omie-data configurar) depois que o servidor subiu, o
+  // próximo acesso já funciona — sem precisar reiniciar.
+  const credencial = resolverCredencial();
+  if (!credencial) {
+    throw new Error(
+      "Credenciais da Omie não configuradas. Configure a credencial de acesso à API " +
+        "com o comando: npx -y omie-mcp configurar --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET " +
+        "(ou defina OMIE_APP_KEY/OMIE_APP_SECRET no .env)."
+    );
+  }
+  client = new OmieClient(credencial.appKey, credencial.appSecret);
+  return client;
 }
 
 const server = new McpServer({
   name: "omie-mcp",
   version: "0.1.0",
 });
-
-let client: OmieClient;
-try {
-  client = new OmieClient(credencial.appKey, credencial.appSecret);
-} catch (err) {
-  // Ainda registramos o servidor para que o erro apareça de forma clara
-  // quando uma ferramenta for chamada, em vez de derrubar o processo.
-  console.error((err as Error).message);
-}
-
-function getClient(): OmieClient {
-  if (!client) {
-    client = new OmieClient();
-  }
-  return client;
-}
 
 function toContent(result: unknown) {
   return {
