@@ -48,7 +48,7 @@ function getClient(): OmieClient {
   if (!credencial) {
     throw new Error(
       "Credenciais da Omie não configuradas. Configure a credencial de acesso à API " +
-        "com o comando: npx -y omie-mcp configurar --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET " +
+        "com o comando: npx -y omie-data configurar --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET " +
         "(ou defina OMIE_APP_KEY/OMIE_APP_SECRET no .env)."
     );
   }
