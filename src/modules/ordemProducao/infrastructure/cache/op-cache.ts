@@ -1,5 +1,5 @@
 import path from "node:path";
-import { abrirBanco, diretorioDados, hashCredencial } from "omie-data";
+import { abrirBanco, diretorioDados, hashCredencial } from "../../../../data/index.js";
 
 /**
  * Tipo do handle de banco devolvido por `abrirBanco`. Derivado por `ReturnType`

@@ -12,9 +12,9 @@ pra buscar dados reais da Omie.
    - "App Key: ..."
    - "App Secret: ..."
 2. Garanta que o pacote está compilado antes de rodar o CLI:
-   `npm --prefix packages/omie-data run build`
+   `pnpm build`
 3. Rode o CLI com os valores coletados:
-   `node packages/omie-data/dist/cli.js configurar --app-key "<APP_KEY>" --app-secret "<APP_SECRET>"`
+   `node dist/data/cli.js configurar --app-key "<APP_KEY>" --app-secret "<APP_SECRET>"`
 4. O CLI imprime uma linha JSON:
    - `{"status":"ok","hash":"..."}` → avise o usuário que a credencial foi
      validada e salva com sucesso.

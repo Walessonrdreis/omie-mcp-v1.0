@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { consultarOrdensProducao } from "omie-data";
+import { consultarOrdensProducao } from "../../../../data/index.js";
 import { modoMock, prepararBancoOpMock } from "./op-cache-mock.js";
 
 describe("modoMock", () => {

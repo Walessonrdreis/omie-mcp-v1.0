@@ -6,7 +6,7 @@ argument-hint: pedido em texto livre, ex: "lista de produtos" ou "produtos de be
 Objetivo: responder sobre produtos usando o cache traduzido da skill
 `omie-data`, perguntando ao usuário antes de buscar dado novo na Omie.
 
-1. Garanta que o pacote está compilado: `npm --prefix packages/omie-data run build`
+1. Garanta que o pacote está compilado: `pnpm build`
 2. Se o pedido do usuário já expressa um filtro em linguagem natural,
    traduza direto pra flag e pule pro passo 4:
    - nome ou código do produto → `--busca <termo>`
@@ -14,12 +14,12 @@ Objetivo: responder sobre produtos usando o cache traduzido da skill
    - "ativos"/"inativos"/"descontinuados" → `--ativo sim` ou `--ativo nao`
    - Combine flags se o pedido tiver mais de um filtro.
 3. Se não houver filtro claro no pedido, rode
-   `node packages/omie-data/dist/cli.js produtos --ajuda` — sem TTY, o CLI
+   `node dist/data/cli.js produtos --ajuda` — sem TTY, o CLI
    imprime uma lista estática de filtros (não tenta abrir prompt). Leia
    essa lista e ofereça os filtros como opções pro usuário escolher (ex.:
    via pergunta com botões), sem reformular ou gerar a lista você mesmo —
    reaproveite o texto que o CLI devolveu.
-4. Rode: `node packages/omie-data/dist/cli.js produtos [flags escolhidas]`
+4. Rode: `node dist/data/cli.js produtos [flags escolhidas]`
 5. O CLI imprime uma linha JSON. Trate cada caso:
    - `{"status":"sem_credencial"}` → avise que não há credencial
      configurada e sugira rodar `/omie-data:configurar` primeiro. Pare

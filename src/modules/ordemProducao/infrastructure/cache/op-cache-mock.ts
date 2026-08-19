@@ -6,7 +6,7 @@ import {
   FakeHttpClient,
   type OrdemProducaoOmieBruta,
   type ProdutoOmieBruto,
-} from "omie-data";
+} from "../../../../data/index.js";
 import type { BancoOp } from "./op-cache.js";
 
 /**

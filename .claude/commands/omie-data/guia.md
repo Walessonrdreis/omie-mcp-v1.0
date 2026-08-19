@@ -10,7 +10,7 @@ filtros disponíveis.
 Mostre um guia curto, nesta ordem:
 
 1. **O que é**: a skill `omie-data` espelha localmente (SQLite, em
-   `packages/omie-data/`) dados reais da Omie pra consulta rápida e
+   `src/data/`) dados reais da Omie pra consulta rápida e
    offline, sem bater na API a cada pergunta. Hoje cobre o módulo de
    Produtos.
 
@@ -48,6 +48,6 @@ Mostre um guia curto, nesta ordem:
    como uma coluna a mais em `view_produtos` (via join na Tradução), não
    como um comando novo — a forma de usar não muda quando chegar.
 
-Não abra `packages/omie-data/CONTEXT.md` nem os ADRs pra responder este
-guia — aqueles são referência de arquitetura pra quem desenvolve a skill,
-não pra quem só quer usá-la.
+Não abra `docs/omie-data/` nem os ADRs pra responder este guia — aqueles
+são referência de arquitetura pra quem desenvolve a skill, não pra quem só
+quer usá-la.

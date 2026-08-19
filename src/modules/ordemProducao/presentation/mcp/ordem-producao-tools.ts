@@ -5,7 +5,7 @@ import {
   OmieHttpClientReal,
   consultarOrdensProducao,
   type FiltrosOrdensProducao,
-} from "omie-data";
+} from "../../../../data/index.js";
 import { ToolDef, paramSchema, defineTool } from "../../../../tools/types.js";
 import { aplicarFiltros } from "../../../../shared/filtro.js";
 import { abrirBancoAtivo, credenciaisOmieOuFalha } from "../../infrastructure/cache/op-cache.js";
