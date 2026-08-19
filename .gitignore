@@ -1,6 +1,7 @@
 node_modules
 dist
 .env
+*.tgz
 
 # From production_manager root
 ### AL ###

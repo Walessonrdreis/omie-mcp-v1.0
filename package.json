@@ -4,7 +4,7 @@
   "description": "Servidor MCP para integração com a API da Omie (Chão de Fábrica e demais módulos)",
   "type": "module",
   "main": "dist/index.js",
-  "files": ["dist/", "README.md"],
+  "files": ["dist/"],
   "bin": {
     "omie-mcp": "dist/index.js",
     "omie-data": "dist/data/cli.js"

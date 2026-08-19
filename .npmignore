@@ -1,0 +1,9 @@
+# Código-fonte e build local (só dist/ vai no pacote)
+src/
+tsconfig.json
+scripts/
+docs/
+graphify-out/
+*.tgz
+*test*
+*.md
