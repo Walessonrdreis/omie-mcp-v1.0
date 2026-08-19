@@ -4,50 +4,53 @@ Servidor MCP (Model Context Protocol) para integração do Claude com a API da [
 
 Permite que o Claude consulte e execute operações no ERP Omie via ferramentas MCP. Nesta v1, o foco é o módulo **Chão de Fábrica** (Ordens de Produção, Estrutura de Produtos, Estoque e Compras de insumos), com uma ferramenta genérica que já cobre **todos os demais módulos** da Omie (Geral, CRM, Finanças, Vendas/NF-e, Serviços/NFS-e, Painel do Contador).
 
-## Configuração
+## Instalação
 
-1. Instale as dependências:
-   ```bash
-   pnpm install
-   ```
+> **Pré-requisito:** Node.js 18+ e uma conta Omie com App Key/App Secret
+> (crie em https://developer.omie.com.br/my-apps/).
 
-   > O gerenciador deste repo é o **pnpm** (workspace). Não rode `npm install`
-   > nem `npm run` na raiz. A única exceção intencional é rodar `npm test` /
-   > `npm run build` de dentro de `packages/omie-data`.
-   >
-   > A devDependency **`vite`** da raiz não é usada por código nenhum — ela existe
-   > só pra fixar a resolução da peer dependency do `vitest`. Sem ela o pnpm
-   > resolvia `vite@5`, incompatível com `vitest@4` (que exige `vite ^6 || ^7 || ^8`),
-   > e a suíte inteira quebrava na inicialização. **Não remova como "dependência
-   > órfã"** — nenhum teste pega essa remoção.
+### 1. Configure a credencial da Omie (uma vez por máquina)
 
-2. Copie `.env.example` para `.env` e preencha com sua App Key e App Secret da Omie (obtidas em https://developer.omie.com.br/my-apps/):
-   ```bash
-   cp .env.example .env
-   ```
+O MCP salva a credencial em `~/.omie-data/` e a usa em qualquer cliente
+(Claude Code, Claude Desktop, etc.) — não precisa repetir a configuração:
 
-3. Compile:
-   ```bash
-   pnpm run build
-   ```
+```bash
+npx -y -p github:Walessonrdreis/omie-mcp-v1.0 omie-data configurar \
+  --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET
+```
 
-4. Registre o servidor no seu cliente MCP (ex: Claude Desktop / Claude Code), apontando para `dist/index.js`, com as variáveis de ambiente `OMIE_APP_KEY` e `OMIE_APP_SECRET`.
+> Resposta esperada: `{"status":"ok","hash":"..."}`. A credencial é validada
+> contra a API antes de ser salva. Alternativamente, defina
+> `OMIE_APP_KEY`/`OMIE_APP_SECRET` como variáveis de ambiente do processo
+> que roda o MCP (ex: campo `env` da config do cliente).
 
-   Exemplo de configuração (`claude_desktop_config.json` ou equivalente):
-   ```json
-   {
-     "mcpServers": {
-       "omie": {
-         "command": "node",
-         "args": ["/caminho/completo/para/omie-mcp/dist/index.js"],
-         "env": {
-           "OMIE_APP_KEY": "sua_app_key",
-           "OMIE_APP_SECRET": "seu_app_secret"
-         }
-       }
-     }
-   }
-   ```
+### 2. Registre no cliente MCP
+
+**Claude Code:**
+
+```bash
+claude mcp add omie -- npx -y -p github:Walessonrdreis/omie-mcp-v1.0 omie-mcp
+```
+
+**Claude Desktop** (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "omie": {
+      "command": "npx",
+      "args": ["-y", "-p", "github:Walessonrdreis/omie-mcp-v1.0", "omie-mcp"]
+    }
+  }
+}
+```
+
+Pronto — o Claude já consegue consultar a Omie (famílias, produtos, pedidos,
+financeiro, etc.). A primeira execução baixa e compila o pacote (pode demorar
+30–60s); depois fica em cache.
+
+> Se preferir publicar o pacote no npm (futuro), o comando vira simplesmente
+> `npx -y omie-mcp` — sem o `-p github:...`.
 
 ## API HTTP local (opcional, pra consumir de um frontend/backend próprio)
 
