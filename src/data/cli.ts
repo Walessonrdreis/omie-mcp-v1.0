@@ -207,7 +207,14 @@ async function main() {
   if (comando.tipo === "menu") {
     if (!process.stdout.isTTY) {
       console.error(
-        "Comando desconhecido. Uso: cli.js configurar --app-key X --app-secret Y | cli.js produtos [--atualizar] [--busca X] [--categoria X] [--ativo sim|nao] [--ajuda]"
+        "Para configurar as credenciais, use o comando:"
+      );
+      console.error(
+        "  omie-data configurar --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET"
+      );
+      console.error("");
+      console.error(
+        "Outros comandos: omie-data produtos [--atualizar] [--busca X] [--categoria X] [--ativo sim|nao] [--ajuda]"
       );
       process.exitCode = 1;
       return;

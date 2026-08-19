@@ -9,6 +9,49 @@ import { z } from "zod";
 import { OmieClient, OmieApiError } from "./integrations/omie/omieClient.js";
 import { genericToolDefinition, handleGenericCall } from "./tools/generic.js";
 import { allTools, handleToolCall } from "./tools/registry.js";
+import { carregarCredencialAtiva } from "./data/infrastructure/credenciais.js";
+
+/**
+ * Resolve a credencial da Omie que o servidor vai usar, nesta ordem:
+ * 1. variáveis de ambiente (OMIE_APP_KEY/OMIE_APP_SECRET, ou .env);
+ * 2. a credencial salva localmente pelo CLI `omie-data configurar`
+ *    (em ~/.omie-data/), de forma que quem já configurou o CLI da skill
+ *    não precise configurar de novo pro MCP;
+ * 3. nenhuma → instrui o usuário a configurar e sai (não sobe o servidor).
+ */
+function resolverCredencial(): { appKey: string; appSecret: string } | null {
+  const envKey = process.env.OMIE_APP_KEY;
+  const envSecret = process.env.OMIE_APP_SECRET;
+  if (envKey && envSecret) {
+    return { appKey: envKey, appSecret: envSecret };
+  }
+
+  const salva = carregarCredencialAtiva();
+  if (salva) {
+    return { appKey: salva.appKey, appSecret: salva.appSecret };
+  }
+
+  return null;
+}
+
+const credencial = resolverCredencial();
+if (!credencial) {
+  console.error(
+    [
+      "Credenciais da Omie não configuradas.",
+      "",
+      "Para usar o servidor MCP Omie, configure a credencial de acesso à API.",
+      "",
+      "Comando:",
+      "  npx -y omie-mcp configurar --app-key SUA_APP_KEY --app-secret SEU_APP_SECRET",
+      "",
+      "A App Key e o App Secret são criados em https://developer.omie.com.br/my-apps/.",
+      "",
+      "Dica: rodando sem argumentos, o comando abre um menu interativo que também configura.",
+    ].join("\n")
+  );
+  process.exit(1);
+}
 
 const server = new McpServer({
   name: "omie-mcp",
@@ -17,7 +60,7 @@ const server = new McpServer({
 
 let client: OmieClient;
 try {
-  client = new OmieClient();
+  client = new OmieClient(credencial.appKey, credencial.appSecret);
 } catch (err) {
   // Ainda registramos o servidor para que o erro apareça de forma clara
   // quando uma ferramenta for chamada, em vez de derrubar o processo.
